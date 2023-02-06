@@ -1,0 +1,5 @@
+rootProject.name = 'tests'
+include 'test-partial-first'
+include 'test-partial-second'
+include 'test-partial-third'
+
