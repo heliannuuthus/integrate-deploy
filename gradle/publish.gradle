@@ -15,7 +15,7 @@ allprojects {
         maven { url "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
         maven {
             name = "GitHubPackages"
-            url = "https://maven.pkg.github.com/heliannuuthus/helianthus-annuus-utilities"
+            url = "https://maven.pkg.github.com/heliannuuthus/${project.name}"
             credentials {
                 username = rootProject.findProperty("gpr.user") ?: System.getenv("GPR_USER")
                 password = rootProject.findProperty("gpr.token") ?: System.getenv("GPR_TOKEN")
@@ -23,7 +23,6 @@ allprojects {
         }
         mavenCentral()
     }
-
 }
 
 subprojects {

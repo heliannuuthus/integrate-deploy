@@ -2,22 +2,21 @@ buildscript {
     repositories {
         maven {
             url "https://plugins.gradle.org/m2/"
+
         }
+        maven { url 'https://repo.spring.io/plugins-snapshot' }
+        mavenCentral()
     }
     dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:3.0.2"
         classpath "io.spring.gradle:dependency-management-plugin:1.1.0"
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:3.0.1"
-
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:6.14.1"
+        classpath "io.freefair.gradle:lombok-plugin:6.6.1"
     }
-}
-plugins {
-    id "com.diffplug.spotless" version "6.12.0"
-    id "io.freefair.lombok" version "6.6.1"
 }
 
 apply plugin: "java"
-apply plugin: "io.spring.dependency-management"
-apply plugin: "org.springframework.boot"
+
 ext {
     r2dbcConnCompVersion = "2.1.8"
     r2dbcSpiVersion = "1.0.0.RELEASE"
@@ -30,62 +29,55 @@ ext {
     bootVersion = "3.0.1"
     cloudVersion = "2022.0.0"
     alibabaCloudVersion = "2022.0.0.0-RC1"
-    helianthusCommonVersion = "0.0.1"
     spotlessVersion = "1.15.0"
+    helianthusCommonVersion = "0.0.1"
+}
+
+sourceCompatibility = 17
+targetCompatibility = 17
+
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-data-r2dbc"
+    implementation "org.springframework.boot:spring-boot-starter-validation"
+    implementation  "org.springframework.boot:spring-boot-devtools"
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+    testImplementation "org.springframework.boot:spring-boot-starter-test"
+    testImplementation "io.projectreactor:reactor-test"
+
+    // apollo
+    implementation "io.github.heliannuuthus:helianthus-annuus-apollo-client:${helianthusCommonVersion}"
+
+    // spring cloud
+    implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery"
+
+
+    // utils
+    implementation "com.google.guava:guava:${guavaVersion}"
+    implementation "cn.hutool:hutool-core:${hutoolVersion}"
+
+    // 数据库连接
+    implementation "com.github.jasync-sql:jasync-r2dbc-mysql:${r2dbcConnCompVersion}"
+    implementation "io.r2dbc:r2dbc-spi:${r2dbcSpiVersion}"
+    implementation "io.r2dbc:r2dbc-pool:${r2dbcPoolVersion}"
 }
 
 allprojects {
 
+    apply plugin: "org.springframework.boot"
+    apply plugin: "io.spring.dependency-management"
+    apply plugin: "com.diffplug.spotless"
+    apply plugin: "io.freefair.lombok"
+
     group "com.heliannuuthus"
-
-    dependencies {
-        implementation "org.springframework.boot:spring-boot-starter-data-r2dbc"
-        implementation "org.springframework.boot:spring-boot-starter-validation"
-        developmentOnly "org.springframework.boot:spring-boot-devtools"
-        annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-        testImplementation "org.springframework.boot:spring-boot-starter-test"
-        testImplementation "io.projectreactor:reactor-test"
-
-        // apollo
-        implementation "io.github.heliannuuthus:helianthus-annuus-apollo-client:${helianthusCommonVersion}"
-
-        // spring cloud
-        implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery"
-
-
-        // utils
-        implementation "com.google.guava:guava:${guavaVersion}"
-        implementation "cn.hutool:hutool-core:${hutoolVersion}"
-
-        // 数据库连接
-        implementation "com.github.jasync-sql:jasync-r2dbc-mysql:${r2dbcConnCompVersion}"
-        implementation "io.r2dbc:r2dbc-spi:${r2dbcSpiVersion}"
-        implementation "io.r2dbc:r2dbc-pool:${r2dbcPoolVersion}"
-    }
-    dependencyManagement {
-        imports {
-            mavenBom "org.springframework.boot:spring-boot-dependencies:${bootVersion}"
-            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${cloudVersion}"
-            mavenBom "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${alibabaCloudVersion}"
-        }
-    }
-    spotless {
-        java {
-            googleJavaFormat("${spotlessVersion}").groupArtifact("com.google.googlejavaformat:google-java-format")
-        }
-    }
-
-    tasks.named("test") {
-        useJUnitPlatform()
-    }
-
+    version rootProject.findProperty("version")
+    
     configurations {
         compileOnly {
             extendsFrom annotationProcessor
         }
-        all*.exclude module : 'spring-boot-starter-logging'
+        all*.exclude module: 'spring-boot-starter-logging'
     }
-
 
     repositories {
         maven { url "https://maven.aliyun.com/nexus/content/groups/public" }
@@ -101,5 +93,22 @@ allprojects {
         mavenCentral()
     }
 
-}
+    tasks.named("test") {
+        useJUnitPlatform()
+    }
 
+    dependencyManagement {
+        imports {
+            mavenBom "org.springframework.boot:spring-boot-dependencies:${bootVersion}"
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${cloudVersion}"
+            mavenBom "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${alibabaCloudVersion}"
+        }
+    }
+
+    spotless {
+        java {
+            googleJavaFormat("${spotlessVersion}").groupArtifact("com.google.googlejavaformat:google-java-format")
+        }
+    }
+
+}
