@@ -1,0 +1,45 @@
+on:
+  workflow_call:
+    inputs:
+      workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of steps where are run"
+
+    outputs:
+      version:
+        description: "Rust application version"
+        value: ${{ jobs.build.outputs.version }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    outputs:
+      version: ${{ steps.environments.outputs.version }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: download registry
+        uses: actions/download-artifact@v3
+        with:
+          name: registry
+      - name: build
+        run: cargo build --release
+      - name: test
+        run: cargo test --release --verbose
+      - id: environments
+        name: environments
+        run: |
+          echo "
+          project=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].name')
+          version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+          " >> "$GITHUB_OUTPUT"
+      - name: upload target
+        uses: actions/upload-artifact@v3
+        with:
+          name: target
+          path: |
+            ${{ inputs.workdir }}target/release/${{ steps.environments.outputs.project }}
