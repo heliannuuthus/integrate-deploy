@@ -1,9 +1,6 @@
 name: publish and deploy
 
 on:
-  push:
-    branches:
-      - master
   workflow_call:
     secrets:
       token:
