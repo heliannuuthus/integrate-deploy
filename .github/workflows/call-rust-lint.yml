@@ -1,0 +1,51 @@
+on:
+  workflow_call:
+    inputs:
+      workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of steps where are run"
+
+      toolchain:
+        required: false
+        type: "string"
+        default: "nightly"
+        description: "Rust toolchain version"
+
+      clippy:
+        required: false
+        type: "boolean"
+        default: true
+        description: "Rust clippy enable"
+
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: update
+        run: |
+          rustup default ${{ inputs.toolchain }} 
+          rustup update 
+          rustup component add rustfmt 
+          rustup component add clippy
+      - name: fmt
+        run: cargo fmt -- --check --color always
+      - name: clippy
+        if: ${{ inputs.clippy }}
+        run: cargo clippy --all-targets --all-features -- -D warnings
+      - name: upload registry
+        uses: actions/upload-artifact@v3
+        with:
+          name: registry
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/

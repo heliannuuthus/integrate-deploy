@@ -8,16 +8,36 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:3.0.2"
-        classpath "io.spring.gradle:dependency-management-plugin:1.1.0"
         classpath "com.diffplug.spotless:spotless-plugin-gradle:6.14.1"
         classpath "io.freefair.gradle:lombok-plugin:6.6.1"
+        classpath "me.qoomon:gradle-git-versioning-plugin:6.4.0"
     }
 }
 
-apply plugin: "java"
+
+apply plugin: "java-library"
+apply plugin: "io.freefair.lombok"
+apply plugin: "com.diffplug.spotless"
+apply plugin: "me.qoomon.git-versioning"
+
+
+gitVersioning.apply {
+    version = rootProject.findProperty("version")
+    refs {
+        branch('master') {
+            version = '${version}-r${commit.short}'
+        }
+        branch('.+') {
+            version = '${version}-s${commit.short}'
+        }
+    }
+}
+
+
 
 ext {
+    junitVersion = "5.9.2"
+    mockitoVersion = "4.8.1"
     r2dbcConnCompVersion = "2.1.8"
     r2dbcSpiVersion = "1.0.0.RELEASE"
     r2dbcPoolVersion = "1.0.0.RELEASE"
@@ -38,41 +58,27 @@ targetCompatibility = 17
 
 
 dependencies {
-    implementation "org.springframework.boot:spring-boot-starter-data-r2dbc"
-    implementation "org.springframework.boot:spring-boot-starter-validation"
-    implementation  "org.springframework.boot:spring-boot-devtools"
-    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
-    testImplementation "org.springframework.boot:spring-boot-starter-test"
-    testImplementation "io.projectreactor:reactor-test"
-
-    // apollo
-    implementation "io.github.heliannuuthus:helianthus-annuus-apollo-client:${helianthusCommonVersion}"
-
-    // spring cloud
-    implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery"
-
-
     // utils
     implementation "com.google.guava:guava:${guavaVersion}"
     implementation "cn.hutool:hutool-core:${hutoolVersion}"
+
+
+    // tests
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    testRuntimeOnly "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+    testRuntimeOnly "org.mockito:mockito-core:${mockitoVersion}"
+
 }
 
 allprojects {
 
-    apply plugin: "org.springframework.boot"
-    apply plugin: "io.spring.dependency-management"
     apply plugin: "com.diffplug.spotless"
     apply plugin: "io.freefair.lombok"
+    apply plugin: "me.qoomon.git-versioning"
 
     group "com.heliannuuthus"
-    version rootProject.findProperty("version")
-    
-    configurations {
-        compileOnly {
-            extendsFrom annotationProcessor
-        }
-        all*.exclude module: 'spring-boot-starter-logging'
-    }
+
 
     repositories {
         maven { url "https://maven.aliyun.com/nexus/content/groups/public" }
@@ -88,22 +94,9 @@ allprojects {
         mavenCentral()
     }
 
-    tasks.named("test") {
-        useJUnitPlatform()
-    }
-
-    dependencyManagement {
-        imports {
-            mavenBom "org.springframework.boot:spring-boot-dependencies:${bootVersion}"
-            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${cloudVersion}"
-            mavenBom "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${alibabaCloudVersion}"
-        }
-    }
-
     spotless {
         java {
             googleJavaFormat("${spotlessVersion}").groupArtifact("com.google.googlejavaformat:google-java-format")
         }
     }
-
 }
