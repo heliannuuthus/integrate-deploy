@@ -55,11 +55,6 @@ dependencies {
     // utils
     implementation "com.google.guava:guava:${guavaVersion}"
     implementation "cn.hutool:hutool-core:${hutoolVersion}"
-
-    // 数据库连接
-    implementation "com.github.jasync-sql:jasync-r2dbc-mysql:${r2dbcConnCompVersion}"
-    implementation "io.r2dbc:r2dbc-spi:${r2dbcSpiVersion}"
-    implementation "io.r2dbc:r2dbc-pool:${r2dbcPoolVersion}"
 }
 
 allprojects {
