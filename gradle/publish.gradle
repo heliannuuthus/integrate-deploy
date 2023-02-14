@@ -10,6 +10,23 @@ buildscript {
     dependencies {
         classpath "com.diffplug.spotless:spotless-plugin-gradle:6.14.1"
         classpath "io.freefair.gradle:lombok-plugin:6.6.1"
+        classpath "me.qoomon:gradle-git-versioning-plugin:6.4.0"
+        
+    }
+}
+
+tasks.register("evaluateVersion") {
+    version rootProject.findProperty("version")
+    gitVersioning.apply {
+        refs {
+            branch('master') {
+                version = '${version}-${commit.short}-RELEASE'
+            }
+            branch('.+') {
+                version = '${version}-${commit.short}-SNAPSHOT'
+            }
+
+        }
     }
 }
 
@@ -34,11 +51,15 @@ ext {
 sourceCompatibility = 17
 targetCompatibility = 17
 
+
 allprojects {
+    
     apply plugin: "maven-publish"
     apply plugin: "java-library"
+    apply plugin: "me.qoomon.git-versioning"
+    
     group "io.github.heliannuuthus"
-    version rootProject.findProperty("version")
+    
     tasks.withType(Jar.class).configureEach {
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }

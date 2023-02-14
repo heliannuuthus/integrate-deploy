@@ -14,6 +14,19 @@ buildscript {
     }
 }
 
+tasks.register("evaluateVersion") {
+    version rootProject.findProperty("version")
+    gitVersioning.apply {
+        refs {
+            branch('master') {
+                version = '${version}-${commit.short}-RELEASE'
+            }
+            branch('.+') {
+                version = '${version}-${commit.short}-SNAPSHOT'
+            }
+        }
+    }
+}
 
 
 apply plugin: "java"
@@ -45,17 +58,6 @@ dependencies {
 }
 
 allprojects {
-
-    tasks.register("beforeEvaluate") {
-        project.version rootProject.findProperty("version")
-        gitVersioning.apply {
-            refs {
-                branch('.+') {
-                    project.version = '${commit.short}-SNAPSHOT'
-                }
-            }
-        }
-    }
 
     apply plugin: "com.diffplug.spotless"
     apply plugin: "io.freefair.lombok"
