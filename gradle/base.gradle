@@ -74,12 +74,6 @@ allprojects {
 
     group "com.heliannuuthus"
 
-    configurations {
-        compileOnly {
-            extendsFrom annotationProcessor
-        }
-        all*.exclude module: 'spring-boot-starter-logging'
-    }
 
     repositories {
         maven { url "https://maven.aliyun.com/nexus/content/groups/public" }
