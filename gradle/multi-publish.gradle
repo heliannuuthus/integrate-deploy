@@ -22,10 +22,10 @@ tasks.register("evaluateVersion") {
     gitVersioning.apply {
         refs {
             branch('master') {
-                version = '${version}-${commit.short}-RELEASE'
+                version = '${version}-r${commit.short}'
             }
             branch('.+') {
-                version = '${version}-${commit.short}-SNAPSHOT'
+                version = '${version}-s${commit.short}'
             }
         }
     }
