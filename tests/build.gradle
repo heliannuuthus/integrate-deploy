@@ -7,7 +7,7 @@ plugins {
     id "me.qoomon.git-versioning" version "6.4.0"
 }
 
-apply from: "../gradle/single-publish.gradle"
+apply from: "../gradle/multi-publish.gradle"
 
 group 'com.heliannuuthus'
 repositories {
