@@ -38,6 +38,8 @@ tasks.named(JavaPlugin.COMPILE_JAVA_TASK_NAME) {
 
 
 ext {
+    junitVersion = "5.9.2"
+    mockitoVersion = "4.8.1"
     r2dbcConnCompVersion = "2.1.8"
     r2dbcSpiVersion = "1.0.0.RELEASE"
     r2dbcPoolVersion = "1.0.0.RELEASE"
@@ -61,6 +63,14 @@ dependencies {
     // utils
     implementation "com.google.guava:guava:${guavaVersion}"
     implementation "cn.hutool:hutool-core:${hutoolVersion}"
+
+
+    // tests
+    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+    testRuntimeOnly "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+    testRuntimeOnly "org.mockito:mockito-core:${mockitoVersion}"
+
 }
 
 allprojects {
