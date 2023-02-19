@@ -11,9 +11,11 @@ buildscript {
         classpath "com.diffplug.spotless:spotless-plugin-gradle:6.14.1"
         classpath "io.freefair.gradle:lombok-plugin:6.6.1"
         classpath "me.qoomon:gradle-git-versioning-plugin:6.4.0"
-        
     }
 }
+
+
+apply plugin: "java-library"
 
 tasks.register("evaluateVersion") {
     version rootProject.findProperty("version")
@@ -25,12 +27,15 @@ tasks.register("evaluateVersion") {
             branch('.+') {
                 version = '${version}-${commit.short}-SNAPSHOT'
             }
-
         }
     }
 }
 
-apply plugin: "java"
+tasks.named(JavaPlugin.COMPILE_JAVA_TASK_NAME) {
+    it.dependsOn("evaluateVersion")
+}
+
+
 
 ext {
     r2dbcConnCompVersion = "2.1.8"
@@ -52,22 +57,28 @@ sourceCompatibility = 17
 targetCompatibility = 17
 
 
+dependencies {
+    // utils
+    implementation "com.google.guava:guava:${guavaVersion}"
+    implementation "cn.hutool:hutool-core:${hutoolVersion}"
+}
+
 allprojects {
-    
-    apply plugin: "maven-publish"
-    apply plugin: "java-library"
+
+    apply plugin: "com.diffplug.spotless"
+    apply plugin: "io.freefair.lombok"
     apply plugin: "me.qoomon.git-versioning"
-    
-    group "io.github.heliannuuthus"
-    
-    tasks.withType(Jar.class).configureEach {
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    group "com.heliannuuthus"
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+        all*.exclude module: 'spring-boot-starter-logging'
     }
-    tasks.withType(GenerateModuleMetadata).configureEach {
-        enabled = false
-    }
+
     repositories {
-        maven { url "https://maven.aliyun.com/repository/spring/" }
         maven { url "https://maven.aliyun.com/nexus/content/groups/public" }
         maven { url "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
         maven {
@@ -79,6 +90,16 @@ allprojects {
             }
         }
         mavenCentral()
+    }
+
+    tasks.named("test") {
+        useJUnitPlatform()
+    }
+
+    spotless {
+        java {
+            googleJavaFormat("${spotlessVersion}").groupArtifact("com.google.googlejavaformat:google-java-format")
+        }
     }
 }
 

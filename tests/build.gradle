@@ -7,12 +7,12 @@ plugins {
     id "me.qoomon.git-versioning" version "6.4.0"
 }
 
-apply from: "../gradle/base.gradle"
+apply from: "../gradle/single-publish.gradle"
+
 group 'com.heliannuuthus'
 repositories {
     mavenCentral()
 }
-
 
 dependencies {
 
