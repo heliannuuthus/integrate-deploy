@@ -82,28 +82,13 @@ allprojects {
         mavenCentral()
     }
 
-    tasks.named("test") {
-        useJUnitPlatform()
-    }
-
     spotless {
         java {
             googleJavaFormat("${spotlessVersion}").groupArtifact("com.google.googlejavaformat:google-java-format")
         }
     }
 
-    dependencies {
-        // utils
-        implementation "com.google.guava:guava:${guavaVersion}"
-        implementation "cn.hutool:hutool-core:${hutoolVersion}"
-
-        // tests
-        testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
-        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
-        testRuntimeOnly "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
-        testRuntimeOnly "org.mockito:mockito-core:${mockitoVersion}"
-
-    }
+    
 }
 
 subprojects {
@@ -122,6 +107,19 @@ subprojects {
         java.srcDirs("src/main/java")
     }
 
+    dependencies {
+        // utils
+        implementation "com.google.guava:guava:${guavaVersion}"
+        implementation "cn.hutool:hutool-core:${hutoolVersion}"
+
+        // tests
+        testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+        testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
+        testRuntimeOnly "org.mockito:mockito-junit-jupiter:${mockitoVersion}"
+        testRuntimeOnly "org.mockito:mockito-core:${mockitoVersion}"
+
+    }
+    
     publishing {
         repositories {
             maven {

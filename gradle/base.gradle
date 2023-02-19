@@ -99,10 +99,6 @@ allprojects {
         mavenCentral()
     }
 
-    tasks.named("test") {
-        useJUnitPlatform()
-    }
-
     spotless {
         java {
             googleJavaFormat("${spotlessVersion}").groupArtifact("com.google.googlejavaformat:google-java-format")
