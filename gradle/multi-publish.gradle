@@ -140,6 +140,7 @@ subprojects {
             mavenJava(MavenPublication) {
                 from components.java
                 artifactId = "${project.name}"
+                version = project.version
             }
         }
     }
