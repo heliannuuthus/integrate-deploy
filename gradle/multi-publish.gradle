@@ -17,14 +17,14 @@ buildscript {
 
 
 tasks.register("evaluateVersion") {
-    version rootProject.findProperty("version")
+    project.version = rootProject.findProperty("version")
     gitVersioning.apply {
         refs {
             branch('master') {
-                version = '${version}-r${commit.short}'
+                project.version = '${project.version}-r${commit.short}'
             }
             branch('.+') {
-                version = '${version}-s${commit.short}'
+                project.version = '${project.version}-s${commit.short}'
             }
         }
     }
