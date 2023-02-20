@@ -14,27 +14,17 @@ buildscript {
     }
 }
 
-
-
-tasks.register("evaluateVersion") {
-    project.version = rootProject.findProperty("version")
-    gitVersioning.apply {
-        refs {
-            branch('master') {
-                project.version = '${project.version}-r${commit.short}'
-            }
-            branch('.+') {
-                project.version = '${project.version}-s${commit.short}'
-            }
+gitVersioning.apply {
+    version = rootProject.findProperty("version")
+    refs {
+        branch('master') {
+            version = '${version}-r${commit.short}'
+        }
+        branch('.+') {
+            version = '${version}-s${commit.short}'
         }
     }
 }
-
-tasks.named(JavaPlugin.COMPILE_JAVA_TASK_NAME) {
-    it.dependsOn("evaluateVersion")
-}
-
-
 
 ext {
     junitVersion = "5.9.2"
@@ -67,6 +57,7 @@ allprojects {
     apply plugin: "maven-publish"
 
     group "com.heliannuuthus"
+
 
     repositories {
         maven { url "https://maven.aliyun.com/nexus/content/groups/public" }

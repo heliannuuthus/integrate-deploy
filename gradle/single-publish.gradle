@@ -14,22 +14,16 @@ buildscript {
     }
 }
 
-
-tasks.register("evaluateVersion") {
-    project.version = rootProject.findProperty("version")
-    gitVersioning.apply {
-        refs {
-            branch('master') {
-                project.version = '${project.version}-r${commit.short}'
-            }
-            branch('.+') {
-                project.version = '${project.version}-s${commit.short}'
-            }
+gitVersioning.apply {
+    version = rootProject.findProperty("version")
+    refs {
+        branch('master') {
+            version = '${version}-r${commit.short}'
+        }
+        branch('.+') {
+            version = '${version}-s${commit.short}'
         }
     }
-}
-tasks.named(JavaPlugin.COMPILE_JAVA_TASK_NAME) {
-    it.dependsOn("evaluateVersion")
 }
 
 
@@ -136,6 +130,7 @@ publishing {
         mavenJava(MavenPublication) {
             from components.java
             artifactId = "${project.name}"
+            println project.version
             version = project.version
         }
     }
