@@ -3,7 +3,7 @@ buildscript {
         maven {
             url "https://plugins.gradle.org/m2/"
 
-        }
+        }uu:
         maven { url 'https://repo.spring.io/plugins-snapshot' }
         mavenCentral()
     }
