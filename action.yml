@@ -1,0 +1,15 @@
+name: "continuous-integration"
+description: "java:11 gradle:8.0 python:3.9 golang:1.20 rustup:1.26.0 cargo:1.69.0 nodejs:18.17.0"
+inputs:
+  who-to-greet:  # id of input
+    description: "Who to greet"
+    required: true
+    default: "World"
+outputs:
+  time: # id of output
+    description: "The time we greeted you"
+runs:
+  using: "docker"
+  image: "Dockerfile"
+  args:
+    - ${{ inputs.who-to-greet }}
