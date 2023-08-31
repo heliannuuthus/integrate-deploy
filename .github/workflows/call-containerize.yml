@@ -34,7 +34,9 @@ jobs:
 
       - id: environments
         name: environments
-        run: echo "timestamp=$(date +%Y%m%d | cut -c 3-8) short_sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "timestamp=$(date +%Y%m%d | cut -c 3-8)" >> "$GITHUB_OUTPUT"
+          echo "short_sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: container meta
         id: meta
