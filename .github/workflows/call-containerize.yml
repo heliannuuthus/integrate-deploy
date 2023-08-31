@@ -58,7 +58,7 @@ jobs:
       - name: push github
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ${{ inputs.workdir }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
