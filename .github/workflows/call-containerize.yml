@@ -32,7 +32,7 @@ jobs:
         with:
           name: target
           path: |
-            ${{ inputs.workdir }}
+            ${{ inputs.workdir }}/target/release
 
       - run: tree .
 
