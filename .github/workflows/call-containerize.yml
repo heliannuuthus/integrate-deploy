@@ -27,10 +27,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: load target
+      - name: download target
         uses: actions/download-artifact@v3
         with:
           name: target
+          path: |
+            ${{ inputs.workdir }}
+
       - run: tree .
 
       - id: environments
