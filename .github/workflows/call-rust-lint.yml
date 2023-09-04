@@ -52,6 +52,9 @@ jobs:
 
   security:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v1
       - uses: actions-rs/audit-check@v1
