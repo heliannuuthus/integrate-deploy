@@ -44,6 +44,17 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
+      - name: cache registry cache
+        id: heliannuuthus-cargo-cache
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-heliannuuthus-cargo-cache
 
   lint:
     needs: setup
@@ -53,6 +64,17 @@ jobs:
         working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v3
+      - name: cache registry cache
+        id: heliannuuthus-cargo-cache
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-heliannuuthus-cargo-cache
       - name: fmt
         run: cargo fmt -- --check --color always
       - name: clippy
@@ -67,5 +89,16 @@ jobs:
         working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v3
+      - name: cache registry cache
+        id: heliannuuthus-cargo-cache
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-heliannuuthus-cargo-cache
       - name: scan
         run: cargo audit
