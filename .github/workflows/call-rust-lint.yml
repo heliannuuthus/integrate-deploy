@@ -56,8 +56,6 @@ jobs:
         working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v3
-      - name: workdir
-        run: pwd && ls -h && tree . && cd ${{ inputs.workdir}}
       - uses: actions-rs/audit-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
