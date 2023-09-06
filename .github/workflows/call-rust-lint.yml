@@ -26,6 +26,7 @@ jobs:
       run:
         working-directory: ${{ inputs.workdir }}
     steps:
+      - uses: actions/checkout@v3
       - name: update
         run: |
           rustup default ${{ inputs.toolchain }} 
