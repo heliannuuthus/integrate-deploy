@@ -76,7 +76,7 @@ jobs:
             target/
           key: ${{ runner.os }}-heliannuuthus-cargo-cache
       - name: specify toolchain
-        run: cargo default ${{ inputs.toolchain }}
+        run: rustup default ${{ inputs.toolchain }}
       - name: fmt
         run: cargo fmt -- --check --color always
       - name: clippy
@@ -103,6 +103,6 @@ jobs:
             target/
           key: ${{ runner.os }}-heliannuuthus-cargo-cache
       - name: specify toolchain
-        run: cargo default ${{ inputs.toolchain }}
+        run: rustup default ${{ inputs.toolchain }}
       - name: scan
         run: cargo audit
