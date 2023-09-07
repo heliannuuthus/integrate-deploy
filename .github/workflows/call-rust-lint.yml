@@ -27,10 +27,9 @@ jobs:
         working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v3
-      - name: update
+      - name: setup
         run: |
           rustup default ${{ inputs.toolchain }} 
-          rustup update 
           rustup component add rustfmt --toolchain ${{ inputs.toolchain }} 
           rustup component add clippy --toolchain ${{ inputs.toolchain }} 
           cargo install cargo-auditable cargo-audit
@@ -78,7 +77,7 @@ jobs:
       - name: specify toolchain
         run: rustup default ${{ inputs.toolchain }}
       - name: fmt
-        run: cargo fmt -- --check --color always
+        run: tree ~/.cargo && cargo fmt -- --check --color always
       - name: clippy
         if: ${{ inputs.clippy }}
         run: cargo clippy --all-targets --all-features -- -D warnings
