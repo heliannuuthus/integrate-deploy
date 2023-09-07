@@ -50,7 +50,7 @@ jobs:
           tags: |
             type=semver,enable=${{ github.ref == format('refs/heads/{0}', 'master') }},pattern={{version}}-${{ steps.environments.outputs.timestamp }}rc-${{ steps.environments.outputs.short_sha }},value=${{ inputs.version }}
             type=semver,enable=${{ github.ref != format('refs/heads/{0}', 'master') }},pattern={{version}}-${{ steps.environments.outputs.timestamp }}alpha-${{ steps.environments.outputs.short_sha }},value=${{ inputs.version }}
-
+            
       - name: authenticate
         uses: docker/login-action@v2
         with:

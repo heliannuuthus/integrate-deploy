@@ -19,26 +19,18 @@ on:
         default: true
         description: "Rust clippy enable"
 
-
 jobs:
-  lint:
+  setup:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v3
-      - name: update
+      - name: setup
         run: |
           rustup default ${{ inputs.toolchain }} 
-          rustup update 
-          rustup component add rustfmt 
-          rustup component add clippy
-      - name: fmt
-        run: cargo fmt -- --check --color always
-      - name: clippy
-        if: ${{ inputs.clippy }}
-        run: cargo clippy --all-targets --all-features -- -D warnings
+          rustup update
       - name: upload registry
         uses: actions/upload-artifact@v3
         with:
@@ -49,3 +41,68 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
+      - name: cache registry cache
+        id: heliannuuthus-cargo-cache
+        uses: actions/cache/save@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-heliannuuthus-cargo-cache
+
+  lint:
+    needs: setup
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: cache registry cache
+        id: heliannuuthus-cargo-cache
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-heliannuuthus-cargo-cache
+      - name: specify toolchain
+        run: |
+          rustup default ${{ inputs.toolchain }}
+          rustup component add rustfmt --toolchain ${{ inputs.toolchain }} 
+          rustup component add clippy --toolchain ${{ inputs.toolchain }} 
+      - name: fmt
+        run: tree ~/.cargo && cargo fmt -- --check --color always
+      - name: clippy
+        if: ${{ inputs.clippy }}
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+  security:
+    needs: setup
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: cache registry cache
+        id: heliannuuthus-cargo-cache
+        uses: actions/cache/restore@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-heliannuuthus-cargo-cache
+      - name: specify toolchain
+        run: rustup default ${{ inputs.toolchain }}
+      - name: scan
+        run: cargo audit
