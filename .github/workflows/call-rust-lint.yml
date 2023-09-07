@@ -30,9 +30,7 @@ jobs:
       - name: setup
         run: |
           rustup default ${{ inputs.toolchain }} 
-          rustup component add rustfmt --toolchain ${{ inputs.toolchain }} 
-          rustup component add clippy --toolchain ${{ inputs.toolchain }} 
-          cargo install cargo-auditable cargo-audit
+          rustup update
       - name: upload registry
         uses: actions/upload-artifact@v3
         with:
@@ -75,7 +73,10 @@ jobs:
             target/
           key: ${{ runner.os }}-heliannuuthus-cargo-cache
       - name: specify toolchain
-        run: rustup default ${{ inputs.toolchain }}
+        run: |
+          rustup default ${{ inputs.toolchain }}
+          rustup component add rustfmt --toolchain ${{ inputs.toolchain }} 
+          rustup component add clippy --toolchain ${{ inputs.toolchain }} 
       - name: fmt
         run: tree ~/.cargo && cargo fmt -- --check --color always
       - name: clippy
@@ -102,6 +103,8 @@ jobs:
             target/
           key: ${{ runner.os }}-heliannuuthus-cargo-cache
       - name: specify toolchain
-        run: rustup default ${{ inputs.toolchain }}
+        run: |
+          rustup default ${{ inputs.toolchain }}
+          cargo install cargo-auditable cargo-audit
       - name: scan
         run: cargo audit
