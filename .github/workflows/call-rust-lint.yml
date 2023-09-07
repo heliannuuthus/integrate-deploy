@@ -103,8 +103,6 @@ jobs:
             target/
           key: ${{ runner.os }}-heliannuuthus-cargo-cache
       - name: specify toolchain
-        run: |
-          rustup default ${{ inputs.toolchain }}
-          cargo install cargo-auditable cargo-audit
+        run: rustup default ${{ inputs.toolchain }}
       - name: scan
         run: cargo audit
