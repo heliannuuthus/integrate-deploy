@@ -27,7 +27,7 @@ jobs:
         with:
           name: registry
       - name: build
-        run: cargo auditable build --release
+        run: cargo install cargo-auditable && cargo auditable build --release
       - name: test
         run: cargo test --release --verbose
       - id: environments
