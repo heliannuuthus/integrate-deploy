@@ -105,4 +105,4 @@ jobs:
       - name: specify toolchain
         run: rustup default ${{ inputs.toolchain }}
       - name: scan
-        run: cargo audit
+        run: cargo generate-lockfile && cargo audit
