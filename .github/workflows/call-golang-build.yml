@@ -40,23 +40,18 @@ jobs:
       - name: test
         run: go test ./... -v -cover -coverprofile=coverage.out && go tool cover -html=coverage.out -o coverage.html
       - name: build binary
-        env:
-          FULL_PROJECT: go list -m
         run: |
           echo "$GOOS"
           echo "$GOARCH"
           mkdir build
-          project=${FULL_PROJECT##*/}
-          echo "$project"
-          CGO_ENABLE=0 GOOS=linux GOARCH=amd64 go build -a -o build/$project ${{ inputs.ENTRANCE }}
+          CGO_ENABLE=0 GOOS=linux GOARCH=amd64 go build -a -o build/${{ github.repository }} ${{ inputs.ENTRANCE }}
       - id: environments
         name: environments
-        env:
-          FULL_PROJECT: $(go list -m)
         run: |
-          echo "project=${FULL_PROJECT##*/}" >> "$GITHUB_OUTPUT"
-          echo "split"
-          echo "version=${$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null):v0.0.1}" >> "$GITHUB_OUTPUT"
+          echo "
+          project=${{ github.repository }}
+          version=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null)
+          " >> "$GITHUB_OUTPUT"
       - name: upload target
         uses: actions/upload-artifact@v3
         with:

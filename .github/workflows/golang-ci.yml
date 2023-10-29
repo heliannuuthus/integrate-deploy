@@ -3,10 +3,10 @@ on:
     types: [opened, reopened, synchronize]
 
 jobs:
-#  lint:
-#    uses: ./.github/workflows/call-golang-lint.yml
-#    with:
-#      workdir: "tests/golang/"
+  lint:
+    uses: ./.github/workflows/call-golang-lint.yml
+    with:
+      workdir: "tests/golang/"
 
 
   build:
@@ -27,3 +27,4 @@ jobs:
     with:
       version: ${{ needs.build.outputs.version }}
       workdir: "tests/golang/"
+      target: "tests/golang/build"
