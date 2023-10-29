@@ -10,6 +10,11 @@ on:
         default: "./"
         type: "string"
         description: "Specify all of steps where are run"
+      target:
+        required: false
+        default: "./build"
+        type: "string"
+        description: "Specify build base target dir"
 
 permissions:
   contents: read
@@ -25,14 +30,14 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: download target
         uses: actions/download-artifact@v3
         with:
           name: target
           path: |
-            ${{ inputs.workdir }}/target/release
+            ${{ inputs.target }}
 
       - run: tree .
 
@@ -48,8 +53,8 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
-            type=semver,enable=${{ github.ref == format('refs/heads/{0}', 'master') }},pattern={{version}}-${{ steps.environments.outputs.timestamp }}rc-${{ steps.environments.outputs.short_sha }},value=${{ inputs.version }}
-            type=semver,enable=${{ github.ref != format('refs/heads/{0}', 'master') }},pattern={{version}}-${{ steps.environments.outputs.timestamp }}alpha-${{ steps.environments.outputs.short_sha }},value=${{ inputs.version }}
+            type=semver,enable=${{ github.ref == format('refs/heads/{0}', 'master') }},pattern={{version}}-${{ steps.environments.outputs.timestamp }}rc-${{ steps.environments.outputs.short_sha }},value=${{ inputs.version || 'v0.0.1' }}
+            type=semver,enable=${{ github.ref != format('refs/heads/{0}', 'master') }},pattern={{version}}-${{ steps.environments.outputs.timestamp }}alpha-${{ steps.environments.outputs.short_sha }},value=${{ inputs.version || 'v0.0.1'  }}
             
       - name: authenticate
         uses: docker/login-action@v2

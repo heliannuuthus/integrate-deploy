@@ -1,20 +1,21 @@
-on: 
+on:
   pull_request:
     types: [opened, reopened, synchronize]
 
 jobs:
   lint:
-    uses: ./.github/workflows/call-rust-lint.yml
+    uses: ./.github/workflows/call-golang-lint.yml
     with:
-      clippy: true
-      workdir: "tests/rust/"
-  
+      workdir: "tests/golang/"
+
 
   build:
-    needs: lint
-    uses: ./.github/workflows/call-rust-build.yml
+    uses: ./.github/workflows/call-golang-build.yml
     with:
-      workdir: "tests/rust/"
+      workdir: "tests/golang/"
+      GOOS: linux
+      GOARCH: amd64
+      ENTRANCE: cmd/main.go
 
 
   containeraized:
@@ -25,5 +26,5 @@ jobs:
     uses: ./.github/workflows/call-containerize.yml
     with:
       version: ${{ needs.build.outputs.version }}
-      workdir: "tests/rust/"
-      target: "tests/rust/target/release"
+      workdir: "tests/golang/"
+      target: "tests/golang/build"

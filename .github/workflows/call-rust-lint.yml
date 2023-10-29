@@ -26,7 +26,7 @@ jobs:
       run:
         working-directory: ${{ inputs.workdir }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: setup
         run: |
           rustup default ${{ inputs.toolchain }} 
@@ -60,7 +60,7 @@ jobs:
       run:
         working-directory: ${{ inputs.workdir }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: cache registry cache
         id: heliannuuthus-cargo-cache
         uses: actions/cache/restore@v3
@@ -90,7 +90,7 @@ jobs:
       run:
         working-directory: ${{ inputs.workdir }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: cache registry cache
         id: heliannuuthus-cargo-cache
         uses: actions/cache/restore@v3
