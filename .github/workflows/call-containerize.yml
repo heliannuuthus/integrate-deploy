@@ -25,13 +25,14 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: download target
         uses: actions/download-artifact@v3
         with:
           name: target
           path: |
+            ${{ inputs.workdir }}/build
             ${{ inputs.workdir }}/target/release
 
       - run: tree .
