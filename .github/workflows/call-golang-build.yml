@@ -44,7 +44,7 @@ jobs:
           echo "$GOOS"
           echo "$GOARCH"
           mkdir build
-          CGO_ENABLE=0 GOOS=linux GOARCH=amd64 go build -a -o build/${{ github.repository }} ${{ inputs.ENTRANCE }}
+          CGO_ENABLE=0 GOOS=${{ input.GOOS }} GOARCH=${{ input.GOARCH }} go build -a -o build/${{ github.repository }} ${{ inputs.ENTRANCE }}
       - id: environments
         name: environments
         run: |
