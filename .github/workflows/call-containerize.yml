@@ -10,6 +10,11 @@ on:
         default: "./"
         type: "string"
         description: "Specify all of steps where are run"
+      target:
+        required: false
+        default: "./build"
+        type: "string"
+        description: "Specify build base target dir"
 
 permissions:
   contents: read
@@ -32,8 +37,7 @@ jobs:
         with:
           name: target
           path: |
-            ${{ inputs.workdir }}/build
-            ${{ inputs.workdir }}/target/release
+            ${{ inputs.target }}
 
       - run: tree .
 

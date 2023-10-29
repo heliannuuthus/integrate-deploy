@@ -26,3 +26,4 @@ jobs:
     with:
       version: ${{ needs.build.outputs.version }}
       workdir: "tests/rust/"
+      target: "tests/rust/target/release"

@@ -2,6 +2,6 @@ FROM rust:latest
 
 WORKDIR /
 
-COPY build/ .
+COPY build/workflow .
 
-CMD ["./golang"]
+CMD ["./workflow"]

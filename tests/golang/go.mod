@@ -1,4 +1,4 @@
-module github.com/heliannuuthus/workflow
+module github.com/heliannuuthus/golang
 
 go 1.20
 

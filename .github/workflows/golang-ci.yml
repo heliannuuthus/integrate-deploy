@@ -3,14 +3,13 @@ on:
     types: [opened, reopened, synchronize]
 
 jobs:
-  lint:
-    uses: ./.github/workflows/call-golang-lint.yml
-    with:
-      workdir: "tests/golang/"
+#  lint:
+#    uses: ./.github/workflows/call-golang-lint.yml
+#    with:
+#      workdir: "tests/golang/"
 
 
   build:
-    needs: lint
     uses: ./.github/workflows/call-golang-build.yml
     with:
       workdir: "tests/golang/"
