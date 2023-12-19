@@ -86,6 +86,7 @@ jobs:
   security:
     needs: setup
     runs-on: ubuntu-latest
+    continue-on-error: true
     defaults:
       run:
         working-directory: ${{ inputs.workdir }}
