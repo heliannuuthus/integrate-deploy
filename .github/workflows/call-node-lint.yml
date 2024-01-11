@@ -1,0 +1,122 @@
+on:
+  workflow_call:
+    inputs:
+      workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of steps where are run"
+
+      node:
+        required: false
+        type: "string"
+        default: "18.x"
+        description: "node version"
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node }}
+          cache: "pnpm"
+
+      - name: pnpm cache dir
+        id: pnpm-cache-dir
+        run: echo "::set-output name=dir::$(pnpm store path)"
+
+      - name: cache node modules
+        id: cache-node_modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node_modules
+        with:
+          # caching node_modules
+          path: |
+            node_modules
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.pnpm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - uses: actions/checkout@v4
+      - name: setup
+        if: steps.cache-node_modules.outputs.cache-hit != 'true'
+        run: |
+          pnpm i
+          pnpm i -g eslint
+
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - name: pnpm cache dir
+        id: pnpm-cache-dir
+        run: echo "::set-output name=dir::$(pnpm store path)"
+
+      - name: cache node modules
+        id: cache-node_modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node_modules
+        with:
+          # caching node_modules
+          path: |
+            node_modules
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.pnpm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: lint
+        run: |
+          pnpm eslint . --ext .js,.jsx,.ts,.tsx
+         
+  security:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - name: pnpm cache dir
+        id: pnpm-cache-dir
+        run: echo "::set-output name=dir::$(pnpm store path)"
+
+      - name: cache node modules
+        id: cache-node_modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node_modules
+        with:
+          # caching node_modules
+          path: |
+            node_modules
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.pnpm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: lint
+        run: |
+          pnpm audit

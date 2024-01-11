@@ -1,0 +1,41 @@
+on:
+  workflow_call:
+    inputs:
+      workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of steps where are run"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - name: pnpm cache dir
+        id: pnpm-cache-dir
+        run: echo "::set-output name=dir::$(pnpm store path)"
+
+      - name: cache node modules
+        id: cache-node_modules
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-node_modules
+        with:
+          # caching node_modules
+          path: |
+            node_modules
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.pnpm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+
+      - name: build
+        run: pnpm run build text
+      
