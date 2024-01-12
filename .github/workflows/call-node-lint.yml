@@ -56,7 +56,7 @@ jobs:
 
       - name: pnpm setup
         if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
-        run: pnpm setup
+        run: SHELL=$SHELL pnpm setup
 
       - name: install dependencies
         if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
