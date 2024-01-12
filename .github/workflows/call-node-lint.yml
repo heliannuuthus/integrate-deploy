@@ -10,7 +10,7 @@ on:
       node:
         required: false
         type: "string"
-        default: "tls.x"
+        default: "lts.x"
         description: "node version"
 
 jobs:
