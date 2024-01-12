@@ -58,11 +58,13 @@ jobs:
           pnpm i -g eslint
 
   lint:
+    needs: setup
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ${{ inputs.workdir }}
     steps:
+      - uses: actions/checkout@v4
       - name: pnpm cache dir
         id: pnpm-cache-dir
         run: echo "::set-output name=dir::$(pnpm store path)"
@@ -91,11 +93,13 @@ jobs:
           pnpm prettier . --check-debug
 
   security:
+    needs: setup
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ${{ inputs.workdir }}
     steps:
+      - uses: actions/checkout@v4
       - name: pnpm cache dir
         id: pnpm-cache-dir
         run: echo "::set-output name=dir::$(pnpm store path)"
@@ -118,6 +122,6 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
-      - name: lint
+      - name: audit
         run: |
           pnpm audit

@@ -26,6 +26,7 @@ jobs:
       run:
         working-directory: ${{ inputs.workdir }}
     steps:
+      - uses: actions/checkout@v4
       - name: pnpm cache dir
         id: pnpm-cache-dir
         run: echo "::set-output name=dir::$(pnpm store path)"
