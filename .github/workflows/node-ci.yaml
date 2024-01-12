@@ -1,0 +1,16 @@
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  lint:
+    uses: ./.github/workflows/call-node-lint.yml
+    with:
+      workdir: "tests/node/"
+
+  build:
+    needs: lint
+    uses: ./.github/workflows/call-node-build.yml
+    with:
+      workdir: "tests/node/"
+      PNPM_STORE: ${{ needs.lint.outputs.PNPM_STORE }}

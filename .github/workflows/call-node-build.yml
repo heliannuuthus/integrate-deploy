@@ -1,0 +1,65 @@
+on:
+  workflow_call:
+    inputs:
+      workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of steps where are run"
+
+      build:
+        required: false
+        default: "build"
+        type: "string"
+        description: "Specify build command"
+
+      test:
+        required: false
+        default: ""
+        type: "string"
+        description: "Specify test command"
+
+      PNPM_STORE:
+        required: false
+        default: "~/.local/share/pnpm/store/"
+        type: "string"
+        description: "pnpm store package path"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
+      - name: cache node modules
+        id: cache-node_modules
+        uses: actions/cache/restore@v3
+        env:
+          cache-name: cache-node_modules
+        with:
+          # caching node_modules
+          path: |
+            ${{ inputs.workdir }}node_modules
+            **/node_modules
+            **/.eslintcache
+            ${{ inputs.PNPM_STORE }}
+          key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-
+            ${{ runner.os }}-pnpm-store-
+            ${{ runner.os }}-
+
+      - name: build
+        if: ${{ inputs.build}}
+        run: pnpm ${{ inputs.build }}
+
+      - name: test
+        if: ${{ inputs.test }}
+        run: pnpm ${{ inputs.test }}
