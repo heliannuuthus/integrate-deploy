@@ -8,15 +8,14 @@ jobs:
     with:
       workdir: "tests/golang/"
 
-
   build:
+    needs: lint
     uses: ./.github/workflows/call-golang-build.yml
     with:
       workdir: "tests/golang/"
       GOOS: linux
       GOARCH: amd64
       ENTRANCE: cmd/main.go
-
 
   containeraized:
     needs: build
