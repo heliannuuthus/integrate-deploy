@@ -21,15 +21,15 @@ jobs:
         working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
+     
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node }}
           cache: "pnpm"
           cache-dependency-path: "**/pnpm-lock.yaml"
-
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
       - name: pnpm cache dir
         id: pnpm-cache-dir
         run: echo "name=dir::$(pnpm store path)" >> $GITHUB_OUTPUT
@@ -73,7 +73,7 @@ jobs:
           cache-dependency-path: "**/pnpm-lock.yaml"
       - name: pnpm cache dir
         id: pnpm-cache-dir
-        run: echo "::set-output name=dir::$(pnpm store path)"
+        run: echo "name=dir::$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: cache node modules
         id: cache-node_modules
