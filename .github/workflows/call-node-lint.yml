@@ -28,6 +28,7 @@ jobs:
         with:
           node-version: ${{ inputs.node }}
           cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.json"
 
       - name: pnpm cache dir
         id: pnpm-cache-dir
