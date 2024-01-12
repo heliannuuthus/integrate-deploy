@@ -62,8 +62,9 @@ jobs:
       - name: setup
         if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
         run: |
-          pnpm i
+          pnpm i  
           pnpm i -g eslint
+          pnpm list
 
       - name: cache node modules
         if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
