@@ -34,7 +34,7 @@ module.exports = {
 		project: ["./tsconfig.json"],
 	},
 	plugins: ["@typescript-eslint", "react"],
-	ignorePatterns: [".eslintrc.cjs", "vite.config.ts"],
+	ignorePatterns: [".eslintrc.cjs", "vite.config.ts", "dist"],
 	rules: {
 		"@typescript-eslint/prefer-nullish-coalescing": "off",
 		"@typescript-eslint/no-unused-vars": [
