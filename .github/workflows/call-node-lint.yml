@@ -55,6 +55,7 @@ jobs:
           pnpm setup
           pnpm i
           pnpm i -g eslint
+        shell: bash
 
       - name: cache node modules
         if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
