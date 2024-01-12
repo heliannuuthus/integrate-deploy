@@ -48,19 +48,11 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
-      - name: install pnpm
+      - name: setup
         if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
         run: |
-          SHELL=bash
           npm i -g pnpm
-
-      - name: pnpm setup
-        if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
-        run: SHELL=$SHELL pnpm setup
-
-      - name: install dependencies
-        if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
-        run: |
+          SHELL=$SHELL pnpm setup
           pnpm i
           pnpm i -g eslint
 
