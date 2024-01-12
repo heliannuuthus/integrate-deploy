@@ -20,6 +20,7 @@ jobs:
       run:
         working-directory: ${{ inputs.workdir }}
     steps:
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
         with:
           version: 8
@@ -50,7 +51,6 @@ jobs:
             ${{ runner.os }}-build-
             ${{ runner.os }}-
 
-      - uses: actions/checkout@v4
       - name: setup
         if: steps.cache-node_modules.outputs.cache-hit != 'true'
         run: |
