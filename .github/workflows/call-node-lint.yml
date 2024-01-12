@@ -52,6 +52,7 @@ jobs:
         if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
         run: |
           npm i -g pnpm
+          pnpm setup
           pnpm i
           pnpm i -g eslint
 
