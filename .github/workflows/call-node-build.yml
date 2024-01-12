@@ -46,7 +46,7 @@ jobs:
         with:
           # caching node_modules
           path: |
-            node_modules
+            ${{ inputs.workdir }}node_modules
             **/node_modules
             **/.eslintcache
             ${{ inputs.PNPM_STORE }}
