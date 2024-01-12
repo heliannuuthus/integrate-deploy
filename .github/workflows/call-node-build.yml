@@ -43,7 +43,7 @@ jobs:
             node_modules
             **/node_modules
             **/.eslintcache
-            ${{ env.STORE_PATH }}
+            ${{ needs.lint.outputs.PNPM_STORE }}
           key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-
