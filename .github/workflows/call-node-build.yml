@@ -7,6 +7,18 @@ on:
         type: "string"
         description: "Specify all of steps where are run"
 
+      build:
+        required: false
+        default: "build"
+        type: "string"
+        description: "Specify build command"
+
+      test:
+        required: false
+        default: ""
+        type: "string"
+        description: "Specify test command"
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -37,5 +49,9 @@ jobs:
             ${{ runner.os }}-
 
       - name: build
-        run: pnpm run build text
-      
+        if: ${{ inputs.build}}
+        run: pnpm ${{ inputs.build }}
+
+      - name: test
+        if: ${{ inputs.test }}
+        run: pnpm ${{ inputs.test }}
