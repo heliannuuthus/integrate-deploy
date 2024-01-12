@@ -27,9 +27,10 @@ jobs:
         working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
-      - name: pnpm cache dir
-        id: pnpm-cache-dir
-        run: echo "name=dir::$(pnpm store path)" >> $GITHUB_OUTPUT
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
 
       - name: cache node modules
         id: cache-node_modules
@@ -42,11 +43,11 @@ jobs:
             node_modules
             **/node_modules
             **/.eslintcache
-            ${{ steps.pnpm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+            ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
+            ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-
+            ${{ runner.os }}-pnpm-store-
             ${{ runner.os }}-
 
       - name: build
