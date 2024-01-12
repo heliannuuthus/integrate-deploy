@@ -80,6 +80,10 @@ jobs:
         working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
       - name: pnpm cache dir
         id: pnpm-cache-dir
         run: echo "name=dir::$(pnpm store path)" >> $GITHUB_OUTPUT
@@ -115,9 +119,10 @@ jobs:
         working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v2
         with:
-          node-version: ${{ inputs.node }}
+          version: 8
+          run_install: false
 
       - name: restore node cache
         uses: actions/cache/restore@v3
