@@ -50,12 +50,13 @@ jobs:
 
       - name: setup
         if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
+        shell: bash
         run: |
           npm i -g pnpm
+          echo $SHELL
           pnpm setup
           pnpm i
           pnpm i -g eslint
-        shell: bash
 
       - name: cache node modules
         if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
