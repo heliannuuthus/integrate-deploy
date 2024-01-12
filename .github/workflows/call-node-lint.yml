@@ -50,8 +50,8 @@ jobs:
 
       - name: setup
         if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
-        shell: bash
         run: |
+          SHELL=bash
           npm i -g pnpm
           echo $SHELL
           pnpm setup
