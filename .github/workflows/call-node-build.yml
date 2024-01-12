@@ -43,7 +43,7 @@ jobs:
             **/node_modules
             **/.eslintcache
             ${{ steps.pnpm-cache-dir.outputs.dir }}
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-build-${{ env.cache-name }}-
             ${{ runner.os }}-build-
