@@ -26,16 +26,13 @@ jobs:
         with:
           node-version: ${{ inputs.node }}
 
-      - uses: pnpm/action-setup@v2
-        with:
-          version: 8
       - name: pnpm cache dir
         id: pnpm-cache-dir
         run: echo "name=dir::$(pnpm store path)" >> $GITHUB_OUTPUT
 
-      - name: cache node modules
-        id: cache-node_modules
-        uses: actions/cache@v3
+      - name: restore node cache
+        uses: actions/cache/restore@v3
+        id: cache-restore-node_modules
         env:
           cache-name: cache-node_modules
         with:
@@ -52,10 +49,26 @@ jobs:
             ${{ runner.os }}-
 
       - name: setup
-        if: steps.cache-node_modules.outputs.cache-hit != 'true'
+        if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
         run: |
+          npm i -g pnpm
           pnpm i
           pnpm i -g eslint
+
+      - name: cache node modules
+        if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v3
+        id: cache-save-node_modules
+        env:
+          cache-name: cache-node_modules
+        with:
+          # caching node_modules
+          path: |
+            node_modules
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.pnpm-cache-dir.outputs.dir }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
   lint:
     needs: setup
@@ -69,9 +82,9 @@ jobs:
         id: pnpm-cache-dir
         run: echo "name=dir::$(pnpm store path)" >> $GITHUB_OUTPUT
 
-      - name: cache node modules
-        id: cache-node_modules
-        uses: actions/cache@v3
+      - name: restore node cache
+        uses: actions/cache/restore@v3
+        id: cache-restore-node_modules
         env:
           cache-name: cache-node_modules
         with:
@@ -102,11 +115,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: pnpm cache dir
         id: pnpm-cache-dir
-        run: echo "::set-output name=dir::$(pnpm store path)"
+        run: echo "name=dir::$(pnpm store path)" >> $GITHUB_OUTPUT
 
-      - name: cache node modules
-        id: cache-node_modules
-        uses: actions/cache@v3
+      - name: restore node cache
+        uses: actions/cache/restore@v3
+        id: cache-restore-node_modules
         env:
           cache-name: cache-node_modules
         with:

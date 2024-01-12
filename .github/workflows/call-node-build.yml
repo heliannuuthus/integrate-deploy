@@ -29,11 +29,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: pnpm cache dir
         id: pnpm-cache-dir
-        run: echo "::set-output name=dir::$(pnpm store path)"
+        run: echo "name=dir::$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: cache node modules
         id: cache-node_modules
-        uses: actions/cache@v3
+        uses: actions/cache/restore@v3
         env:
           cache-name: cache-node_modules
         with:
