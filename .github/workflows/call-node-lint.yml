@@ -84,8 +84,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node }}
-          cache: "pnpm"
-          cache-dependency-path: "**/pnpm-lock.yaml"
       - name: pnpm cache dir
         id: pnpm-cache-dir
         run: echo "name=dir::$(pnpm store path)" >> $GITHUB_OUTPUT
@@ -124,8 +122,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node }}
-          cache: "pnpm"
-          cache-dependency-path: "**/pnpm-lock.yaml"
       - name: pnpm cache dir
         id: pnpm-cache-dir
         run: echo "name=dir::$(pnpm store path)" >> $GITHUB_OUTPUT
