@@ -21,10 +21,14 @@ jobs:
         working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
-
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node }}
+          cache: "pnpm"
+          cache-dependency-path: "**/pnpm-lock.yaml"
 
       - name: pnpm cache dir
         id: pnpm-cache-dir
@@ -51,12 +55,9 @@ jobs:
       - name: setup
         if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
         run: |
-          npm i -g pnpm
-          SHELL=$SHELL pnpm setup
-          export PNPM_HOME="/home/runner/.local/share/pnpm"
-          export PATH="$PNPM_HOME:$PATH"
           pnpm i
           pnpm i -g eslint
+          where pnpm
 
       - name: cache node modules
         if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
