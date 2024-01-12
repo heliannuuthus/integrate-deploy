@@ -53,6 +53,7 @@ jobs:
         run: |
           npm i -g pnpm
           SHELL=$SHELL pnpm setup
+          export PNPM_HOME="/home/runner/.local/share/pnpm"
           pnpm i
           pnpm i -g eslint
 
