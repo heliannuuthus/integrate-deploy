@@ -5,13 +5,13 @@ on:
         required: false
         default: "./"
         type: "string"
-        description: "Specify all of steps where are run"
+        description: "Specify all of steps where are run, default: current directory"
 
       node:
         required: false
         type: "string"
         default: "lts/*"
-        description: "node version"
+        description: "Specify node version, default: lts"
 
     outputs:
       PNPM_STORE:
@@ -64,7 +64,7 @@ jobs:
         run: |
           pnpm i  
           pnpm i -g eslint
-          pnpm list
+          pnpm i -g prettier
 
       - name: cache node modules
         if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
