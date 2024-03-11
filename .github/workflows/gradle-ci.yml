@@ -1,0 +1,27 @@
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  lint:
+    uses: ./.github/workflows/call-gradle-lint.yml
+    with:
+      workdir: "tests/gradle/"
+
+  build:
+    needs: lint
+    uses: ./.github/workflows/call-gradle-build.yml
+    with:
+      workdir: "tests/gradle/"
+
+  publish:
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/call-gradle-publish.yml
+    with:
+      workdir: "tests/gradle/"
+      user: ${{ github.actor }}
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}

@@ -23,7 +23,7 @@ on:
 
     outputs:
       version:
-        description: "Rust application version"
+        description: "golang application version"
         value: ${{ jobs.build.outputs.version }}
 
 jobs:
@@ -40,7 +40,9 @@ jobs:
         with:
           go-version: "1.20"
       - name: test
-        run: go test ./... -v -cover -coverprofile=coverage.out && go tool cover -html=coverage.out -o coverage.html
+        run: |
+          go test -gcflags="all=-N -l" -coverprofile=build/coverage.txt -covermode count -json -v ./... 2>&1 |
+          tee build/test.json | gotestfmt | tee >(go-junit-report -parser gojson -out build/report.xml);
       - name: build binary
         run: |
           mkdir build
