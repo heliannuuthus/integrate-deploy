@@ -14,13 +14,12 @@ jobs:
     with:
       workdir: "tests/gradle/"
 
-  containeraized:
+  publish:
     needs: build
     permissions:
       contents: read
       packages: write
-    uses: ./.github/workflows/call-containerize.yml
-    with:
-      version: ${{ needs.build.outputs.version }}
-      workdir: "tests/gradle/"
-      target: "tests/gradle/build"
+    uses: ./.github/workflows/call-gradle-publish.yml
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+      user: ${{ github.actor }}
