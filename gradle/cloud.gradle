@@ -13,8 +13,6 @@ buildscript {
     }
 }
 
-apply plugin: "java"
-
 ext {
     r2dbcConnCompVersion = "2.1.8"
     r2dbcSpiVersion = "1.0.0.RELEASE"

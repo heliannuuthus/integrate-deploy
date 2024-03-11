@@ -12,7 +12,6 @@ buildscript {
 }
 
 
-apply plugin: "java-library"
 apply plugin: "io.freefair.lombok"
 apply plugin: "com.diffplug.spotless"
 apply plugin: "me.qoomon.git-versioning"
