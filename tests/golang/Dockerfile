@@ -2,6 +2,6 @@ FROM rust:latest
 
 WORKDIR /
 
-COPY build/workflow .
+COPY build/integration-deploy .
 
-CMD ["./workflow"]
+CMD ["./integration-deploy"]

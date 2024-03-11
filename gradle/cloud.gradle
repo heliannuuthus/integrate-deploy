@@ -1,17 +1,15 @@
 buildscript {
     repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-
-        }
+        maven { url "https://maven.aliyun.com/repository/gradle-plugin" }
         maven { url 'https://repo.spring.io/plugins-snapshot' }
         mavenCentral()
     }
     dependencies {
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:3.0.2"
-        classpath "io.spring.gradle:dependency-management-plugin:1.1.0"
-        classpath "com.diffplug.spotless:spotless-plugin-gradle:6.14.1"
-        classpath "io.freefair.gradle:lombok-plugin:6.6.1"
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:3.2.3"
+        classpath "io.spring.gradle:dependency-management-plugin:1.1.4"
+        classpath "org.springdoc:springdoc-openapi-gradle-plugin:1.8.0"
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:6.25.0"
+        classpath "io.freefair.gradle:lombok-plugin:8.6"
     }
 }
 
@@ -29,8 +27,10 @@ ext {
     bootVersion = "3.0.1"
     cloudVersion = "2022.0.0"
     alibabaCloudVersion = "2022.0.0.0-RC1"
-    spotlessVersion = "1.15.0"
-    helianthusCommonVersion = "0.0.1"
+    guavaVersion = "33.0.0-jre"
+    lang3Version + "3.14.0"
+    spotlessVersion = "1.21.0"
+    helianthusCommonVersion = "0.1.0"
 }
 
 sourceCompatibility = 17
@@ -40,13 +40,13 @@ targetCompatibility = 17
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-data-r2dbc"
     implementation "org.springframework.boot:spring-boot-starter-validation"
-    implementation  "org.springframework.boot:spring-boot-devtools"
+    implementation "org.springframework.boot:spring-boot-devtools"
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "io.projectreactor:reactor-test"
 
     // apollo
-    implementation "io.github.heliannuuthus:helianthus-annuus-apollo-client:${helianthusCommonVersion}"
+    implementation "io.ghcr.heliannuuthus:helianthus-annuus-apollo-client:${helianthusCommonVersion}"
 
     // spring cloud
     implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery"
@@ -54,7 +54,8 @@ dependencies {
 
     // utils
     implementation "com.google.guava:guava:${guavaVersion}"
-    implementation "cn.hutool:hutool-core:${hutoolVersion}"
+    implementation 'org.apache.commons:commons-lang3:{lang3Version}'
+
 }
 
 allprojects {
@@ -63,10 +64,22 @@ allprojects {
     apply plugin: "io.spring.dependency-management"
     apply plugin: "com.diffplug.spotless"
     apply plugin: "io.freefair.lombok"
+    apply plugin: "me.qoomon.git-versioning"
 
-    group "com.heliannuuthus"
-    version rootProject.findProperty("version")
-    
+    group "io.ghrc.heliannuuthus"
+
+    gitVersioning.apply {
+        version = rootProject.findProperty("version")
+        refs {
+            branch('master') {
+                version = '${version}-${commit.short}'
+            }
+            branch('.+') {
+                version = '${version}-${commit.short}-SNAPSHOT'
+            }
+        }
+    }
+
     configurations {
         compileOnly {
             extendsFrom annotationProcessor
@@ -102,8 +115,10 @@ allprojects {
 
     spotless {
         java {
+            importOrder()
+            removeUnusedImports()
             googleJavaFormat("${spotlessVersion}").groupArtifact("com.google.googlejavaformat:google-java-format")
+            formatAnnotations()
         }
     }
-
 }
