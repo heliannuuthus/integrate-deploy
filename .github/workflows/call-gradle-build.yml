@@ -34,7 +34,7 @@ jobs:
         run: |
           echo "
           project=${{ github.repository }}
-          version=$(gradle version -q)
+          version=$(gradle version -q | awk 'NR==1 {print}')
           " >> "$GITHUB_OUTPUT"
       - name: upload target
         uses: actions/upload-artifact@v3
