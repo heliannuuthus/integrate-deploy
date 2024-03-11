@@ -1,0 +1,26 @@
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  lint:
+    uses: ./.github/workflows/call-gradle-lint.yml
+    with:
+      workdir: "tests/gradle/"
+
+  build:
+    needs: lint
+    uses: ./.github/workflows/call-gradle-build.yml
+    with:
+      workdir: "tests/gradle/"
+
+  containeraized:
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/call-containerize.yml
+    with:
+      version: ${{ needs.build.outputs.version }}
+      workdir: "tests/gradle/"
+      target: "tests/gradle/build"
