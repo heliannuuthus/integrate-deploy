@@ -2,15 +2,27 @@ name: publish and deploy
 
 on:
   workflow_call:
+    inputs:
+      workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of steps where are run"
+      user:
+        required: true
+        type: "string"
+        description: "Specify GRP_USER"
+
     secrets:
       token:
-        required: true
-      user:
         required: true
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
     permissions:
       contents: read
       packages: write
