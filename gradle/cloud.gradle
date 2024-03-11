@@ -64,7 +64,7 @@ allprojects {
     apply plugin: "io.freefair.lombok"
     apply plugin: "me.qoomon.git-versioning"
 
-    group "io.ghrc.heliannuuthus"
+    group "io.ghrc"
 
     gitVersioning.apply {
         version = rootProject.findProperty("version")

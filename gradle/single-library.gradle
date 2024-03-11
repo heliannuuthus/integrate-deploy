@@ -55,7 +55,7 @@ allprojects {
     apply plugin: "io.freefair.lombok"
     apply plugin: "me.qoomon.git-versioning"
 
-    group "io.ghrc.heliannuuthus"
+    group "io.ghrc"
 
     repositories {
         maven { url "https://maven.aliyun.com/nexus/content/groups/public" }
