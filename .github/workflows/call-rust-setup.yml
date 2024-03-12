@@ -17,7 +17,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: setup
         run: |
-          rustup update
           rustup component add rustfmt clippy
           cargo install cargo-audit cargo-msrv cargo2junit cargo-tarpaulin cargo-nextest
       - name: cache registry cache
