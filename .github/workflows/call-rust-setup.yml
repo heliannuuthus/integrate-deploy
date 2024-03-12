@@ -40,6 +40,7 @@ jobs:
           cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
 
       - name: cache cargo
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
         id: cache-save-cargo
         uses: actions/cache/save@v4
         env:
