@@ -40,9 +40,8 @@ jobs:
 
       - name: test
         run: |
-          tree ~/.cargo/bin
-          cargo nextest run --target-dir target;
-          cargo tarpaulin --skip-clean --all-features --workspace --out xml --output-dir target;
+          cargo nextest run --target-dir target
+          cargo tarpaulin --skip-clean --all-features --workspace --out xml --output-dir target
       - name: build
         run: cargo install cargo-auditable && cargo auditable build --release
       - id: environments
