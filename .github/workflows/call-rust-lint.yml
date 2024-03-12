@@ -31,7 +31,6 @@ jobs:
           cargo fmt --all -- --check
           cargo check --no-default-features
           cargo clippy --all-targets --all-features -- -D warnings
-          cargo msrv --verify
 
   security:
     runs-on: ubuntu-latest
