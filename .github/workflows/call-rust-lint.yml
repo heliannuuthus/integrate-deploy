@@ -15,9 +15,11 @@ jobs:
         working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
-      - name: cache registry cache
-        id: heliannuuthus-cargo-cache
+      - name: restore rust cache
         uses: actions/cache/restore@v4
+        id: cache-restore-cargo
+        env:
+          cache-name: cache-cargo
         with:
           path: |
             ~/.cargo/bin/
@@ -25,7 +27,11 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-heliannuuthus-cargo-cache
+          key: ${{ runner.os }}-cargo-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-store-${{ env.cache-name }}-
+            ${{ runner.os }}-cargo-store-
+            ${{ runner.os }}-
       - name: lint
         run: |
           cargo fmt --all -- --check
@@ -40,9 +46,11 @@ jobs:
         working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
-      - name: cache registry cache
-        id: heliannuuthus-cargo-cache
+      - name: restore rust cache
         uses: actions/cache/restore@v4
+        id: cache-restore-cargo
+        env:
+          cache-name: cache-cargo
         with:
           path: |
             ~/.cargo/bin/
@@ -50,6 +58,10 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-heliannuuthus-cargo-cache
+          key: ${{ runner.os }}-cargo-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-store-${{ env.cache-name }}-
+            ${{ runner.os }}-cargo-store-
+            ${{ runner.os }}-
       - name: scan
         run: cargo generate-lockfile && cargo audit

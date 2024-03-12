@@ -15,13 +15,11 @@ jobs:
         working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
-      - name: setup
-        run: |
-          rustup component add rustfmt clippy
-          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
-      - name: cache registry cache
-        id: heliannuuthus-cargo-cache
-        uses: actions/cache/save@v4
+      - name: restore rust cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-cargo
+        env:
+          cache-name: cache-cargo
         with:
           path: |
             ~/.cargo/bin/
@@ -29,4 +27,28 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-heliannuuthus-cargo-cache
+          key: ${{ runner.os }}-cargo-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-store-${{ env.cache-name }}-
+            ${{ runner.os }}-cargo-store-
+            ${{ runner.os }}-
+
+      - name: setup
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+        run: |
+          rustup component add rustfmt clippy
+          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
+
+      - name: cache cargo
+        id: cache-save-cargo
+        uses: actions/cache/save@v4
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
