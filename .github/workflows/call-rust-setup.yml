@@ -18,7 +18,7 @@ jobs:
       - name: setup
         run: |
           rustup update
-          rustup add rustfmt clippy
+          rustup component add rustfmt clippy
           cargo install cargo-audit cargo-msrv cargo2junit cargo-tarpaulin cargo-nextest
       - name: cache registry cache
         id: heliannuuthus-cargo-cache
