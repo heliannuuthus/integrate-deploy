@@ -27,10 +27,10 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-store-${{ env.cache-name }}-
-            ${{ runner.os }}-cargo-store-
+            ${{ runner.os }}-rust-store-${{ env.cache-name }}-
+            ${{ runner.os }}-rust-store-
             ${{ runner.os }}-
 
       - name: setup
@@ -52,4 +52,4 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
-          key: ${{ runner.os }}-cargo-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
