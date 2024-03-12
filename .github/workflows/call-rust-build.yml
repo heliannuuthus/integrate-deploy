@@ -21,11 +21,17 @@ jobs:
     outputs:
       version: ${{ steps.environments.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
-      - name: download registry
-        uses: actions/download-artifact@v3
+      - name: cache registry cache
+        id: heliannuuthus-cargo-cache
+        uses: actions/cache/restore@v4
         with:
-          name: registry
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-heliannuuthus-cargo-cache
       - name: build
         run: cargo install cargo-auditable && cargo auditable build --release
       - name: test
