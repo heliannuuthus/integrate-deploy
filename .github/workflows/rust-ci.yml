@@ -1,11 +1,13 @@
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
-  push:
-    branches:
-      - master
+    types: [opened, reopened, synchronize, closed]
 
 jobs:
+  setup:
+    uses: ./.github/workflows/call-rust-setup.yml
+    with:
+      workdir: "tests/rust/"
+
   lint:
     if: ${{ ! github.event.pull_request.merged }}
     uses: ./.github/workflows/call-rust-lint.yml

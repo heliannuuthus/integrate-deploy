@@ -55,7 +55,7 @@ jobs:
           version=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null)
           " >> "$GITHUB_OUTPUT"
       - name: upload target
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: target
           path: |

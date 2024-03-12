@@ -8,32 +8,7 @@ on:
         description: "Specify all of steps where are run"
 
 jobs:
-  setup:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ inputs.workdir }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v4
-        with:
-          go-version: "1.20"
-      - name: build dependencies
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.1
-          curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.18.2
-          go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@v2.5.0
-          golangci-lint version
-      - name: cache dependencies cache
-        id: heliannuuthus-cargo-cache
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            ~/go
-          key: ${{ runner.os }}-heliannuuthus-golang-cache
-
   lint:
-    needs: setup
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -45,7 +20,7 @@ jobs:
           go-version: "1.20"
       - name: cache registry cache
         id: heliannuuthus-golang-cache
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/go
@@ -54,19 +29,18 @@ jobs:
         run: go version && tree $(go env GOPATH)/bin && golangci-lint -vv
 
   security:
-    needs: setup
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: "1.20"
       - name: cache registry cache
         id: heliannuuthus-golang-cache
-        uses: actions/cache/restore@v3
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/go

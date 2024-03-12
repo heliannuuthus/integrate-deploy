@@ -4,17 +4,24 @@ on:
   push:
     branches:
       - master
-      
+
 jobs:
+  setup:
+    uses: ./.github/workflows/call-node-setup.yml
+    with:
+      workdir: "tests/node/"
+
   lint:
     if: ${{ ! github.event.pull_request.merged }}
     uses: ./.github/workflows/call-node-lint.yml
     with:
       workdir: "tests/node/"
+      PNPM_STORE: ${{ needs.setup.outputs.PNPM_STORE }}
+
 
   build:
     needs: lint
     uses: ./.github/workflows/call-node-build.yml
     with:
       workdir: "tests/node/"
-      PNPM_STORE: ${{ needs.lint.outputs.PNPM_STORE }}
+      PNPM_STORE: ${{ needs.setup.outputs.PNPM_STORE }}
