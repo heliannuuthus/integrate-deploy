@@ -4,6 +4,7 @@ on:
 
 jobs:
   lint:
+    if: ${{ ! github.event.pull_request.merged }}
     uses: ./.github/workflows/call-node-lint.yml
     with:
       workdir: "tests/node/"

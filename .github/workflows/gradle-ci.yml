@@ -4,6 +4,7 @@ on:
 
 jobs:
   lint:
+    if: ${{ ! github.event.pull_request.merged }}
     uses: ./.github/workflows/call-gradle-lint.yml
     with:
       workdir: "tests/gradle/"
@@ -15,6 +16,7 @@ jobs:
       workdir: "tests/gradle/"
 
   publish:
+    if: ${{ github.event.pull_request.merged }}
     needs: build
     permissions:
       contents: read
