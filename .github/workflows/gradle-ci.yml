@@ -19,7 +19,7 @@ jobs:
       workdir: "tests/gradle/"
 
   publish:
-    if: ${{ github.event.pull_request.merged == true }}
+    if: ${{ always() && github.event.pull_request.merged == true }}
     needs: build
     permissions:
       contents: read
