@@ -1,3 +1,5 @@
+name: golang
+
 on:
   pull_request:
     types: [opened, reopened, synchronize]
