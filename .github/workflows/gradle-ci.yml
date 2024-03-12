@@ -1,7 +1,10 @@
 on:
   pull_request:
     types: [opened, reopened, synchronize]
-
+  push:
+    branches:
+      - master
+      
 jobs:
   lint:
     if: ${{ ! github.event.pull_request.merged }}
