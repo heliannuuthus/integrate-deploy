@@ -21,6 +21,7 @@ jobs:
     outputs:
       version: ${{ steps.environments.outputs.version }}
     steps:
+      - uses: actions/checkout@v4
       - name: cache registry cache
         id: heliannuuthus-cargo-cache
         uses: actions/cache/restore@v4
