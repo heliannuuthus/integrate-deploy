@@ -1,14 +1,14 @@
-on: 
+on:
   pull_request:
     types: [opened, reopened, synchronize]
 
 jobs:
   lint:
+    if: ${{ ! github.event.pull_request.merged }}
     uses: ./.github/workflows/call-rust-lint.yml
     with:
       clippy: true
       workdir: "tests/rust/"
-  
 
   build:
     needs: lint
@@ -16,8 +16,8 @@ jobs:
     with:
       workdir: "tests/rust/"
 
-
   containeraized:
+    if: ${{ github.event.pull_request.merged }}
     needs: build
     permissions:
       contents: read

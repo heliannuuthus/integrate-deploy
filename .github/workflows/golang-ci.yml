@@ -4,6 +4,7 @@ on:
 
 jobs:
   lint:
+    if: ${{ ! github.event.pull_request.merged }}
     uses: ./.github/workflows/call-golang-lint.yml
     with:
       workdir: "tests/golang/"
@@ -18,6 +19,7 @@ jobs:
       ENTRANCE: cmd/main.go
 
   containeraized:
+    if: ${{ github.event.pull_request.merged }}
     needs: build
     permissions:
       contents: read
