@@ -13,11 +13,10 @@ jobs:
     needs: setup
     uses: ./.github/workflows/call-rust-lint.yml
     with:
-      clippy: true
       workdir: "tests/rust/"
 
   build:
-    needs: lint
+    needs: [setup, lint]
     uses: ./.github/workflows/call-rust-build.yml
     with:
       workdir: "tests/rust/"

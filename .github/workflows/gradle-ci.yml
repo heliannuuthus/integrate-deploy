@@ -1,7 +1,7 @@
 on:
   pull_request:
-    types: [opened, reopened, synchronize,closed]
-      
+    types: [opened, reopened, synchronize, closed]
+
 jobs:
   lint:
     if: ${{ ! github.event.pull_request.merged }}
