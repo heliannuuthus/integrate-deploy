@@ -17,6 +17,7 @@ jobs:
       workdir: "tests/rust/"
 
   build:
+    if: ${{ needs.setup.result == 'success' }}
     needs: [setup, lint]
     uses: ./.github/workflows/call-rust-build.yml
     with:
