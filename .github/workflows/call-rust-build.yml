@@ -37,8 +37,6 @@ jobs:
           key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-rust-store-${{ env.cache-name }}-
-            ${{ runner.os }}-rust-store-
-            ${{ runner.os }}-
 
       - name: test
         run: |

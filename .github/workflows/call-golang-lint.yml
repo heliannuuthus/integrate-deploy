@@ -30,8 +30,6 @@ jobs:
           key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
-            ${{ runner.os }}-golang-store-
-            ${{ runner.os }}-
 
       - name: golangci-lint
         run: go version && tree $(go env GOPATH)/bin && golangci-lint -vv
@@ -57,8 +55,6 @@ jobs:
           key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
-            ${{ runner.os }}-golang-store-
-            ${{ runner.os }}-
-              
+
       - name: gosec checkout
         run: go version && tree $(go env GOPATH)/bin && gosec -fmt=sarif -out=gosec.sarif ./...

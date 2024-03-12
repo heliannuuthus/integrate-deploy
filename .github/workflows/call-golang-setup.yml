@@ -30,8 +30,6 @@ jobs:
           key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
-            ${{ runner.os }}-golang-store-
-            ${{ runner.os }}-
 
       - name: setup
         if: ${{ steps.cache-restore-golang.outputs.cache-hit != 'true'}}
