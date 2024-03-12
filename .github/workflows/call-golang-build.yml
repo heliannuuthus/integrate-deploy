@@ -48,7 +48,7 @@ jobs:
         with:
           path: |
             ~/go
-          key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
 

@@ -10,7 +10,7 @@ jobs:
       workdir: "tests/rust/"
 
   lint:
-    if: ${{ ! github.event.pull_request.merged }}
+    if: ${{ github.event.pull_request.merged != true }}
     needs: setup
     uses: ./.github/workflows/call-rust-lint.yml
     with:
@@ -24,7 +24,7 @@ jobs:
       workdir: "tests/rust/"
 
   containeraized:
-    if: ${{ github.event.pull_request.merged }}
+    if: ${{ github.event.pull_request.merged == true }}
     needs: build
     permissions:
       contents: read
