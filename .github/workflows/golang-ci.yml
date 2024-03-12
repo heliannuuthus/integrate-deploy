@@ -1,19 +1,23 @@
 on:
   pull_request:
     types: [opened, reopened, synchronize]
-  push:
-    branches:
-      - master
-      
+  pull_request_target:
+    types: [closed]
 jobs:
+  setup:
+    uses: ./.github/workflows/call-golang-setup.yml
+    with:
+      workdir: "tests/golang/"
+
   lint:
     if: ${{ ! github.event.pull_request.merged }}
+    needs: setup
     uses: ./.github/workflows/call-golang-lint.yml
     with:
       workdir: "tests/golang/"
 
   build:
-    needs: lint
+    needs: [setup, lint]
     uses: ./.github/workflows/call-golang-build.yml
     with:
       workdir: "tests/golang/"

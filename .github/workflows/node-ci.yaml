@@ -1,20 +1,25 @@
 on:
   pull_request:
     types: [opened, reopened, synchronize]
-  push:
-    branches:
-      - master
-      
+  pull_request_target:
+    types: [closed]
 jobs:
-  lint:
-    if: ${{ ! github.event.pull_request.merged }}
-    uses: ./.github/workflows/call-node-lint.yml
+  setup:
+    uses: ./.github/workflows/call-node-setup.yml
     with:
       workdir: "tests/node/"
 
+  lint:
+    if: ${{ ! github.event.pull_request.merged }}
+    needs: setup
+    uses: ./.github/workflows/call-node-lint.yml
+    with:
+      workdir: "tests/node/"
+      PNPM_STORE: ${{ needs.setup.outputs.PNPM_STORE }}
+
   build:
-    needs: lint
+    needs: [setup, lint]
     uses: ./.github/workflows/call-node-build.yml
     with:
       workdir: "tests/node/"
-      PNPM_STORE: ${{ needs.lint.outputs.PNPM_STORE }}
+      PNPM_STORE: ${{ needs.setup.outputs.PNPM_STORE }}

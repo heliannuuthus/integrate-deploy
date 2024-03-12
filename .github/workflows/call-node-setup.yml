@@ -13,24 +13,32 @@ on:
         default: "lts/*"
         description: "Specify node version, default: lts"
 
+    outputs:
       PNPM_STORE:
-        required: false
-        default: "~/.local/share/pnpm/store/"
-        type: "string"
-        description: "pnpm store package path"
+        description: "pnpm package store path"
+        value: ${{ jobs.setup.outputs.PNPM_STORE }}
 
 jobs:
-  lint:
+  setup:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: ${{ inputs.workdir }}
+    outputs:
+      PNPM_STORE: ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node }}
       - uses: pnpm/action-setup@v3
         with:
           version: 8
           run_install: false
+
+      - name: pnpm cache dir
+        id: pnpm-cache-dir
+        run: echo "PNPM_STORE=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
 
       - name: restore node cache
         uses: actions/cache/restore@v4
@@ -43,31 +51,22 @@ jobs:
             ${{ inputs.workdir }}node_modules
             **/node_modules
             **/.eslintcache
-            ${{ inputs.PNPM_STORE }}
+            ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
           key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-
 
-      - name: lint
+      - name: setup
+        if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
         run: |
-          pnpm eslint .
-          pnpm prettier . --check-debug
+          pnpm i  
+          pnpm i -g eslint
+          pnpm i -g prettier
 
-  security:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ inputs.workdir }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 8
-          run_install: false
-
-      - name: restore node cache
-        uses: actions/cache/restore@v4
-        id: cache-restore-node_modules
+      - name: cache node modules
+        if: ${{ steps.cache-restore-node_modules.outputs.cache-hit != 'true'}}
+        uses: actions/cache/save@v4
+        id: cache-save-node_modules
         env:
           cache-name: cache-node_modules
         with:
@@ -76,11 +75,5 @@ jobs:
             ${{ inputs.workdir }}node_modules
             **/node_modules
             **/.eslintcache
-            ${{ inputs.PNPM_STORE }}
+            ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
           key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-
-
-      - name: audit
-        run: |
-          pnpm audit
