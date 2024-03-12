@@ -5,21 +5,6 @@ on:
     types: [closed]
 
 jobs:
-
-  print:
-    runs-on: ubuntu-latest
-    steps:
-      - name: print-merge
-        env:
-          MERGED: ${{ github.event.pull_request.merged }}
-          MERGED_STR: ${{ github.event.pull_request.merged == 'true' }}
-          MERGED_BOOL: ${{ github.event.pull_request.merged == true }}
-        run: |
-          echo MERGED: $MERGED
-          echo MERGED_STR: $MERGED_STR
-          echo MERGED_BOOL: $MERGED_BOOL
-
-
   setup:
     uses: ./.github/workflows/call-golang-setup.yml
     with:
@@ -43,7 +28,7 @@ jobs:
       ENTRANCE: cmd/main.go
 
   containeraized:
-    if: ${{ github.event.pull_request.merged }}
+    if: ${{ always() && github.event.pull_request.merged }}
     needs: build
     permissions:
       contents: read
