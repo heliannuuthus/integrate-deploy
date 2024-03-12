@@ -1,0 +1,48 @@
+on:
+  workflow_call:
+    inputs:
+      workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of steps where are run"
+
+      toolchain:
+        required: false
+        type: "string"
+        default: "nightly"
+        description: "Rust toolchain version"
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: setup
+        run: |
+          rustup default ${{ inputs.toolchain }} 
+          rustup update
+      - name: upload registry
+        uses: actions/upload-artifact@v4
+        with:
+          name: registry
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+      - name: cache registry cache
+        id: heliannuuthus-cargo-cache
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-heliannuuthus-cargo-cache
