@@ -5,7 +5,6 @@ on:
     types: [closed]
 
 jobs:
-
   print:
     runs-on: ubuntu-latest
     steps:
@@ -18,7 +17,6 @@ jobs:
           echo MERGED: $MERGED
           echo MERGED_STR: $MERGED_STR
           echo MERGED_BOOL: $MERGED_BOOL
-
 
   setup:
     uses: ./.github/workflows/call-golang-setup.yml
