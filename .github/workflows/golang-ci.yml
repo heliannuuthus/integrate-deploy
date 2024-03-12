@@ -4,8 +4,7 @@ on:
 
 jobs:
   setup:
-    if: ${{ ! github.event.pull_request.merged }}
-    uses: ./.github/workflows/call-golang-lint.yml
+    uses: ./.github/workflows/call-golang-setup.yml
     with:
       workdir: "tests/golang/"
 
