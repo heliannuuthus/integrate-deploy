@@ -12,6 +12,7 @@ jobs:
       workdir: "tests/gradle/"
 
   build:
+    if: always()
     needs: lint
     uses: ./.github/workflows/call-gradle-build.yml
     with:
