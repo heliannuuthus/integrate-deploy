@@ -1,4 +1,4 @@
-FROM rust:latest
+FROM alpine:latest
 
 WORKDIR /app
 
