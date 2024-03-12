@@ -3,8 +3,8 @@ on:
     types: [opened, reopened, synchronize]
   pull_request_target:
     types: [closed]
+
 jobs:
-  
   setup:
     uses: ./.github/workflows/call-golang-setup.yml
     with:

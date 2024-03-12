@@ -10,7 +10,7 @@ jobs:
       workdir: "tests/node/"
 
   lint:
-    if: ${{ ! github.event.pull_request.merged }}
+    if: ${{ github.event.pull_request.merged != true }}
     needs: setup
     uses: ./.github/workflows/call-node-lint.yml
     with:
