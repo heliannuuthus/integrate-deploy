@@ -36,6 +36,7 @@ jobs:
 
       - name: test
         run: |
+          tree ~/.cargo/bin
           cargo nextest run --target-dir target;
           cargo tarpaulin --skip-clean --all-features --workspace --out xml --output-dir target;
       - name: build
