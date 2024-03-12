@@ -35,7 +35,9 @@ jobs:
       - name: build
         run: cargo install cargo-auditable && cargo auditable build --release
       - name: test
-        run: cargo test --release --verbose
+        run: |
+          cargo nextest run;
+          cargo tarpaulin --skip-clean --all-features --workspace --out xml --output-dir build;
       - id: environments
         name: environments
         run: |
