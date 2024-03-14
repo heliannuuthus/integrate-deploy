@@ -1,7 +1,7 @@
 buildscript {
     repositories {
         maven { url "https://maven.aliyun.com/repository/gradle-plugin" }
-        maven { url 'https://repo.spring.io/plugins-snapshot' }
+        maven { url "https://repo.spring.io/plugins-snapshot" }
         mavenCentral()
     }
     dependencies {
@@ -28,7 +28,7 @@ ext {
     guavaVersion = "33.0.0-jre"
     lang3Version + "3.14.0"
     spotlessVersion = "1.21.0"
-    helianthusCommonVersion = "0.1.0"
+    helianthusCommonVersion = "0.1.0-2f44836"
 }
 
 sourceCompatibility = 17
@@ -43,8 +43,8 @@ dependencies {
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation "io.projectreactor:reactor-test"
 
-    // apollo
-    implementation "io.ghcr.heliannuuthus:helianthus-annuus-apollo-client:${helianthusCommonVersion}"
+    //apollo
+    implementation "io.ghrc:helianthus-annuus-apollo-client:${helianthusCommonVersion}"
 
     // spring cloud
     implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery"
@@ -52,7 +52,7 @@ dependencies {
 
     // utils
     implementation "com.google.guava:guava:${guavaVersion}"
-    implementation 'org.apache.commons:commons-lang3:{lang3Version}'
+    implementation "org.apache.commons:commons-lang3:${lang3Version}"
 
 }
 
@@ -69,11 +69,11 @@ allprojects {
     gitVersioning.apply {
         version = rootProject.findProperty("version")
         refs {
-            branch('master') {
-                version = '${version}-${commit.short}'
+            branch("master") {
+                version = "${version}-${commit.short}"
             }
-            branch('.+') {
-                version = '${version}-${commit.short}-SNAPSHOT'
+            branch(".+") {
+                version = "${version}-${commit.short}-SNAPSHOT"
             }
         }
     }
@@ -82,7 +82,7 @@ allprojects {
         compileOnly {
             extendsFrom annotationProcessor
         }
-        all*.exclude module: 'spring-boot-starter-logging'
+        all*.exclude module: "spring-boot-starter-logging"
     }
 
     repositories {
