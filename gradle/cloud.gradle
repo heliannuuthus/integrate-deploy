@@ -9,6 +9,7 @@ buildscript {
         classpath "io.spring.gradle:dependency-management-plugin:1.1.4"
         classpath "org.springdoc:springdoc-openapi-gradle-plugin:1.8.0"
         classpath "com.diffplug.spotless:spotless-plugin-gradle:6.25.0"
+        classpath "me.qoomon:gradle-git-versioning-plugin:6.4.2"
         classpath "io.freefair.gradle:lombok-plugin:8.6"
     }
 }
