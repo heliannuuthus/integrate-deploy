@@ -26,7 +26,7 @@ ext {
     cloudVersion = "2022.0.0"
     alibabaCloudVersion = "2022.0.0.0-RC1"
     guavaVersion = "33.0.0-jre"
-    lang3Version + "3.14.0"
+    lang3Version = "3.14.0"
     spotlessVersion = "1.21.0"
     helianthusCommonVersion = "0.1.0-2f44836"
 }
