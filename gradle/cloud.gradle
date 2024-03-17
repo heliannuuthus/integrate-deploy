@@ -122,3 +122,7 @@ allprojects {
         }
     }
 }
+
+bootJar {
+    archiveFileName = "app.${archiveExtension.get()}"
+}
