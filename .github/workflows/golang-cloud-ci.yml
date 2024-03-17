@@ -1,0 +1,33 @@
+name: gradle
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  pull_request_target:
+    types: [closed]
+
+jobs:
+  lint:
+    if: ${{ github.event.pull_request.merged != true }}
+    uses: ./.github/workflows/call-gradle-lint.yml
+    with:
+      workdir: "tests/gradle-cloud/"
+
+  build:
+    if: always()
+    needs: lint
+    uses: ./.github/workflows/call-gradle-build.yml
+    with:
+      workdir: "tests/gradle-cloud/"
+
+  publish:
+    if: ${{ always() && github.event.pull_request.merged == true }}
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/call-containerize.yml
+    with:
+      workdir: "tests/gradle-cloud/"
+      version: ${{ needs.build.outputs.version }}
+      target: "tests/gradle-cloud/build"
