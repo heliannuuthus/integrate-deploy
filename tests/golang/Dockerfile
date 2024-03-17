@@ -2,6 +2,6 @@ FROM alpine:latest
 
 WORKDIR /
 
-COPY build/integration-deploy .
+COPY build/integrate-deploy .
 
 CMD ["./integration-deploy"]

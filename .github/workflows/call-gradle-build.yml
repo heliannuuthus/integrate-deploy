@@ -29,6 +29,9 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
       - name: build and test
         run: gradle clean build
+        env:
+          GPR_USER: ${{ secrets.user }}
+          GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - id: environments
         name: environments
         run: |

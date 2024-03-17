@@ -1,0 +1,42 @@
+name: golang
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  pull_request_target:
+    types: [closed]
+
+jobs:
+  setup:
+    uses: ./.github/workflows/call-golang-setup.yml
+    with:
+      workdir: "tests/golang/"
+
+  lint:
+    if: ${{ github.event.pull_request.merged != true }}
+    needs: setup
+    uses: ./.github/workflows/call-golang-lint.yml
+    with:
+      workdir: "tests/golang/"
+
+  build:
+    if: ${{ always() && needs.setup.result == 'success' }}
+    needs: [setup, lint]
+    uses: ./.github/workflows/call-golang-build.yml
+    with:
+      workdir: "tests/golang/"
+      GOOS: linux
+      GOARCH: amd64
+      ENTRANCE: cmd/main.go
+
+  containeraized:
+    if: ${{ always() && github.event.pull_request.merged }}
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/call-containerize.yml
+    with:
+      version: ${{ needs.build.outputs.version }}
+      workdir: "tests/golang/"
+      target: "tests/golang/build"
