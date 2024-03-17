@@ -10,7 +10,7 @@ For **Java** projects that use **gradle** as a build tool, it provides integrate
 
 ### rust
 
-[![rust](https://github.com/heliannuuthus/integration-deploy/actions/workflows/rust-ci.yml/badge.svg)](https://github.com/heliannuuthus/integration-deploy/actions/workflows/rust-ci.yml)
+[![rust](https://github.com/heliannuuthus/integrate-deploy/actions/workflows/rust-ci.yml/badge.svg)](https://github.com/heliannuuthus/integrate-deploy/actions/workflows/rust-ci.yml)
 
 ```yaml
 name: rust
@@ -53,9 +53,54 @@ jobs:
       target: "tests/rust/target/"
 ```
 
-### gradle
+### gradle-cloud
 
-[![gradle](https://github.com/heliannuuthus/integration-deploy/actions/workflows/gradle-ci.yml/badge.svg)](https://github.com/heliannuuthus/integration-deploy/actions/workflows/gradle-ci.yml)
+[![gradle-cloud](https://github.com/heliannuuthus/integrate-deploy/actions/workflows/golang-cloud-ci.yml/badge.svg)](https://github.com/heliannuuthus/integrate-deploy/actions/workflows/golang-cloud-ci.yml)
+
+> use **Dockerfile** to build the project image, the default build jar package name is `app.jar`, output directory is `build/libs/`
+
+```yaml
+name: gradle
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  pull_request_target:
+    types: [closed]
+
+jobs:
+  lint:
+    if: ${{ github.event.pull_request.merged != true }}
+    uses: heliannuuthus/integrate-deploy/.github/workflows/call-gradle-lint.yml
+    with:
+      workdir: "tests/gradle/"
+
+  build:
+    if: always()
+    needs: lint
+    uses: heliannuuthus/integrate-deploy/.github/workflows/call-gradle-build.yml
+    with:
+      workdir: "tests/gradle/"
+
+  publish:
+    if: ${{ always() && github.event.pull_request.merged == true }}
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+    uses: heliannuuthus/integrate-deploy/.github/workflows/call-gradle-publish.yml
+    with:
+      workdir: "tests/gradle/"
+      user: ${{ github.actor }}
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+### gradle-library
+
+[![gradle-library](https://github.com/heliannuuthus/integrate-deploy/actions/workflows/gradle-library-ci.yml/badge.svg)](https://github.com/heliannuuthus/integrate-deploy/actions/workflows/gradle-library-ci.yml)
+
+> publish the package to github pakcage
 
 ```yaml
 name: gradle
@@ -96,7 +141,7 @@ jobs:
 
 ### golang
 
-[![golang](https://github.com/heliannuuthus/integration-deploy/actions/workflows/golang-ci.yml/badge.svg)](https://github.com/heliannuuthus/integration-deploy/actions/workflows/golang-ci.yml)
+[![golang](https://github.com/heliannuuthus/integrate-deploy/actions/workflows/golang-ci.yaml/badge.svg)](https://github.com/heliannuuthus/integrate-deploy/actions/workflows/golang-ci.yaml)
 
 ```yaml
 name: golang
@@ -145,7 +190,7 @@ jobs:
 
 ### node
 
-[![node](https://github.com/heliannuuthus/integration-deploy/actions/workflows/node-ci.yaml/badge.svg)](https://github.com/heliannuuthus/integration-deploy/actions/workflows/node-ci.yaml)
+[![node](https://github.com/heliannuuthus/integrate-deploy/actions/workflows/node-ci.yaml/badge.svg)](https://github.com/heliannuuthus/integrate-deploy/actions/workflows/node-ci.yaml)
 
 ```yaml
 name: node
