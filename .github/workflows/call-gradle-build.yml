@@ -31,7 +31,7 @@ jobs:
         run: gradle clean build
         env:
           GPR_USER: ${{ secrets.user }}
-          GPR_TOKEN: ${{ secrets.token }}
+          GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - id: environments
         name: environments
         run: |
