@@ -1,4 +1,4 @@
-name: gradle
+name: gradle-library
 
 on:
   pull_request:
