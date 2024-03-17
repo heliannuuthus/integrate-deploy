@@ -28,6 +28,7 @@ ext {
     alibabaCloudVersion = "2022.0.0.0-RC1"
     guavaVersion = "33.0.0-jre"
     lang3Version = "3.14.0"
+    rngVersion = "1.5"
     spotlessVersion = "1.21.0"
     helianthusCommonVersion = "0.1.0-2f44836"
 }
@@ -35,6 +36,17 @@ ext {
 sourceCompatibility = 17
 targetCompatibility = 17
 
+gitVersioning.apply {
+    version = rootProject.findProperty("version")
+    refs {
+        branch("master") {
+            version = '${version}-${commit.short}'
+        }
+        branch(".+") {
+            version = '${version}-${commit.short}-SNAPSHOT'
+        }
+    }
+}
 
 dependencies {
     implementation "org.springframework.boot:spring-boot-starter-data-r2dbc"
@@ -54,6 +66,7 @@ dependencies {
     // utils
     implementation "com.google.guava:guava:${guavaVersion}"
     implementation "org.apache.commons:commons-lang3:${lang3Version}"
+    implementation "org.apache.commons:commons-rng-simple:${rngVersion}"
 
 }
 
@@ -66,18 +79,6 @@ allprojects {
     apply plugin: "me.qoomon.git-versioning"
 
     group "io.ghrc"
-
-    gitVersioning.apply {
-        version = rootProject.findProperty("version")
-        refs {
-            branch("master") {
-                version = "${version}-${commit.short}"
-            }
-            branch(".+") {
-                version = "${version}-${commit.short}-SNAPSHOT"
-            }
-        }
-    }
 
     configurations {
         compileOnly {
