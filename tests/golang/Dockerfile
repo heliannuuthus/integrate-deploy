@@ -1,7 +1,7 @@
-FROM alpine:latest
+FROM alpine:3.19
 
 WORKDIR /
 
-COPY build/integrate-deploy .
+COPY build/golang .
 
-CMD ["./integration-deploy"]
+CMD ["./golang"]
