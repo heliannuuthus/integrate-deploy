@@ -52,15 +52,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
 
-      - name: test
-        run: |
-          go test -gcflags="all=-N -l" -coverprofile=build/coverage.txt -covermode count -json -v ./... 2>&1 |
-          tee build/test.json | gotestfmt | tee >(go-junit-report -parser gojson -out build/report.xml);
-
       - name: build binary
         run: |
           mkdir build
           CGO_ENABLE=0 GOOS=${{ inputs.GOOS }} GOARCH=${{ inputs.GOARCH }} go build -a -o build/${{ github.repository }} ${{ inputs.ENTRANCE }}
+
+      - name: test
+        run: |
+          go test -gcflags="all=-N -l" -coverprofile=build/coverage.txt -covermode count -json -v ./... 2>&1 |
+          tee build/test.json | gotestfmt | tee >(go-junit-report -parser gojson -out build/report.xml);
 
       - id: environments
         name: environments
@@ -69,6 +69,21 @@ jobs:
           project=${{ github.repository }}
           version=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null)
           " >> "$GITHUB_OUTPUT"
+
+      - id: sonar
+        name: sonar
+        uses: docker://sonarsource/sonar-scanner-cli:latest
+        env:
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_SCANNER_OPTS: |
+            echo "
+            -Dsonar.sources=${{ inputs.workdir }} 
+            -Dsonar.projectKey=${{ steps.environments.outputs.project }} 
+            -Dsonar.projectVersion=${{ steps.environments.outputs.version }}
+            -Dsonar.go.coverage.reportPaths=build/report.xml
+            "
+
 
       - name: upload target
         uses: actions/upload-artifact@v4
