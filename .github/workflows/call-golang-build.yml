@@ -76,13 +76,7 @@ jobs:
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_SCANNER_OPTS: |
-            echo "
-            -Dsonar.sources=${{ inputs.workdir }} 
-            -Dsonar.projectKey=${{ steps.environments.outputs.project }} 
-            -Dsonar.projectVersion=${{ steps.environments.outputs.version }}
-            -Dsonar.go.coverage.reportPaths=build/report.xml
-            "
+          SONAR_SCANNER_OPTS: "-Dsonar.sources=${{ inputs.workdir }} -Dsonar.projectKey=${{ steps.environments.outputs.project }} -Dsonar.projectVersion=${{ steps.environments.outputs.version }} -Dsonar.go.coverage.reportPaths=build/report.xml"
 
 
       - name: upload target
