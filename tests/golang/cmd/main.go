@@ -6,54 +6,48 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var db = make(map[string]string)
+type User struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+	Age  int    `json:"age"`
+}
 
-func setupRouter() *gin.Engine {
-	// Disable Console Color
-	// gin.DisableConsoleColor()
-	r := gin.Default()
-
-	// Ping test
-	r.GET("/ping", func(c *gin.Context) {
-		c.String(http.StatusOK, "pong")
-	})
-
-	// Get user value
-	r.GET("/user/:name", func(c *gin.Context) {
-		user := c.Params.ByName("name")
-		value, ok := db[user]
-		if ok {
-			c.JSON(http.StatusOK, gin.H{"user": user, "value": value})
-		} else {
-			c.JSON(http.StatusOK, gin.H{"user": user, "status": "no value"})
-		}
-	})
-
-	authorized := r.Group("/", gin.BasicAuth(gin.Accounts{
-		"foo":  "bar", // user:foo password:bar
-		"manu": "123", // user:manu password:123
-	}))
-
-	authorized.POST("admin", func(c *gin.Context) {
-		user := c.MustGet(gin.AuthUserKey).(string)
-
-		// Parse JSON
-		var json struct {
-			Value string `binding:"required" json:"value"`
-		}
-
-		if c.Bind(&json) == nil {
-			db[user] = json.Value
-			c.JSON(http.StatusOK, gin.H{"status": "ok"})
-		}
-	})
-
-	return r
+var users = []User{
+	{ID: "1", Name: "Alice", Age: 30},
+	{ID: "2", Name: "Bob", Age: 35},
 }
 
 func main() {
-	r := setupRouter()
-	if err := r.Run(":8080"); err != nil {
+	router := gin.Default()
+
+	router.GET("/users", getUsers)
+	router.GET("/users/:id", getUser)
+	router.POST("/users", createUser)
+
+	router.Run(":8080")
+}
+
+func getUsers(c *gin.Context) {
+	c.JSON(http.StatusOK, users)
+}
+
+func getUser(c *gin.Context) {
+	id := c.Param("id")
+	for _, user := range users {
+		if user.ID == id {
+			c.JSON(http.StatusOK, user)
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+}
+
+func createUser(c *gin.Context) {
+	var newUser User
+	if err := c.BindJSON(&newUser); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+	users = append(users, newUser)
+	c.JSON(http.StatusCreated, newUser)
 }

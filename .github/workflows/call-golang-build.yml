@@ -59,8 +59,8 @@ jobs:
 
       - name: test
         run: |
-          go test -gcflags="all=-N -l" -coverprofile=build/coverage.txt -covermode count -json -v ./... 2>&1 |
-          tee build/test.json | gotestfmt | tee >(go-junit-report -parser gojson -out build/report.xml);
+          go test -gcflags="all=-N -l" -coverprofile=build/coverage.txt -covermode count -json -v ./... 2>&1 | tee build/test.json | gotestfmt 
+          go-junit-report -parser gojson -in /build/test.json -out build/report.xml
 
       - id: environments
         name: environments
