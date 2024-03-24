@@ -96,14 +96,6 @@ jobs:
           " >> "$GITHUB_OUTPUT"
         shell: bash 
 
-      - name: print env
-        run: |
-          echo ${{ steps.environments.outputs.sonar_enabled }}
-          echo ${{ steps.environments.outputs.sonar_enabled == 'true' }}
-          echo ${{ steps.environments.outputs.sonar_enabled == true }}
-          echo ${{ steps.environments.outputs.sonar_enabled == false }}
-          echo ${{ steps.environments.outputs.sonar_enabled == 'false' }}
-
       - id: sonar
         if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
         name: sonar
