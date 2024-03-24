@@ -73,10 +73,10 @@ jobs:
       - id: environments
         name: environments
         run: |
-          version=$(git describe --tags $(git rev-list --tags --max-count=1))
+          version=$(git rev-parse --short ${{ github.event.pull_request.head.sha }})
           echo "version: $version"
-          version="${version-0.0.1}-$(git rev-parse --short ${{ github.event.pull_request.head.sha }})"
-          echo $version
+          version="${version-0.0.1}-$(git describe --tags $version)"
+          echo "version: $version"
           echo "
           project=${{ github.repository }}  
           version=$version
