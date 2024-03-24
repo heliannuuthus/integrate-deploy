@@ -56,7 +56,7 @@ jobs:
       - name: download gosec report
         uses: actions/download-artifact@v4
         with:
-          name: gosec-report.json
+          name: gosec-report
           path: |
             ${{ inputs.workdir }}build/gosec-report.json
 
