@@ -90,9 +90,9 @@ jobs:
           version=${version#v}
           version="$version-$(git rev-parse --short HEAD)"
           echo "
-          project=${{ github.repository }}
+          project=${$(go list -m)##*/}
           version=$version
-          sonar_enabled=${{ secrets.GITHUB_TOKEN != '' && secrets.SONAR_HOST_URL != ''}}
+          sonar_enabled=${{ secrets.SONAR_TOKEN != '' && secrets.SONAR_HOST_URL != ''}}
           " >> "$GITHUB_OUTPUT"
         shell: bash 
 
