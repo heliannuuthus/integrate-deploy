@@ -63,7 +63,7 @@ jobs:
 
       - name: gosec checkout
         run: |
-          mkdir build
+          mkdir -p build
           gosec -fmt=json -out=build/gosec-report.json -stdout -verbose=text *.go
           tree
             

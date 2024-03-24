@@ -63,7 +63,7 @@ jobs:
 
       - name: build binary
         run: |
-          mkdir build
+          mkdir -p build
           CGO_ENABLE=0 GOOS=${{ inputs.GOOS }} GOARCH=${{ inputs.GOARCH }} go build -a -o build/${{ github.repository }} ${{ inputs.ENTRANCE }}
 
       - name: test
