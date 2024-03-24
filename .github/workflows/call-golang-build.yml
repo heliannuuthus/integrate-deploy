@@ -78,10 +78,8 @@ jobs:
         name: environments
         run: |
           version=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "v0.1.0")
-          echo "version: $version"
           version=${version#v}
           version="$version-$(git rev-parse --short HEAD)"
-          echo $version
           echo "
           project=${{ github.repository }}  
           version=$version
@@ -92,6 +90,7 @@ jobs:
         name: sonar
         uses: sonarsource/sonarqube-scan-action@master
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
