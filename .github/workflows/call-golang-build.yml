@@ -56,20 +56,20 @@ jobs:
       - name: download gosec report
         uses: actions/download-artifact@v4
         with:
-          name: target
-          path: build
+          name: gosec-report.json
+          path: |
+            ${{ inputs.workdir }}build/gosec-report.json
+
 
       - name: build binary
         run: |
           mkdir build
-          tree
           CGO_ENABLE=0 GOOS=${{ inputs.GOOS }} GOARCH=${{ inputs.GOARCH }} go build -a -o build/${{ github.repository }} ${{ inputs.ENTRANCE }}
 
       - name: test
         run: |
-          tree
           go test -gcflags="all=-N -l" -coverprofile=build/coverage.txt -covermode count -json -v ./... 2>&1 | tee build/test.json | gotestfmt 
-          go-junit-report -parser gojson -in /build/test.json -out build/report.xml
+          go-junit-report -parser gojson -in build/test.json -out build/report.xml
 
       - id: environments
         name: environments

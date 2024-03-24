@@ -69,6 +69,6 @@ jobs:
       - name: upload target
         uses: actions/upload-artifact@v4
         with:
-          name: target
+          name: gosec-report
           path: |
-            ${{ inputs.workdir }}build/
+            ${{ inputs.workdir }}build/gosec-report.json
