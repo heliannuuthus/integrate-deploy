@@ -52,14 +52,13 @@ jobs:
           key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
-    
+
       - name: download gosec report
         uses: actions/download-artifact@v4
         with:
           name: gosec-report
           path: |
             ${{ inputs.workdir }}build/gosec-report.json
-
 
       - name: build binary
         run: |
@@ -75,7 +74,7 @@ jobs:
         name: environments
         run: |
           version=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null)
-          version="${version-0.0.1}-$(git rev-parse --short "$GITHUB_SHA")"
+          version="${version-0.0.1}-$(git rev-parse --short ${{ github.event.pull_request.head.sha }})"
           echo $version
           echo "
           project=${{ github.repository }}  
