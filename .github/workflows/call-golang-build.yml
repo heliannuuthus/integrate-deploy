@@ -52,12 +52,17 @@ jobs:
           key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
+    
+      - name: download gosec report
+        uses: actions/download-artifact@v4
+        with:
+          name: target
+          path: build
 
       - name: build binary
         run: |
           mkdir build
-          pwd
-          ls
+          tree
           CGO_ENABLE=0 GOOS=${{ inputs.GOOS }} GOARCH=${{ inputs.GOARCH }} go build -a -o build/${{ github.repository }} ${{ inputs.ENTRANCE }}
 
       - name: test

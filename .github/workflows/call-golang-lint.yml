@@ -62,4 +62,13 @@ jobs:
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
 
       - name: gosec checkout
-        run: go version && tree $(go env GOPATH)/bin && gosec -fmt=sarif -out=gosec.sarif ./...
+        run: |
+          mkdir build
+          gosec -fmt=json -out=build/gosec-report.json -stdout -verbose=text *.go
+            
+      - name: upload target
+        uses: actions/upload-artifact@v4
+        with:
+          name: target
+          path: |
+            ${{ inputs.workdir }}build/
