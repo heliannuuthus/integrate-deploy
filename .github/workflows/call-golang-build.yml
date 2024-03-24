@@ -72,17 +72,7 @@ jobs:
           name: gosec-report
           path: |
             ${{ inputs.workdir }}build/gosec-report.json
-
-      - name: build binary
-        run: |
-          mkdir -p build
-          CGO_ENABLE=0 GOOS=${{ inputs.GOOS }} GOARCH=${{ inputs.GOARCH }} go build -a -o build/${{ github.repository }} ${{ inputs.ENTRANCE }}
-
-      - name: test
-        run: |
-          go test -gcflags="all=-N -l" -coverprofile=build/coverage.txt -covermode count -json -v ./... 2>&1 | tee build/test.json | gotestfmt 
-          go-junit-report -parser gojson -in build/test.json -out build/report.xml
-
+      
       - id: environments
         name: environments
         run: |
@@ -97,6 +87,16 @@ jobs:
           " >> "$GITHUB_OUTPUT"
         shell: bash
 
+      - name: build binary
+        run: |
+          mkdir -p build
+          CGO_ENABLE=0 GOOS=${{ inputs.GOOS }} GOARCH=${{ inputs.GOARCH }} go build -a -o build/${{ steps.environments.outputs.project }} ${{ inputs.ENTRANCE }}
+
+      - name: test
+        run: |
+          go test -gcflags="all=-N -l" -coverprofile=build/coverage.out -covermode count -json -v ./... 2>&1 | tee build/test.json | gotestfmt 
+          go-junit-report -parser gojson -in build/test.json -out build/report.xml
+
       - id: sonar
         if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
         name: sonar
@@ -108,13 +108,20 @@ jobs:
         with:
           projectBaseDir: ${{ inputs.workdir }}
           args: >
+            -Dsonar.language=go
+            -Dsonar.sourceEncoding=UTF-8
+            -Dsonar.exclusions=**/*_test.go,**/vendor/**
+            -Dsonar.test.inclusions=**/*_test.go
+            -Dsonar.test.exclusions=**/vendor/**
             -Dsonar.projectKey=${{ steps.environments.outputs.project }} 
             -Dsonar.projectVersion=${{ steps.environments.outputs.version }} 
-            -Dsonar.go.coverage.reportPaths=build/report.xml
+            -Dsonar.go.test.reportPaths=build/report.xml
+            -Dsonar.go.coverage.reportPaths=build/coverage.out
 
       - name: upload target
         uses: actions/upload-artifact@v4
         with:
           name: target
           path: |
+            ${{ inputs.workdir }}build/${{ steps.environments.outputs.project }}
             ${{ inputs.workdir }}build/${{ steps.environments.outputs.project }}
