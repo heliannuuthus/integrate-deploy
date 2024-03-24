@@ -97,7 +97,7 @@ jobs:
         shell: bash 
 
       - id: sonar
-        if: ${{ steps.environments.outputs.sonar_enabled || steps.environments.outputs.sonar_enabled == 'false'}}
+        if: ${{ steps.environments.outputs.sonar_enabled || steps.environments.outputs.sonar_enabled == 'true'}}
         name: sonar
         uses: sonarsource/sonarqube-scan-action@master
         env:
