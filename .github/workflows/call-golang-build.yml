@@ -21,6 +21,15 @@ on:
         type: string
         description: "main.go relative path"
 
+    secrets:
+      SONAR_HOST_URL:  
+        required: false
+        description: "sonar-scanner -Dsonar.token"
+      SONAR_TOKEN:
+        required: false
+        description: "sonar-scanner -Dsonar.token"
+   
+
     outputs:
       version:
         description: "golang application version"
@@ -81,12 +90,14 @@ jobs:
           version=${version#v}
           version="$version-$(git rev-parse --short HEAD)"
           echo "
-          project=${{ github.repository }}  
+          project=${{ github.repository }}
           version=$version
+          sonar_enabled=${{ secrets.GITHUB_TOKEN != '' && secrets.SONAR_HOST_URL != ''}}
           " >> "$GITHUB_OUTPUT"
         shell: bash 
 
       - id: sonar
+        if: ${{ steps.environments.outputs.sonar_enabled }}
         name: sonar
         uses: sonarsource/sonarqube-scan-action@master
         env:
