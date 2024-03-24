@@ -32,7 +32,10 @@ jobs:
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
 
       - name: golangci-lint
-        run: go version && tree $(go env GOPATH)/bin && golangci-lint -vv
+        run: |
+          ls -la
+          go version 
+          golangci-lint -vv
 
   security:
     runs-on: ubuntu-latest
