@@ -20,7 +20,7 @@ jobs:
       workdir: "tests/golang/"
 
   build:
-    if: ${{ always() && needs.setup.result == 'success' }}
+    if: ${{ always() && needs.setup.result == 'success' && needs.lint.result != 'failure' }}
     needs: [setup, lint]
     uses: ./.github/workflows/call-golang-build.yml
     with:

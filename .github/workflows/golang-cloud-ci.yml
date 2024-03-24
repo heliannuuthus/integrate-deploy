@@ -14,7 +14,7 @@ jobs:
       workdir: "tests/gradle-cloud/"
 
   build:
-    if: always()
+    if: ${{ always() && needs.lint.result != 'failure' }}
     needs: lint
     uses: ./.github/workflows/call-gradle-build.yml
     with:
