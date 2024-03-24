@@ -65,18 +65,26 @@ jobs:
       - id: environments
         name: environments
         run: |
+          version=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null)
+          version="${version-0.0.1}-$(git rev-parse --short "$GITHUB_SHA")"
+          echo $version
           echo "
           project=${{ github.repository }}  
-          version=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null)
+          version=$version
           " >> "$GITHUB_OUTPUT"
 
       - id: sonar
         name: sonar
-        uses: docker://sonarsource/sonar-scanner-cli:latest
+        uses: sonarsource/sonarqube-scan-action@master
         env:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_SCANNER_OPTS: "-Dsonar.sources=${{ inputs.workdir }} -Dsonar.projectKey=${{ steps.environments.outputs.project }} -Dsonar.projectVersion=${{ steps.environments.outputs.version }} -Dsonar.go.coverage.reportPaths=build/report.xml"
+        with:
+          projectBaseDir: ${{ inputs.workdir }}
+          args: >
+            -Dsonar.projectKey=${{ steps.environments.outputs.project }} 
+            -Dsonar.projectVersion=${{ steps.environments.outputs.version }} 
+            -Dsonar.go.coverage.reportPaths=build/report.xml
 
       - name: upload target
         uses: actions/upload-artifact@v4
