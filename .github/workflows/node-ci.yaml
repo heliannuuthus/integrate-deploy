@@ -20,7 +20,7 @@ jobs:
       PNPM_STORE: ${{ needs.setup.outputs.PNPM_STORE }}
 
   build:
-    if: ${{ always() && needs.setup.result == 'success' }}
+    if: ${{ always() && needs.setup.result == 'success' && needs.lint.result != 'failure' }}
     needs: [setup, lint]
     uses: ./.github/workflows/call-node-build.yml
     with:

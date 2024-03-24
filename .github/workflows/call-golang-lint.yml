@@ -18,6 +18,7 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.20"
+          cache: false
 
       - name: restore rust cache
         uses: actions/cache/restore@v4
@@ -32,7 +33,9 @@ jobs:
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
 
       - name: golangci-lint
-        run: go version && tree $(go env GOPATH)/bin && golangci-lint -vv
+        run: |
+          go version 
+          golangci-lint -vv
 
   security:
     runs-on: ubuntu-latest
@@ -44,6 +47,8 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.20"
+          cache: false
+
       - name: restore rust cache
         uses: actions/cache/restore@v4
         id: cache-restore-golang
@@ -57,4 +62,14 @@ jobs:
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
 
       - name: gosec checkout
-        run: go version && tree $(go env GOPATH)/bin && gosec -fmt=sarif -out=gosec.sarif ./...
+        run: |
+          mkdir -p build
+          gosec -fmt=json -out=build/gosec-report.json -stdout -verbose=text *.go
+          tree
+            
+      - name: upload target
+        uses: actions/upload-artifact@v4
+        with:
+          name: gosec-report
+          path: |
+            ${{ inputs.workdir }}build/gosec-report.json

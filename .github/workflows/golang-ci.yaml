@@ -20,7 +20,7 @@ jobs:
       workdir: "tests/golang/"
 
   build:
-    if: ${{ always() && needs.setup.result == 'success' }}
+    if: ${{ always() && needs.setup.result == 'success' && needs.lint.result != 'failure' }}
     needs: [setup, lint]
     uses: ./.github/workflows/call-golang-build.yml
     with:
@@ -28,6 +28,9 @@ jobs:
       GOOS: linux
       GOARCH: amd64
       ENTRANCE: cmd/main.go
+    secrets:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   containeraized:
     if: ${{ always() && github.event.pull_request.merged }}
