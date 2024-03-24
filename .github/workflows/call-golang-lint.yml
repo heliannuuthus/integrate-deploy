@@ -20,18 +20,6 @@ jobs:
           go-version: "1.20"
           cache-dependency-path: "**/*.sum"
           
-      - name: restore rust cache
-        uses: actions/cache/restore@v4
-        id: cache-restore-golang
-        env:
-          cache-name: cache-gomod
-        with:
-          path: |
-            ~/go
-          key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-golang-store-${{ env.cache-name }}-
-
       - name: golangci-lint
         run: |
           ls -la
@@ -50,17 +38,8 @@ jobs:
           go-version: "1.20"
           cache-dependency-path: "**/*.sum"
 
-      - name: restore rust cache
-        uses: actions/cache/restore@v4
-        id: cache-restore-golang
-        env:
-          cache-name: cache-gomod
-        with:
-          path: |
-            ~/go
-          key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-golang-store-${{ env.cache-name }}-
-
       - name: gosec checkout
-        run: go version && tree $(go env GOPATH)/bin && gosec -fmt=sarif -out=gosec.sarif ./...
+        run: |
+          go version 
+          tree $(go env GOPATH)/bin
+          gosec -fmt=sarif -out=gosec.sarif ./...
