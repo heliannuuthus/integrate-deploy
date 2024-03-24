@@ -85,6 +85,7 @@ jobs:
           project=${{ github.repository }}  
           version=$version
           " >> "$GITHUB_OUTPUT"
+        shell: bash 
 
       - id: sonar
         name: sonar
