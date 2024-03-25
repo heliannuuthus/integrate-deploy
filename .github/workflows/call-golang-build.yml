@@ -97,6 +97,17 @@ jobs:
           go test -gcflags="all=-N -l" -coverprofile=build/coverage.out -covermode count -json -v ./... 2>&1 | tee build/test.json | gotestfmt 
           go-junit-report -parser gojson -in build/test.json -out build/report.xml
 
+      
+      - name: sonar cache
+        run: |
+          echo 'SONAR_USER_HOME=~/.sonar' >> $GITHUB_ENV
+          mkdir -p ~/.sonar/cache
+
+      - uses: actions/cache/restore@v4
+        with:
+          path: .sonar/cache
+          key: ${{ runner.os }}-sonar-scanner
+
       - id: sonar
         if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
         name: sonar
@@ -121,6 +132,12 @@ jobs:
             -Dsonar.projectVersion=${{ steps.environments.outputs.version }} 
             -Dsonar.go.test.reportPaths=build/report.xml
             -Dsonar.go.coverage.reportPaths=build/coverage.out
+
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar-scanner
 
       - name: upload target
         uses: actions/upload-artifact@v4
