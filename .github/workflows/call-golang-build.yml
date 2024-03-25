@@ -100,8 +100,8 @@ jobs:
       
       - name: sonar cache
         run: |
-          echo 'SONAR_USER_HOME=~/.sonar' >> $GITHUB_ENV
-          mkdir -p ~/.sonar/cache
+          echo 'SONAR_USER_HOME=/github/workspace/.sonar' >> $GITHUB_ENV
+          mkdir -p .sonar/cache
 
       - uses: actions/cache/restore@v4
         with:
@@ -136,7 +136,7 @@ jobs:
       - uses: actions/cache/save@v4
         if: always()
         with:
-          path: ~/.sonar/cache
+          path: .sonar/cache
           key: ${{ runner.os }}-sonar-scanner
 
       - name: upload target
