@@ -120,7 +120,7 @@ jobs:
         run: |
           sonar-scanner 
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
-          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
           -Dsonar.language=go
           -Dsonar.plugins.downloadOnlyRequired=true
           -Dsonar.sourceEncoding=UTF-8
