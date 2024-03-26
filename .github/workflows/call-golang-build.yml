@@ -118,8 +118,7 @@ jobs:
         if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
         name: sonar
         run: |
-          sonar-scanner \ 
-          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \ 
+          sonar-scanner -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \ 
           -Dsonar.token=${{ secrets.SONAR_TOKEN }} \ 
           -Dsonar.language=go \ 
           -Dsonar.plugins.downloadOnlyRequired=true \ 
