@@ -48,13 +48,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: init sonar-scanner-cli
-        run: |
-          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip sonar-scanner.zip
-          ls
-          echo "~/sonar-scanner-5.0.1.3006-linux/bin" >> $GITHUB_PATH
           
       - uses: actions/setup-go@v5
         with:
@@ -104,6 +97,12 @@ jobs:
           go test -gcflags="all=-N -l" -coverprofile=build/coverage.out -covermode count -json -v ./... 2>&1 | tee build/test.json | gotestfmt 
           go-junit-report -parser gojson -in build/test.json -out build/report.xml
 
+      - name: init sonar-scanner-cli
+        run: |
+          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip sonar-scanner.zip
+          mv sonar-scanner-5.0.1.3006-linux ~/sonar-scanner
+          echo "~/sonar-scanner/bin" >> $GITHUB_PATH
       
       - name: sonar cache
         run: |
