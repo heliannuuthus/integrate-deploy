@@ -49,8 +49,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: ./.github/workflows/call-sonar-setup.yml
-
+      - name: init sonar-scanner-cli
+        run: |
+          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip sonar-scanner.zip
+          ls
+          echo "~/sonar-scanner-5.0.1.3006-linux/bin" >> $GITHUB_PATH
+          
       - uses: actions/setup-go@v5
         with:
           go-version: "1.20"
