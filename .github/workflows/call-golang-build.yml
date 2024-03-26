@@ -106,12 +106,13 @@ jobs:
       
       - name: sonar cache
         run: |
-          echo 'SONAR_USER_HOME=~/.sonar' >> $GITHUB_ENV
-          mkdir -p ~/.sonar/cache
+          pwd
+          mkdir -p .sonar/cache
+          echo 'SONAR_USER_HOME=.sonar' >> $GITHUB_ENV
 
       - uses: actions/cache/restore@v4
         with:
-          path: ~/.sonar/cache
+          path: .sonar/cache
           key: ${{ runner.os }}-sonar-scanner
 
       - id: sonar
@@ -133,12 +134,12 @@ jobs:
           -Dsonar.projectKey=${{ steps.environments.outputs.project }} 
           -Dsonar.projectVersion=${{ steps.environments.outputs.version }} 
           -Dsonar.go.test.reportPaths=build/report.xml
-          -Dsonar.go.coverage.reportPaths=build/coverage.out && tree ~/.sonar/cache && tree .sonar/cache
+          -Dsonar.go.coverage.reportPaths=build/coverage.out
 
       - uses: actions/cache/save@v4
         if: always()
         with:
-          path: ~/.sonar/cache
+          path: .sonar/cache
           key: ${{ runner.os }}-sonar-scanner
 
       - name: upload target
