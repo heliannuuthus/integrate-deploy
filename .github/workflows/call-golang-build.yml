@@ -133,7 +133,7 @@ jobs:
           -Dsonar.projectKey=${{ steps.environments.outputs.project }} 
           -Dsonar.projectVersion=${{ steps.environments.outputs.version }} 
           -Dsonar.go.test.reportPaths=build/report.xml
-          -Dsonar.go.coverage.reportPaths=build/coverage.out && tree ~/.sonar
+          -Dsonar.go.coverage.reportPaths=build/coverage.out && tree ~/.sonar/cache && tree .sonar/cache
 
       - uses: actions/cache/save@v4
         if: always()
