@@ -49,6 +49,8 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: ./.github/workflows/call-sonar-setup.yml
+
       - uses: actions/setup-go@v5
         with:
           go-version: "1.20"
@@ -105,33 +107,30 @@ jobs:
 
       - uses: actions/cache/restore@v4
         with:
-          path: .sonar/cache
+          path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar-scanner
 
       - id: sonar
         if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
         name: sonar
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: ${{ inputs.workdir }}
-          args: >
-            -Dsonar.language=go
-            -Dsonar.plugins.downloadOnlyRequired=true
-            -Dsonar.sourceEncoding=UTF-8
-            -Dsonar.exclusions=**/*_test.go,**/vendor/**
-            -Dsonar.test.inclusions=**/*_test.go
-            -Dsonar.test.exclusions=**/vendor/**
-            -Dsonar.pullrequest.key=${{github.event.pull_request.number}}
-            -Dsonar.pullrequest.branch=${{github.head_ref}}
-            -Dsonar.pullrequest.base=${{github.base_ref}}
-            -Dsonar.projectKey=${{ steps.environments.outputs.project }} 
-            -Dsonar.projectVersion=${{ steps.environments.outputs.version }} 
-            -Dsonar.go.test.reportPaths=build/report.xml
-            -Dsonar.go.coverage.reportPaths=build/coverage.out
+        run: |
+          sonar-scanner 
+          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+          -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.language=go
+          -Dsonar.plugins.downloadOnlyRequired=true
+          -Dsonar.sourceEncoding=UTF-8
+          -Dsonar.exclusions=**/*_test.go,**/vendor/**
+          -Dsonar.test.inclusions=**/*_test.go
+          -Dsonar.test.exclusions=**/vendor/**
+          -Dsonar.pullrequest.key=${{github.event.pull_request.number}}
+          -Dsonar.pullrequest.branch=${{github.head_ref}}
+          -Dsonar.pullrequest.base=${{github.base_ref}}
+          -Dsonar.projectKey=${{ steps.environments.outputs.project }} 
+          -Dsonar.projectVersion=${{ steps.environments.outputs.version }} 
+          -Dsonar.go.test.reportPaths=build/report.xml
+          -Dsonar.go.coverage.reportPaths=build/coverage.out
+          tree ~/.sonar
 
       - uses: actions/cache/save@v4
         if: always()
