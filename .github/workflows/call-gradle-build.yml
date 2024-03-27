@@ -10,6 +10,14 @@ on:
       version:
         description: "gradle application version"
         value: ${{ jobs.build.outputs.version }}
+
+    secrets:
+      SONAR_HOST_URL:
+        required: false
+        description: "sonar-scanner -Dsonar.host.url"
+      SONAR_TOKEN:
+        required: false
+        description: "sonar-scanner -Dsonar.token"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,9 +44,37 @@ jobs:
         name: environments
         run: |
           echo "
-          project=${{ github.repository }}
+          project=$(gradle name -q | awk 'NR==1 {print}')
           version=$(gradle version -q | awk 'NR==1 {print}')
+          sonar_enabled=${{ secrets.SONAR_TOKEN != '' && secrets.SONAR_HOST_URL != ''}}
           " >> "$GITHUB_OUTPUT"
+
+      - id: sonar
+        if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
+        name: sonar
+        uses: sonarsource/sonarqube-scan-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          projectBaseDir: ${{ inputs.workdir }}
+          args: >
+            -Dsonar.language=java
+            -Dsonar.plugins.downloadOnlyRequired=true
+            -Dsonar.sourceEncoding=UTF-8
+            -Dsonar.java.binaries=**/target/classes
+            -Dsonar.sources=src/
+            -Dsonar.tests=src/
+            -Dsonar.exclusions=src/**/test/**/*.java
+            -Dsonar.test.inclusions=src/**/test/**/*.java
+            -Dsonar.pullrequest.key=${{github.event.pull_request.number}}
+            -Dsonar.pullrequest.branch=${{github.head_ref}}
+            -Dsonar.pullrequest.base=${{github.base_ref}}
+            -Dsonar.projectKey=${{ steps.environments.outputs.project }} 
+            -Dsonar.projectVersion=${{ steps.environments.outputs.version }} 
+            -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacocoReports.xml
+
       - name: upload target
         uses: actions/upload-artifact@v4
         with:

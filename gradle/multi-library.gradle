@@ -35,6 +35,8 @@ sourceCompatibility = 17
 targetCompatibility = 17
 
 allprojects {
+
+    apply plugin: "jacoco"
     apply plugin: "java-library"
     apply plugin: "maven-publish"
     apply plugin: "com.diffplug.spotless"
@@ -89,6 +91,34 @@ subprojects {
     }
     sourceSets.main {
         java.srcDirs("src/main/java")
+    }
+
+    jacoco {
+        toolVersion = "0.8.11"
+    }
+
+    jacocoTestReport {
+        dependsOn test
+        reports {
+            html.required = true
+            html.outputLocation = layout.buildDirectory.dir('reports/jacoco/html')
+            xml.required = true
+            xml.outputLocation = layout.buildDirectory.file("reports/reports.xml")
+        }
+    }
+
+    spotless {
+        java {
+            importOrder()
+            removeUnusedImports()
+            googleJavaFormat("${spotlessVersion}").groupArtifact("com.google.googlejavaformat:google-java-format")
+            formatAnnotations()
+        }
+    }
+
+    tasks.named("test") {
+        useJUnitPlatform()
+        finalizedBy jacocoTestReport
     }
 
     dependencies {

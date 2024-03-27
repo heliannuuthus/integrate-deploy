@@ -19,6 +19,9 @@ jobs:
     uses: ./.github/workflows/call-gradle-build.yml
     with:
       workdir: "tests/gradle-library/"
+    secrets:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   publish:
     if: ${{ always() && github.event.pull_request.merged == true }}

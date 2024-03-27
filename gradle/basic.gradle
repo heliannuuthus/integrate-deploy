@@ -11,10 +11,12 @@ buildscript {
     }
 }
 
-
-apply plugin: "io.freefair.lombok"
+apply plugin: "jacoco"
 apply plugin: "com.diffplug.spotless"
+apply plugin: "io.freefair.lombok"
 apply plugin: "me.qoomon.git-versioning"
+
+group "io.ghrc"
 
 gitVersioning.apply {
     version = rootProject.findProperty("version")
@@ -53,35 +55,41 @@ dependencies {
 
 }
 
-allprojects {
+jacoco {
+    toolVersion = "0.8.11"
+}
 
-    apply plugin: "com.diffplug.spotless"
-    apply plugin: "io.freefair.lombok"
-    apply plugin: "me.qoomon.git-versioning"
-
-    group "io.ghrc"
-
-
-    repositories {
-        maven { url "https://maven.aliyun.com/nexus/content/groups/public" }
-        maven { url "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
-        maven {
-            name = "GitHubPackages"
-            url = "https://maven.pkg.github.com/heliannuuthus/${project.name}"
-            credentials {
-                username = rootProject.findProperty("gpr.user") ?: System.getenv("GPR_USER")
-                password = rootProject.findProperty("gpr.token") ?: System.getenv("GPR_TOKEN")
-            }
-        }
-        mavenCentral()
+jacocoTestReport {
+    dependsOn test
+    reports {
+        html.required = true
+        html.outputLocation = layout.buildDirectory.dir('reports/jacoco/html')
+        xml.required = true
+        xml.outputLocation = layout.buildDirectory.file("reports/reports.xml")
     }
+}
 
-    spotless {
-        java {
-            importOrder()
-            removeUnusedImports()
-            googleJavaFormat("${spotlessVersion}").groupArtifact("com.google.googlejavaformat:google-java-format")
-            formatAnnotations()
+spotless {
+    java {
+        importOrder()
+        removeUnusedImports()
+        googleJavaFormat("${spotlessVersion}").groupArtifact("com.google.googlejavaformat:google-java-format")
+        formatAnnotations()
+    }
+}
+
+
+
+repositories {
+    maven { url "https://maven.aliyun.com/nexus/content/groups/public" }
+    maven { url "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
+    maven {
+        name = "GitHubPackages"
+        url = "https://maven.pkg.github.com/heliannuuthus/${project.name}"
+        credentials {
+            username = rootProject.findProperty("gpr.user") ?: System.getenv("GPR_USER")
+            password = rootProject.findProperty("gpr.token") ?: System.getenv("GPR_TOKEN")
         }
     }
+    mavenCentral()
 }
