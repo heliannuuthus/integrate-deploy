@@ -10,7 +10,7 @@ plugins {
     id "name.remal.sonarlint" version "3.4.9"
 }
 
-apply from: "./cloud.gradle"
+apply from: "../../gradle/cloud.gradle"
 
 repositories {
     maven {

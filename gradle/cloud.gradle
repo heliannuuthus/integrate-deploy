@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        maven { url "https://maven.aliyun.com/repository/gradle-plugin" }
+        maven { url "https://plugins.gradle.org/m2/" }
         maven { url "https://repo.spring.io/plugins-snapshot" }
         mavenCentral()
     }
@@ -11,6 +11,7 @@ buildscript {
         classpath "com.diffplug.spotless:spotless-plugin-gradle:6.25.0"
         classpath "me.qoomon:gradle-git-versioning-plugin:6.4.2"
         classpath "io.freefair.gradle:lombok-plugin:8.6"
+        classpath "name.remal.gradle-plugins.sonarlint:sonarlint:3.4.9"
     }
 }
 
@@ -37,8 +38,6 @@ sourceCompatibility = 17
 targetCompatibility = 17
 
 gitVersioning.apply {
-    logging.captureStandardOutput LogLevel.
-    version = rootProject.findProperty("version")
     refs {
         branch("master") {
             version = '${version}-${commit.short}'
@@ -79,8 +78,7 @@ allprojects {
     apply plugin: "com.diffplug.spotless"
     apply plugin: "io.freefair.lombok"
     apply plugin: "me.qoomon.git-versioning"
-
-    group "io.ghrc"
+    apply plugin: "name.remal.sonarlint"
 
     jacoco {
         toolVersion = "0.8.11"
@@ -92,7 +90,7 @@ allprojects {
             html.required = true
             html.outputLocation = layout.buildDirectory.dir('reports/jacoco/html')
             xml.required = true
-            xml.outputLocation = layout.buildDirectory.file("reports/reports.xml")
+            xml.outputLocation = layout.buildDirectory.file("reports/jacocoReports.xml")
         }
     }
 
@@ -132,7 +130,7 @@ allprojects {
     }
 
     tasks.register("name") {
-        println project.name
+        logger.quiet(project.name)
     }
 
     dependencyManagement {

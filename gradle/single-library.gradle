@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        maven { url "https://maven.aliyun.com/repository/gradle-plugin" }
+        maven { url "https://plugins.gradle.org/m2/" }
         maven { url "https://repo.spring.io/plugins-snapshot" }
         mavenCentral()
     }
@@ -8,6 +8,7 @@ buildscript {
         classpath "com.diffplug.spotless:spotless-plugin-gradle:6.25.0"
         classpath "io.freefair.gradle:lombok-plugin:8.6"
         classpath "me.qoomon:gradle-git-versioning-plugin:6.4.2"
+        classpath "name.remal.gradle-plugins.sonarlint:sonarlint:3.4.9"
     }
 }
 
@@ -18,6 +19,7 @@ apply plugin: "maven-publish"
 apply plugin: "com.diffplug.spotless"
 apply plugin: "io.freefair.lombok"
 apply plugin: "me.qoomon.git-versioning"
+apply plugin: "name.remal.sonarlint"
 
 group "io.ghrc"
 
@@ -104,7 +106,7 @@ jacocoTestReport {
         html.required = true
         html.outputLocation = layout.buildDirectory.dir('reports/jacoco/html')
         xml.required = true
-        xml.outputLocation = layout.buildDirectory.file("reports/reports.xml")
+        xml.outputLocation = layout.buildDirectory.file("reports/jacocorReports.xml")
     }
 }
 
@@ -122,7 +124,9 @@ tasks.named("test") {
     finalizedBy jacocoTestReport
 }
 
-
+tasks.register("name") {
+    logger.quiet(project.name)
+}
 publishing {
     repositories {
         maven {

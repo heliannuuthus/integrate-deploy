@@ -63,11 +63,13 @@ jobs:
             -Dsonar.language=java
             -Dsonar.plugins.downloadOnlyRequired=true
             -Dsonar.sourceEncoding=UTF-8
-            -Dsonar.java.binaries=**/target/classes
-            -Dsonar.sources=src/
-            -Dsonar.tests=src/
-            -Dsonar.exclusions=src/**/test/**/*.java
+            -Dsonar.java.binaries=**/build/classes
+            -Dsonar.sources=.
+            -Dsonar.tests=.
+            -Dsonar.inclusions=**/src/**/main/**/*.java
+            -Dsonar.exclusions=**/src/**/test/**/*.java
             -Dsonar.test.inclusions=src/**/test/**/*.java
+            -Dsonar.test.exclusions=src/**/main/**/*.java
             -Dsonar.pullrequest.key=${{github.event.pull_request.number}}
             -Dsonar.pullrequest.branch=${{github.head_ref}}
             -Dsonar.pullrequest.base=${{github.base_ref}}
