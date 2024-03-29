@@ -100,9 +100,10 @@ jobs:
       - shell: bash
         run: |
           echo 'SONAR_USER_HOME=/github/workspace/.sonar' >> $GITHUB_ENV
+          chmod -R 755 /github/workspace
           mkdir -p .sonar/cache
       
-      - uses: actions/cache/restore@v3
+      - uses: actions/cache/restore@v4
         with:
           path: .sonar/cache
           key: ${{ runner.os }}-sonar
@@ -132,7 +133,7 @@ jobs:
             -Dsonar.go.test.reportPaths=build/report.xml
             -Dsonar.go.coverage.reportPaths=build/coverage.out
 
-      - uses: actions/cache/save@v3
+      - uses: actions/cache/save@v4
         if: always()
         with:
           path: .sonar/cache
