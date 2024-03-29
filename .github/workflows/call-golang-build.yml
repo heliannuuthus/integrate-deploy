@@ -101,7 +101,7 @@ jobs:
           mkdir -p /opt/sonar-scanner/.sonar/cache
           echo "SONAR_SCANNER_HOME=/opt/sonar-scanner" >> $GITHUB_ENV
           curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip -qq -d /opt/sonar-scanner -j sonar-scanner.zip -y
+          unzip -qq -d /opt/sonar-scanner -o -j sonar-scanner.zip
           mv sonar-scanner-cli-5.0.1.3006-linux /opt/sonar-scanner
           echo "/opt/sonar-scanner/bin" >> $GITHUB_PATH
 
