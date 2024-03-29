@@ -22,13 +22,12 @@ on:
         description: "main.go relative path"
 
     secrets:
-      SONAR_HOST_URL:  
+      SONAR_HOST_URL:
         required: false
         description: "sonar-scanner -Dsonar.token"
       SONAR_TOKEN:
         required: false
         description: "sonar-scanner -Dsonar.token"
-   
 
     outputs:
       version:
@@ -44,7 +43,6 @@ jobs:
     outputs:
       version: ${{ steps.environments.outputs.version }}
     steps:
-
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -72,7 +70,7 @@ jobs:
           name: gosec-report
           path: |
             ${{ inputs.workdir }}build/gosec-report.json
-      
+
       - id: environments
         name: environments
         run: |
@@ -99,46 +97,44 @@ jobs:
 
       - shell: bash
         run: |
-          echo 'SONAR_USER_HOME=/github/workspace/.sonar' >> $GITHUB_ENV
-          chmod -R 755 /github/workspace
-          mkdir -p .sonar/cache
-      
+          mkdir -p /opt/sonar-scanner/.sonar/cache
+          echo "SONAR_SCANNER_HOME=/opt/sonar-scanner" >> $GITHUB_ENV
+          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip sonar-scanner.zip
+          mv sonar-scanner-cli-5.0.1.3006-linux /opt/sonar-scanner
+          echo "/opt/sonar-scanner/bin" >> $GITHUB_PATH
+
       - uses: actions/cache/restore@v4
         with:
-          path: .sonar/cache
+          path: /opt/sonar-scanner/.sonar/cache
           key: ${{ runner.os }}-sonar
 
-      - id: sonar
-        if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
+      - if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
         name: sonar
-        uses: sonarsource/sonarqube-scan-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          projectBaseDir: ${{ inputs.workdir }}
-          args: >
-            -Dsonar.language=go
-            -Dsonar.plugins.downloadOnlyRequired=true
-            -Dsonar.sourceEncoding=UTF-8
-            -Dsonar.exclusions=**/*_test.go,**/vendor/**
-            -Dsonar.test.inclusions=**/*_test.go
-            -Dsonar.test.exclusions=**/vendor/**
-            -Dsonar.pullrequest.key=${{github.event.pull_request.number}}
-            -Dsonar.pullrequest.branch=${{github.head_ref}}
-            -Dsonar.pullrequest.base=${{github.base_ref}}
-            -Dsonar.projectKey=${{ steps.environments.outputs.project }} 
-            -Dsonar.projectVersion=${{ steps.environments.outputs.version }} 
-            -Dsonar.go.test.reportPaths=build/report.xml
-            -Dsonar.go.coverage.reportPaths=build/coverage.out
+        run:
+          sonar-scanner
+          -Dsonar.projectBaseDir=${{ inputs.workdir }}
+          -Dsonar.host.url= ${{ secrets.SONAR_HOST_URL }}
+          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.language=go
+          -Dsonar.plugins.downloadOnlyRequired=true
+          -Dsonar.sourceEncoding=UTF-8
+          -Dsonar.exclusions=**/*_test.go,**/vendor/**
+          -Dsonar.test.inclusions=**/*_test.go
+          -Dsonar.test.exclusions=**/vendor/**
+          -Dsonar.pullrequest.key=${{github.event.pull_request.number}}
+          -Dsonar.pullrequest.branch=${{github.head_ref}}
+          -Dsonar.pullrequest.base=${{github.base_ref}}
+          -Dsonar.projectKey=${{ steps.environments.outputs.project }} 
+          -Dsonar.projectVersion=${{ steps.environments.outputs.version }} 
+          -Dsonar.go.test.reportPaths=build/report.xml
+          -Dsonar.go.coverage.reportPaths=build/coverage.out && tree /opt/sonar-scanner
 
       - uses: actions/cache/save@v4
         if: always()
         with:
-          path: .sonar/cache
+          path: /opt/sonar-scanner/.sonar/cache
           key: ${{ runner.os }}-sonar
-
 
       - name: upload target
         uses: actions/upload-artifact@v4
