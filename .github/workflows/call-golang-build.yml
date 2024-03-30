@@ -64,6 +64,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
 
+      - id: sonar-restore-cache
+        name: restore sonar cache
+        uses: actions/cache/restore@v4
+        with:
+          path: /opt/sonar-scanner
+          key: ${{ runner.os }}-sonar
+
+      - name: setup-sonar
+        run: |
+          mkdir -p /opt/sonar-scanner/.sonar/cache
+          echo "SONAR_SCANNER_HOME=/opt/sonar-scanner" >> $GITHUB_ENV
+          ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }} && \
+          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip && \
+          unzip -q -o sonar-scanner.zip -d /opt/sonar-scanner && \
+          mv sonar-scanner-cli-5.0.1.3006-linux /opt/sonar-scanner
+          echo "/opt/sonar-scanner/bin" >> $GITHUB_PATH
+        shell: bash
+
       - name: download gosec report
         uses: actions/download-artifact@v4
         with:
@@ -94,24 +112,6 @@ jobs:
         run: |
           go test -gcflags="all=-N -l" -coverprofile=build/coverage.out -covermode count -json -v ./... 2>&1 | tee build/test.json | gotestfmt 
           go-junit-report -parser gojson -in build/test.json -out build/report.xml
-
-      - id: sonar-restore-cache
-        name: restore sonar cache
-        uses: actions/cache/restore@v4
-        with:
-          path: /opt/sonar-scanner
-          key: ${{ runner.os }}-sonar
-
-      - name: setup-sonar
-        run: |
-          mkdir -p /opt/sonar-scanner/.sonar/cache
-          echo "SONAR_SCANNER_HOME=/opt/sonar-scanner" >> $GITHUB_ENV
-          ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }} && \
-          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip && \
-          unzip -q -o sonar-scanner.zip -d /opt/sonar-scanner && \
-          mv sonar-scanner-cli-5.0.1.3006-linux /opt/sonar-scanner
-          echo "/opt/sonar-scanner/bin" >> $GITHUB_PATH
-        shell: bash
 
       - name: sonar
         if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
