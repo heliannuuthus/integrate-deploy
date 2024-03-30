@@ -126,9 +126,10 @@ jobs:
           -Dsonar.exclusions=**/*_test.go,**/vendor/**
           -Dsonar.test.inclusions=**/*_test.go
           -Dsonar.test.exclusions=**/vendor/**
+          -Dsonar.branch.name=${{ github.event.pull_request.head.ref }}
           -Dsonar.pullrequest.key=${{github.event.pull_request.number}}
-          -Dsonar.pullrequest.branch=${{github.head_ref}}
-          -Dsonar.pullrequest.base=${{github.base_ref}}
+          -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}
+          -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }}
           -Dsonar.projectKey=${{ steps.environments.outputs.project }}
           -Dsonar.projectVersion=${{ steps.environments.outputs.version }}
           -Dsonar.go.test.reportPaths=build/report.xml
@@ -148,5 +149,4 @@ jobs:
         with:
           name: target
           path: |
-            ${{ inputs.workdir }}build/${{ steps.environments.outputs.project }}
-            ${{ inputs.workdir }}build/${{ steps.environments.outputs.project }}
+            ${{ inputs.workdir }}build/
