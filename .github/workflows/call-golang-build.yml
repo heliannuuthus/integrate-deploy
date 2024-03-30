@@ -95,21 +95,23 @@ jobs:
           go test -gcflags="all=-N -l" -coverprofile=build/coverage.out -covermode count -json -v ./... 2>&1 | tee build/test.json | gotestfmt 
           go-junit-report -parser gojson -in build/test.json -out build/report.xml
 
-      - name: init sonar
-        shell: bash
+      - id: sonar-restore-cache
+        name: restore sonar cache
+        uses: actions/cache/restore@v4
+        with:
+          path: /opt/sonar-scanner
+          key: ${{ runner.os }}-sonar
+
+      - name: setup-sonar
         run: |
           mkdir -p /opt/sonar-scanner/.sonar/cache
           echo "SONAR_SCANNER_HOME=/opt/sonar-scanner" >> $GITHUB_ENV
-          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip -qq -d /opt/sonar-scanner -o -j sonar-scanner.zip
+          ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }} && \
+          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip && \
+          unzip  -o sonar-scanner.zip -d /opt/sonar-scanner -qq -j  && \
           mv sonar-scanner-cli-5.0.1.3006-linux /opt/sonar-scanner
           echo "/opt/sonar-scanner/bin" >> $GITHUB_PATH
-
-      - name: restore sonar cache
-        uses: actions/cache/restore@v4
-        with:
-          path: /opt/sonar-scanner/.sonar/cache
-          key: ${{ runner.os }}-sonar
+        shell: bash
 
       - name: sonar
         if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
@@ -135,7 +137,7 @@ jobs:
         uses: actions/cache/save@v4
         if: always()
         with:
-          path: /opt/sonar-scanner/.sonar/cache
+          path: /opt/sonar-scanner
           key: ${{ runner.os }}-sonar
 
       - name: upload target
