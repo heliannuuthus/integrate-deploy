@@ -117,8 +117,7 @@ jobs:
       - name: sonar
         if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
         run: 
-          echo "~/sonar-scanner/bin" >> $GITHUB_PATH &&
-          sonar-scanner
+          ~/sonar-scanner/bin/sonar-scanner
           -Dsonar.projectBaseDir=./
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
