@@ -78,7 +78,7 @@ jobs:
           echo "/opt/sonar-scanner/bin" >> $GITHUB_PATH
           ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }} && \
           curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip && \
-          unzip -q -o sonar-scanner.zip -d /opt/sonar-scanner
+          unzip -j -q -o sonar-scanner.zip -d /opt/sonar-scanner
           tree /opt/sonar-scanner
         shell: bash
 
