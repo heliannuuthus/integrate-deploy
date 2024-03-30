@@ -74,7 +74,7 @@ jobs:
       - name: setup-sonar
         run: |
           mkdir -p /opt/sonar-scanner/.sonar/cache
-          echo "SONAR_SCANNER_HOME=/opt/sonar-scanner" >> $GITHUB_ENV
+          echo "SONAR_SCANNER_HOME=/opt/sonar-scanner SONAR_USER_HOME=/opt/sonar-scanner/.sonar" >> $GITHUB_ENV
           echo "/opt/sonar-scanner/bin" >> $GITHUB_PATH
           ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }} && \
           curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip && \
