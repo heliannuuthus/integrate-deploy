@@ -79,7 +79,7 @@ jobs:
           ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }} && \
           curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip && \
           unzip -q -o sonar-scanner.zip -d /opt && \
-          mv /opt/sonar-scanner-5.0.1.3006-linux/* /opt/sonar-scanner && rm -r sonar-scanner-5.0.1.3006-linux
+          mv /opt/sonar-scanner-5.0.1.3006-linux/* /opt/sonar-scanner && rm -r /opt/sonar-scanner-5.0.1.3006-linux
           tree /opt/sonar-scanner
         shell: bash
 
