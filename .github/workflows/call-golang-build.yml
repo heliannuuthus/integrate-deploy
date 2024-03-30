@@ -66,12 +66,13 @@ jobs:
 
       - id: sonar-restore-cache
         name: restore sonar cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache@v4
         with:
           path: |
             ~/sonar-scanner
             ~/.sonar
           key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
 
       - name: setup-sonar
         if:  ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }} 
@@ -133,16 +134,7 @@ jobs:
           -Dsonar.projectKey=${{ steps.environments.outputs.project }}
           -Dsonar.projectVersion=${{ steps.environments.outputs.version }}
           -Dsonar.go.test.reportPaths=build/report.xml
-          -Dsonar.go.coverage.reportPaths=build/coverage.out && tree ~/.sonar
-
-      - name: refresh sonar cache
-        uses: actions/cache/save@v4
-        if: always()
-        with:
-          path: |
-            ~/sonar-scanner
-            ~/.sonar
-          key: ${{ runner.os }}-sonar
+          -Dsonar.go.coverage.reportPaths=build/coverage.out
 
       - name: upload target
         uses: actions/upload-artifact@v4
