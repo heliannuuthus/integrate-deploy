@@ -74,13 +74,13 @@ jobs:
           key: ${{ runner.os }}-sonar
 
       - name: setup-sonar
+        if:  ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }} 
         run: |
           mkdir -p ~/sonar-scanner/.sonar
-          echo "~/sonar-scanner/bin" >> $GITHUB_PATH
-          ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }} && \
-          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip && \
-          unzip -q -o sonar-scanner.zip -d ~/ && \
-          mv ~/sonar-scanner-5.0.1.3006-linux/* ~/sonar-scanner && rm -r ~/sonar-scanner-5.0.1.3006-linux
+          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip -q -o sonar-scanner.zip -d ~/
+          mv ~/sonar-scanner-5.0.1.3006-linux/* ~/sonar-scanner
+          rm -r ~/sonar-scanner-5.0.1.3006-linux
         shell: bash
 
       - name: download gosec report
@@ -116,7 +116,9 @@ jobs:
 
       - name: sonar
         if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
-        run: sonar-scanner
+        run: 
+          echo "~/sonar-scanner/bin" >> $GITHUB_PATH &&
+          sonar-scanner
           -Dsonar.projectBaseDir=./
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
