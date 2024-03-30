@@ -68,19 +68,19 @@ jobs:
         name: restore sonar cache
         uses: actions/cache/restore@v4
         with:
-          path: /opt/sonar-scanner
+          path: ~/sonar-scanner
           key: ${{ runner.os }}-sonar
 
       - name: setup-sonar
         run: |
-          mkdir -p /opt/sonar-scanner/.sonar/cache
-          echo "SONAR_SCANNER_HOME=/opt/sonar-scanner SONAR_USER_HOME=/opt/sonar-scanner/.sonar" >> $GITHUB_ENV
-          echo "/opt/sonar-scanner/bin" >> $GITHUB_PATH
+          mkdir -p ~/sonar-scanner/.sonar/cache
+          echo "SONAR_SCANNER_HOME=/opt/sonar-scanner SONAR_USER_HOME=~/sonar-scanner/.sonar" >> $GITHUB_ENV
+          echo "~/sonar-scanner/bin" >> $GITHUB_PATH
           ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }} && \
           curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip && \
-          unzip -q -o sonar-scanner.zip -d /opt && \
-          mv /opt/sonar-scanner-5.0.1.3006-linux/* /opt/sonar-scanner && rm -r /opt/sonar-scanner-5.0.1.3006-linux
-          tree /opt/sonar-scanner
+          unzip -q -o sonar-scanner.zip -d ~/ && \
+          mv ~/sonar-scanner-5.0.1.3006-linux/* ~/sonar-scanner && rm -r ~/sonar-scanner-5.0.1.3006-linux
+          tree ~/sonar-scanner
         shell: bash
 
       - name: download gosec report
@@ -117,7 +117,7 @@ jobs:
       - name: sonar
         if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
         run: sonar-scanner
-          -Dsonar.projectBaseDir=${{ inputs.workdir }}
+          -Dsonar.projectBaseDir=./
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
           -Dsonar.language=go
@@ -138,7 +138,7 @@ jobs:
         uses: actions/cache/save@v4
         if: always()
         with:
-          path: /opt/sonar-scanner
+          path: ~/sonar-scanner
           key: ${{ runner.os }}-sonar
 
       - name: upload target
