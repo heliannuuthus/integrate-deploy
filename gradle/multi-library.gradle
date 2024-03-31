@@ -47,7 +47,6 @@ allprojects {
 
     group "io.ghrc"
 
-
     repositories {
         maven { url "https://maven.aliyun.com/nexus/content/groups/public" }
         maven { url "https://maven.aliyun.com/nexus/content/repositories/jcenter" }
@@ -62,20 +61,14 @@ allprojects {
         mavenCentral()
     }
 
+    jacoco {
+        toolVersion = "0.8.11"
+    }
+
     tasks.register("name") {
         logger.quiet(project.name)
     }
 
-    spotless {
-        java {
-            importOrder()
-            removeUnusedImports()
-            googleJavaFormat("${spotlessVersion}").groupArtifact("com.google.googlejavaformat:google-java-format")
-            formatAnnotations()
-        }
-    }
-
-    
 }
 
 subprojects {
@@ -95,36 +88,9 @@ subprojects {
             )
         }
     }
+
     sourceSets.main {
         java.srcDirs("src/main/java")
-    }
-
-    jacoco {
-        toolVersion = "0.8.11"
-    }
-
-    jacocoTestReport {
-        dependsOn test
-        reports {
-            html.required = true
-            html.outputLocation = layout.buildDirectory.dir('reports/jacoco/html')
-            xml.required = true
-            xml.outputLocation = layout.buildDirectory.file("reports/jacocorReports.xml")
-        }
-    }
-
-    spotless {
-        java {
-            importOrder()
-            removeUnusedImports()
-            googleJavaFormat("${spotlessVersion}").groupArtifact("com.google.googlejavaformat:google-java-format")
-            formatAnnotations()
-        }
-    }
-
-    tasks.named("test") {
-        useJUnitPlatform()
-        finalizedBy jacocoTestReport
     }
 
     dependencies {
@@ -138,7 +104,21 @@ subprojects {
         testRuntimeOnly "org.mockito:mockito-core:${mockitoVersion}"
 
     }
-    
+
+    tasks.named("test") {
+        useJUnitPlatform()
+        finalizedBy jacocoTestReport
+    }
+
+    spotless {
+        java {
+            importOrder()
+            removeUnusedImports()
+            googleJavaFormat("${spotlessVersion}").groupArtifact("com.google.googlejavaformat:google-java-format")
+            formatAnnotations()
+        }
+    }
+
     publishing {
         repositories {
             maven {
