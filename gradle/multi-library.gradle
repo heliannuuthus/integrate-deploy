@@ -62,6 +62,10 @@ allprojects {
         mavenCentral()
     }
 
+    tasks.register("name") {
+        logger.quiet(project.name)
+    }
+
     spotless {
         java {
             importOrder()
@@ -121,10 +125,6 @@ subprojects {
     tasks.named("test") {
         useJUnitPlatform()
         finalizedBy jacocoTestReport
-    }
-
-    tasks.register("name") {
-        logger.quiet(project.name)
     }
 
     dependencies {
