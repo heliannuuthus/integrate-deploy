@@ -73,6 +73,7 @@ jobs:
       - name: sonar run
         if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
         run: 
+          ls build && tree build/classes
           ~/sonar-scanner/bin/sonar-scanner
           -Dsonar.projectBaseDir=./
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
