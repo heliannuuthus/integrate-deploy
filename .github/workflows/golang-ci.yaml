@@ -23,8 +23,6 @@ jobs:
     uses: ./.github/workflows/call-golang-build.yml
     with:
       workdir: "tests/golang/"
-      GOOS: linux
-      GOARCH: amd64
       ENTRANCE: cmd/main.go
     secrets:
       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}

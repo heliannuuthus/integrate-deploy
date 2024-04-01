@@ -1,0 +1,153 @@
+on:
+  workflow_call:
+    inputs:
+      workdir:
+        required: false
+        default: ./
+        type: string
+        description: "Specify all of steps where are run"
+      GOOS:
+        required: false
+        default: linux
+        type: string
+        description: "GOOS target os"
+      GOARCH:
+        required: false
+        default: amd64
+        type: string
+        description: "GOARCH arch"
+      ENTRANCE:
+        required: false
+        default: ./main.go
+        type: string
+        description: "Specify main.go relative path"
+    secrets:
+      SONAR_HOST_URL:
+        required: false
+        description: "Sonarqube host url"
+      SONAR_TOKEN:
+        required: false
+        description: "Sonarqube Token"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.20'
+          cache: false
+
+      - name: restore rust cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-golang
+        env:
+          cache-name: cache-gomod
+        with:
+          path: |
+            ~/go
+          key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-golang-store-${{ env.cache-name }}-
+
+      - name: golangci-lint
+        run: |
+          go version
+          golangci-lint -vv
+
+  security:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.20'
+          cache: false
+
+      - name: restore rust cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-golang
+        env:
+          cache-name: cache-gomod
+        with:
+          path: |
+            ~/go
+          key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-golang-store-${{ env.cache-name }}-
+
+      - name: gosec checkout
+        run: |
+          mkdir -p build
+          gosec -fmt=json -out=build/gosec-report.json -stdout -verbose=text *.go
+          tree
+          
+      - name: upload target
+        uses: actions/upload-artifact@v4
+        with:
+          name: gosec-report
+          path: |
+              ${{ inputs.workdir }}build/gosec-report.json
+
+
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.20'
+          cache: false
+
+      - name: restore rust cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-golang
+        env:
+          cache-name: cache-gomod
+        with:
+          path: |
+            ~/go
+          key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-golang-store-${{ env.cache-name }}-
+
+      - name: download target
+        uses: actions/download-artifact@v4
+        with:
+          name: gosec-report
+          path: |
+              ${{ inputs.workdir }}build/gosec-report.json
+
+      - id: environments
+        name: environments
+        run: |
+          version=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "v0.1.0")
+          version=${version#v}
+          version="$version-$(git rev-parse --short HEAD)"
+          project=$(go list -m)
+          echo "
+          project=${project##*/}
+          version=$version
+          sonar_enabled=${{ secrets.SONAR_TOKEN != '' && secrets.SONAR_HOST_URL != ''}}
+          " >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: build binary
+        run: |
+          mkdir -p build
+          CGO_ENABLE=0 GOOS=${{ inputs.GOOS }} GOARCH=${{ inputs.GOARCH }} go build -a -o build/${{ steps.environments.outputs.project }} ${{ inputs.ENTRANCE }}
+
+      - name: test
+        run: |
+          go test -gcflags="all=-N -l" -coverprofile=build/coverage.out -covermode count -json -v ./... 2>&1 | tee build/test.json | gotestfmt
+          go-junit-report -parser gojson -in build/test.json -out build/report.xml

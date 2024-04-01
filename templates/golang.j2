@@ -1,0 +1,62 @@
+{% set setup -%}
+{% raw -%}
+runs-on: ubuntu-latest
+defaults:
+  run:
+    working-directory: ${{ inputs.workdir }}
+steps:
+  - uses: actions/checkout@v4
+  - uses: actions/setup-go@v5
+    with:
+      go-version: '1.20'
+      cache: false
+{% endraw %}
+{%- endset %}
+
+{% set cache -%}
+{% raw -%}
+- name: restore rust cache
+  uses: actions/cache/restore@v4
+  id: cache-restore-golang
+  env:
+    cache-name: cache-gomod
+  with:
+    path: |
+      ~/go
+    key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
+    restore-keys: |
+      ${{ runner.os }}-golang-store-${{ env.cache-name }}-
+{% endraw %}
+{%- endset %}
+
+{% set environments -%}
+{% raw -%}
+- id: environments
+  name: environments
+  run: |
+    version=$(git describe --tags $(git rev-list --tags --max-count=1) 2>/dev/null || echo "v0.1.0")
+    version=${version#v}
+    version="$version-$(git rev-parse --short HEAD)"
+    project=$(go list -m)
+    echo "
+    project=${project##*/}
+    version=$version
+    sonar_enabled=${{ secrets.SONAR_TOKEN != '' && secrets.SONAR_HOST_URL != ''}}
+    " >> "$GITHUB_OUTPUT"
+  shell: bash
+{% endraw %}
+{%- endset %}
+
+{% set build -%}
+{% raw -%}
+- name: build binary
+  run: |
+    mkdir -p build
+    CGO_ENABLE=0 GOOS=${{ inputs.GOOS }} GOARCH=${{ inputs.GOARCH }} go build -a -o build/${{ steps.environments.outputs.project }} ${{ inputs.ENTRANCE }}
+
+- name: test
+  run: |
+    go test -gcflags="all=-N -l" -coverprofile=build/coverage.out -covermode count -json -v ./... 2>&1 | tee build/test.json | gotestfmt
+    go-junit-report -parser gojson -in build/test.json -out build/report.xml
+{% endraw %}
+{%- endset %}

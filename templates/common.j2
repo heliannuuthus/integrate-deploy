@@ -1,0 +1,68 @@
+{% block reusable -%}
+on:
+  workflow_call:
+{%- endblock reusable %}
+
+{% macro inputs(name, default="",  desc='', type='string', required='false') -%}
+{{ name }}:
+  required: {{ required }}
+  default: {{ default }}
+  type: {{ type }}
+  description: "{{ desc }}"
+{%- endmacro %}
+
+{% macro secrets(name, desc='', required='false') -%}
+{{ name }}:
+  required: {{ required }}
+  description: "{{ desc }}"
+{%- endmacro %}
+
+{% macro output(name, value="", desc='') -%}
+{{ name }}:
+  required: {{ required }}
+  value: {{ '${{' }} {{ value }} {{ '}}' }}
+{%- endmacro %}
+
+{% macro upload_artifact(name, paths=[]) -%}
+- name: upload target
+  uses: actions/upload-artifact@v4
+  with:
+    name: {{ name }}
+    path: |
+      {% for path in paths %}
+        {{ path }}
+      {% endfor %}
+{% endmacro %}
+
+{% macro download_artifact(name, paths=[]) -%}
+- name: download target
+  uses: actions/download-artifact@v4
+  with:
+    name: {{ name }}
+    path: |
+      {% for path in paths %}
+        {{ path }}
+      {% endfor %}
+{% endmacro %}
+
+{% macro download_artifact(name, paths=[]) -%}
+- name: download target
+  uses: actions/download-artifact@v4
+  with:
+    name: {{ name }}
+    path: |
+      {% for path in paths %}
+        {{ path }}
+      {% endfor %}
+{% endmacro %}
+
+{% macro sonar(opt) -%}
+- name: download target
+  uses: actions/download-artifact@v4
+  with:
+    name: {{ name }}
+    path: |
+      {% for path in paths %}
+        {{ path }}
+      {% endfor %}
+{% endmacro %}
