@@ -78,7 +78,6 @@ jobs:
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
           -Dsonar.language=java
-          -Dsonar.plugins.downloadOnlyRequired=true
           -Dsonar.sourceEncoding=UTF-8
           -Dsonar.java.binaries=**/*
           -Dsonar.inclusions=**/src/**/main/**/*.java
