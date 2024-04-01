@@ -19,6 +19,9 @@ jobs:
     uses: ./.github/workflows/call-gradle-build.yml
     with:
       workdir: "tests/gradle-cloud/"
+    secrets:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   publish:
     needs: build

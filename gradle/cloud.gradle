@@ -1,6 +1,6 @@
 buildscript {
     repositories {
-        maven { url "https://maven.aliyun.com/repository/gradle-plugin" }
+        maven { url "https://plugins.gradle.org/m2/" }
         maven { url "https://repo.spring.io/plugins-snapshot" }
         mavenCentral()
     }
@@ -11,6 +11,7 @@ buildscript {
         classpath "com.diffplug.spotless:spotless-plugin-gradle:6.25.0"
         classpath "me.qoomon:gradle-git-versioning-plugin:6.4.2"
         classpath "io.freefair.gradle:lombok-plugin:8.6"
+        classpath "name.remal.gradle-plugins.sonarlint:sonarlint:3.4.9"
     }
 }
 
@@ -30,14 +31,13 @@ ext {
     lang3Version = "3.14.0"
     rngVersion = "1.5"
     spotlessVersion = "1.21.0"
-    helianthusCommonVersion = "0.1.0-2f44836"
+    helianthusCommonVersion = "0.1.1-d25a232"
 }
 
 sourceCompatibility = 17
 targetCompatibility = 17
 
 gitVersioning.apply {
-    version = rootProject.findProperty("version")
     refs {
         branch("master") {
             version = '${version}-${commit.short}'
@@ -57,7 +57,7 @@ dependencies {
     testImplementation "io.projectreactor:reactor-test"
 
     //apollo
-    implementation "io.ghrc:helianthus-annuus-apollo-client:${helianthusCommonVersion}"
+    // implementation "io.ghrc:helianthus-annuus-apollo-client:${helianthusCommonVersion}"
 
     // spring cloud
     implementation "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery"
@@ -72,13 +72,36 @@ dependencies {
 
 allprojects {
 
+    apply plugin: "jacoco"
     apply plugin: "org.springframework.boot"
     apply plugin: "io.spring.dependency-management"
     apply plugin: "com.diffplug.spotless"
     apply plugin: "io.freefair.lombok"
     apply plugin: "me.qoomon.git-versioning"
+    apply plugin: "name.remal.sonarlint"
 
-    group "io.ghrc"
+    jacoco {
+        toolVersion = "0.8.11"
+    }
+
+    jacocoTestReport {
+        dependsOn test
+        reports {
+            html.required = true
+            html.outputLocation = layout.buildDirectory.dir('reports/jacoco/html')
+            xml.required = true
+            xml.outputLocation = layout.buildDirectory.file("reports/jacocoReports.xml")
+        }
+    }
+
+    spotless {
+        java {
+            importOrder()
+            removeUnusedImports()
+            googleJavaFormat("${spotlessVersion}").groupArtifact("com.google.googlejavaformat:google-java-format")
+            formatAnnotations()
+        }
+    }
 
     configurations {
         compileOnly {
@@ -103,6 +126,11 @@ allprojects {
 
     tasks.named("test") {
         useJUnitPlatform()
+        finalizedBy jacocoTestReport
+    }
+
+    tasks.register("name") {
+        logger.quiet(project.name)
     }
 
     dependencyManagement {
@@ -110,15 +138,6 @@ allprojects {
             mavenBom "org.springframework.boot:spring-boot-dependencies:${bootVersion}"
             mavenBom "org.springframework.cloud:spring-cloud-dependencies:${cloudVersion}"
             mavenBom "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${alibabaCloudVersion}"
-        }
-    }
-
-    spotless {
-        java {
-            importOrder()
-            removeUnusedImports()
-            googleJavaFormat("${spotlessVersion}").groupArtifact("com.google.googlejavaformat:google-java-format")
-            formatAnnotations()
         }
     }
 }
