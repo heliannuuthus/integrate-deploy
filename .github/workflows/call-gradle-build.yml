@@ -73,7 +73,7 @@ jobs:
       - name: sonar run
         if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
         run: 
-          ls build && tree build/classes
+          ls build && tree build/classes &&
           ~/sonar-scanner/bin/sonar-scanner
           -Dsonar.projectBaseDir=./
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
@@ -81,7 +81,7 @@ jobs:
           -Dsonar.language=java
           -Dsonar.plugins.downloadOnlyRequired=true
           -Dsonar.sourceEncoding=UTF-8
-          -Dsonar.java.binaries=**/build/classes
+          -Dsonar.java.binaries=**/build/classes 
           -Dsonar.inclusions=**/src/**/main/**/*.java
           -Dsonar.exclusions=**/src/**/test/**/*.java
           -Dsonar.test.inclusions=src/**/test/**/*.java
