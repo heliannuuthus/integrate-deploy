@@ -43,7 +43,7 @@ jobs:
 
       - id: sonar-restore-cache
         name: restore sonar cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/sonar-scanner
@@ -91,6 +91,16 @@ jobs:
           -Dsonar.projectKey=${{ steps.environments.outputs.project }}
           -Dsonar.projectVersion=${{ steps.environments.outputs.version }}
           -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacocoReports.xml
+
+      - id: sonar-save-cache
+        if: ${{ steps.environments.outputs.sonar_enabled == 'true'}}
+        name: save sonar cache
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/sonar-scanner
+            ~/.sonar
+          key: ${{ runner.os }}-sonar
   
       - name: upload target
         uses: actions/upload-artifact@v4
