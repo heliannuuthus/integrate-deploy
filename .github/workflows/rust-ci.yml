@@ -8,5 +8,8 @@ on:
 jobs:
   project:
     uses: ./.github/workflows/call-rust.yml
+    permissions:
+      contents: read
+      packages: write
     with:
       workdir: "tests/rust/"

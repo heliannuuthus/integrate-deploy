@@ -9,6 +9,9 @@ on:
 jobs:
   project:
     uses: ./.github/workflows/call-gradle-cloud.yml
+    permissions:
+      contents: read
+      packages: write
     with:
       workdir: "tests/gradle-cloud-cloud/"
     secrets:
