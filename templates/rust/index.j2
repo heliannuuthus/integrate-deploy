@@ -50,7 +50,7 @@ jobs:
   containerize:
     needs: [build]
     {{ containerize.init | indent(4) }}
-      {{ actions.download(data.build.upload.name, data.build.upload.paths) | indent(6) }}
+      {{ actions.download(data.containerize.download.name, data.containerize.download.paths) | indent(6) }}
       {{ containerize.env | indent(6) }}
       {{ containerize.meta | indent(6) }}
       {{ containerize.auth | indent(6) }}

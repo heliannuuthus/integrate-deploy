@@ -6,7 +6,7 @@ on:
   pull_request_target:
     types: [closed]
 jobs:
-  setup:
+  project:
     uses: ./.github/workflows/call-rust.yml
     with:
       workdir: "tests/rust/"

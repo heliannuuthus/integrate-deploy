@@ -7,7 +7,7 @@ on:
     types: [closed]
 
 jobs:
-  ci:
+  project:
     uses: ./.github/workflows/call-gradle-library.yml
     with:
       workdir: "tests/gradle-cloud-library/"

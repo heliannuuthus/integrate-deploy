@@ -7,7 +7,7 @@ on:
     types: [closed]
 
 jobs:
-  ci:
+  project:
     uses: ./.github/workflows/call-golang.yml
     permissions:
       contents: read

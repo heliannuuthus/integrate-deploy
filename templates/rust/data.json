@@ -29,7 +29,7 @@
     "download": {
       "name": "target",
       "paths": [
-        "${{ inputs.workdir }}target/release/${{ steps.environments.outputs.project }}",
+        "${{ inputs.workdir }}target/release/${{ needs.build.outputs.project }}",
         "${{ inputs.workdir }}target/default/report.xml",
         "${{ inputs.workdir }}target/cobertura.xml"
       ]

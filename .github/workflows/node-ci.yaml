@@ -6,7 +6,7 @@ on:
   pull_request_target:
     types: [closed]
 jobs:
-  ci:
+  project:
     uses: ./.github/workflows/call-node.yml
     with:
       workdir: "tests/node/"
