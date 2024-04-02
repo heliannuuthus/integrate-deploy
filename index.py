@@ -1,3 +1,6 @@
+import json
+import os
+
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 env = Environment(
@@ -10,4 +13,10 @@ env = Environment(
 )
 
 if __name__ == '__main__':
-  env.get_template("golang.yml.j2").stream().dump("./test.yml")
+  name = "gradle-cloud"
+  directory = "templates"
+  for item in os.listdir(directory):
+    full_path = os.path.join(directory, item)
+    if os.path.isdir(full_path):
+      with open(f"{directory}/{item}/data.json") as f:
+        env.get_template(f"{item}/index.j2").stream(data=json.load(f)).dump(f".github/workflows/call-{item}.yml")

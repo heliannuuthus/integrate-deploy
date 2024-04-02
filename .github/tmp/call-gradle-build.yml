@@ -8,7 +8,7 @@ on:
         description: "Specify all of steps where are run"
     outputs:
       version:
-        description: "gradle application version"
+        description: "gradle-cloud application version"
         value: ${{ jobs.build.outputs.version }}
 
     secrets:
@@ -77,6 +77,11 @@ jobs:
           -Dsonar.projectBaseDir=./
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.pullrequest.key=${{github.event.pull_request.number}}
+          -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}
+          -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }}
+          -Dsonar.projectKey=${{ steps.environments.outputs.project }}
+          -Dsonar.projectVersion=${{ steps.environments.outputs.version }}
           -Dsonar.language=java
           -Dsonar.sourceEncoding=UTF-8
           -Dsonar.java.binaries=**/*
@@ -84,11 +89,6 @@ jobs:
           -Dsonar.exclusions=**/src/**/test/**/*.java
           -Dsonar.test.inclusions=**/src/**/test/**/*.java
           -Dsonar.test.exclusions=**/src/**/main/**/*.java
-          -Dsonar.pullrequest.key=${{github.event.pull_request.number}}
-          -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}
-          -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }}
-          -Dsonar.projectKey=${{ steps.environments.outputs.project }}
-          -Dsonar.projectVersion=${{ steps.environments.outputs.version }}
           -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacocoReports.xml
 
       - id: sonar-save-cache

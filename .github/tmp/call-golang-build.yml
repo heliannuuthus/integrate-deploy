@@ -123,17 +123,16 @@ jobs:
           -Dsonar.projectBaseDir=./
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.language=go
-          -Dsonar.plugins.downloadOnlyRequired=true
-          -Dsonar.sourceEncoding=UTF-8
-          -Dsonar.exclusions=**/*_test.go,**/vendor/**
-          -Dsonar.test.inclusions=**/*_test.go
-          -Dsonar.test.exclusions=**/vendor/**
           -Dsonar.pullrequest.key=${{github.event.pull_request.number}}
           -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}
           -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }}
           -Dsonar.projectKey=${{ steps.environments.outputs.project }}
           -Dsonar.projectVersion=${{ steps.environments.outputs.version }}
+          -Dsonar.language=go
+          -Dsonar.sourceEncoding=UTF-8
+          -Dsonar.exclusions=**/*_test.go,**/vendor/**
+          -Dsonar.test.inclusions=**/*_test.go
+          -Dsonar.test.exclusions=**/vendor/**
           -Dsonar.go.test.reportPaths=build/report.xml
           -Dsonar.go.coverage.reportPaths=build/coverage.out
 

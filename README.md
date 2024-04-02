@@ -60,7 +60,7 @@ jobs:
 > use **Dockerfile** to build the project image, the default build jar package name is `app.jar`, output directory is `build/libs/`
 
 ```yaml
-name: gradle-cloud
+name: gradle-cloud-cloud
 
 on:
   pull_request:
@@ -71,16 +71,16 @@ on:
 jobs:
   lint:
     if: ${{ github.event.pull_request.merged != true }}
-    uses: heliannuuthus/integrate-deploy/.github/workflows/call-gradle-lint.yml
+    uses: heliannuuthus/integrate-deploy/.github/workflows/call-gradle-cloud-lint.yml
     with:
-      workdir: "tests/gradle-cloud/"
+      workdir: "tests/gradle-cloud-cloud/"
 
   build:
     if: always()
     needs: lint
-    uses: heliannuuthus/integrate-deploy/.github/workflows/call-gradle-build.yml
+    uses: heliannuuthus/integrate-deploy/.github/workflows/call-gradle-cloud-build.yml
     with:
-      workdir: "tests/gradle-cloud/"
+      workdir: "tests/gradle-cloud-cloud/"
 
   containerize:
     if: ${{ always() && github.event.pull_request.merged == true }}
@@ -90,9 +90,9 @@ jobs:
       packages: write
     uses: heliannuuthus/integrate-deploy/.github/workflows/call-containerize.yml
     with:
-      workdir: "tests/gradle-cloud/"
+      workdir: "tests/gradle-cloud-cloud/"
       version: ${{ needs.build.outputs.version }}
-      target: "tests/gradle-cloud/build"
+      target: "tests/gradle-cloud-cloud/build"
 ```
 
 ### gradle-library
@@ -102,7 +102,7 @@ jobs:
 > publish the package to github pakcage
 
 ```yaml
-name: gradle-library
+name: gradle-cloud-library
 
 on:
   pull_request:
@@ -113,16 +113,16 @@ on:
 jobs:
   lint:
     if: ${{ github.event.pull_request.merged != true }}
-    uses: heliannuuthus/integrate-deploy/.github/workflows/call-gradle-lint.yml
+    uses: heliannuuthus/integrate-deploy/.github/workflows/call-gradle-cloud-lint.yml
     with:
-      workdir: "tests/gradle-library/"
+      workdir: "tests/gradle-cloud-library/"
 
   build:
     if: always()
     needs: lint
-    uses: heliannuuthus/integrate-deploy/.github/workflows/call-gradle-build.yml
+    uses: heliannuuthus/integrate-deploy/.github/workflows/call-gradle-cloud-build.yml
     with:
-      workdir: "tests/gradle-library/"
+      workdir: "tests/gradle-cloud-library/"
 
   containerize:
     if: ${{ always() && github.event.pull_request.merged == true }}
@@ -130,9 +130,9 @@ jobs:
     permissions:
       contents: read
       packages: write
-    uses: heliannuuthus/integrate-deploy/.github/workflows/call-gradle-publish.yml
+    uses: heliannuuthus/integrate-deploy/.github/workflows/call-gradle-cloud-publish.yml
     with:
-      workdir: "tests/gradle/"
+      workdir: "tests/gradle-cloud/"
       user: ${{ github.actor }}
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
