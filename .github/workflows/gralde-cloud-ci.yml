@@ -13,7 +13,7 @@ jobs:
       contents: read
       packages: write
     with:
-      workdir: "tests/gradle-cloud-cloud/"
+      workdir: "tests/gradle-cloud/"
     secrets:
       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
