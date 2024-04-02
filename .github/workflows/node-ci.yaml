@@ -1,0 +1,13 @@
+name: node
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  pull_request_target:
+    types: [closed]
+jobs:
+  ci:
+    uses: ./.github/workflows/call-node.yml
+    with:
+      workdir: "tests/node/"
+

@@ -1,0 +1,20 @@
+name: golang
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  pull_request_target:
+    types: [closed]
+
+jobs:
+  ci:
+    uses: ./.github/workflows/call-golang.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      workdir: "tests/golang/"
+      ENTRANCE: cmd/main.go
+    secrets:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

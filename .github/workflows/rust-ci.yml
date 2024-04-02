@@ -1,0 +1,12 @@
+name: rust
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  pull_request_target:
+    types: [closed]
+jobs:
+  setup:
+    uses: ./.github/workflows/call-rust.yml
+    with:
+      workdir: "tests/rust/"

@@ -1,0 +1,17 @@
+name: gradle-cloud-cloud
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  pull_request_target:
+    types: [closed]
+
+jobs:
+  ci:
+    if: ${{ github.event.pull_request.merged != true }}
+    uses: ./.github/workflows/call-gradle-cloud.yml
+    with:
+      workdir: "tests/gradle-cloud-cloud/"
+    secrets:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
