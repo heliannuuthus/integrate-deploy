@@ -1,0 +1,37 @@
+name: gradle-cloud-library
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  pull_request_target:
+    types: [closed]
+
+jobs:
+  lint:
+    if: ${{ github.event.pull_request.merged != true }}
+    uses: ./.github/workflows/call-gradle-cloud-lint.yml
+    with:
+      workdir: "tests/gradle-cloud-library/"
+
+  build:
+    if: ${{ always() && needs.lint.result != 'failure' }}
+    needs: lint
+    uses: ./.github/workflows/call-gradle-cloud-build.yml
+    with:
+      workdir: "tests/gradle-cloud-library/"
+    secrets:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  publish:
+    if: ${{ always() && github.event.pull_request.merged == true }}
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/call-gradle-cloud-publish.yml
+    with:
+      workdir: "tests/gradle-cloud-library/"
+      user: ${{ github.actor }}
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}

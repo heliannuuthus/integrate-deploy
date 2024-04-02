@@ -1,0 +1,60 @@
+on:
+  workflow_call:
+    inputs:
+      workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of steps where are run"
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: restore rust cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-cargo
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-store-${{ env.cache-name }}-
+
+      - name: setup
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+        env:
+          CACHE_HINT: ${{ steps.cache-restore-cargo.outputs.cache-hit }}
+          CACHE_HINT_STRING: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+          CACHE_HINT_BOOLEAN: ${{ steps.cache-restore-cargo.outputs.cache-hit != true}}
+        run: |
+          echo "CACHE_HINT: $CACHE_HINT"
+          echo "CACHE_HINT_STRING: $CACHE_HINT_STRING"
+          echo "$CACHE_HINT_BOOLEAN: CACHE_HINT_BOOLEAN"
+          rustup component add rustfmt clippy
+          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
+
+      - name: cache cargo
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+        id: cache-save-cargo
+        uses: actions/cache/save@v4
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}

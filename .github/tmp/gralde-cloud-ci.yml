@@ -1,0 +1,35 @@
+name: gradle-cloud-cloud
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  pull_request_target:
+    types: [closed]
+
+jobs:
+  lint:
+    if: ${{ github.event.pull_request.merged != true }}
+    uses: ./.github/workflows/call-gradle-cloud-lint.yml
+    with:
+      workdir: "tests/gradle-cloud-cloud/"
+
+  build:
+    if: ${{ always() && needs.lint.result != 'failure' }}
+    needs: lint
+    uses: ./.github/workflows/call-gradle-cloud-build.yml
+    with:
+      workdir: "tests/gradle-cloud-cloud/"
+    secrets:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+  publish:
+    needs: build
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/call-containerize.yml
+    with:
+      workdir: "tests/gradle-cloud-cloud/"
+      version: ${{ needs.build.outputs.version }}
+      target: "tests/gradle-cloud-cloud/build"
