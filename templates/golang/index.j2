@@ -25,7 +25,9 @@ on:
 
 jobs:
   setup:
-    {{ setup }}
+    {{ init | indent(4) }}
+      {{ cache | indent(6) }}
+      {{ setup | indent(6) }}
   lint:
     needs: [setup]
     {{ init | indent(4) }}
@@ -38,7 +40,7 @@ jobs:
       {{ sec_scan | indent(6) }}
       {{ actions.upload(data.security.upload.name, data.security.upload.paths) | indent(6) }}
   build:
-    needs: [setup, lint]
+    needs: [lint, setup, security]
     outputs:
     {%- raw %}
       project: ${{ steps.environments.outputs.project }}

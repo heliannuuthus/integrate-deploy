@@ -54,6 +54,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
 
+      
       - name: setup
         if: ${{ steps.cache-restore-golang.outputs.cache-hit != 'true'}}
         run: |
@@ -102,6 +103,7 @@ jobs:
         run: |
           go version
           golangci-lint -vv
+
   security:
     needs: [setup]
     runs-on: ubuntu-latest
@@ -132,15 +134,16 @@ jobs:
           mkdir -p build
           gosec -fmt=json -out=build/gosec-report.json -stdout -verbose=text *.go
           tree
+
       - name: upload gosec-report
-        uses: actions/download-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: gosec-report
           path: |
               ${{ inputs.workdir }}build/gosec-report.json
 
   build:
-    needs: [setup, lint]
+    needs: [lint, setup, security]
     outputs:
       project: ${{ steps.environments.outputs.project }}
       version: ${{ steps.environments.outputs.version }}
@@ -209,7 +212,7 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: setup-sonar
+      - name: setup sonar
         if:  ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }}
         run: |
           mkdir -p ~/sonar-scanner/.sonar
@@ -239,7 +242,7 @@ jobs:
           -Dsonar.go.coverage.reportPaths=build/coverage.out
 
       - name: upload target
-        uses: actions/download-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: target
           path: |

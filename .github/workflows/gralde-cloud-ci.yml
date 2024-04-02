@@ -1,4 +1,4 @@
-name: gradle-cloud-cloud
+name: gradle-cloud
 
 on:
   pull_request:
@@ -8,7 +8,6 @@ on:
 
 jobs:
   ci:
-    if: ${{ github.event.pull_request.merged != true }}
     uses: ./.github/workflows/call-gradle-cloud.yml
     with:
       workdir: "tests/gradle-cloud-cloud/"

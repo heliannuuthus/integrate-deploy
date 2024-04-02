@@ -1,6 +1,6 @@
 {% macro upload(name, paths=[]) -%}
 - name: upload {{ name }}
-  uses: actions/download-artifact@v4
+  uses: actions/upload-artifact@v4
   with:
     name: {{ name }}
     path: |
@@ -32,7 +32,7 @@
     key: ${{ runner.os }}-sonar
     restore-keys: ${{ runner.os }}-sonar
 
-- name: setup-sonar
+- name: setup sonar
   if:  ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }}
   run: |
     mkdir -p ~/sonar-scanner/.sonar

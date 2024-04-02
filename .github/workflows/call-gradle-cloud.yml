@@ -87,7 +87,7 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
 
-      - name: setup-sonar
+      - name: setup sonar
         if:  ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }}
         run: |
           mkdir -p ~/sonar-scanner/.sonar
@@ -118,7 +118,7 @@ jobs:
           -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacocoReports.xml
 
       - name: upload target
-        uses: actions/download-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: target
           path: |

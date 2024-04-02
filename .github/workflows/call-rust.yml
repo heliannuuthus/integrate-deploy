@@ -6,20 +6,6 @@ on:
         default: "./"
         type: "string"
         description: "Specify all of steps where are run"
-      user:
-        required: true
-        type: "string"
-        description: "publisher"
-    secrets:
-      SONAR_HOST_URL:
-        required: false
-        description: "Sonarqube host url"
-      SONAR_TOKEN:
-        required: false
-        description: "Sonarqube Token"
-      token:
-        required: false
-        description: "Sonarqube Token"
 
 jobs:
   setup:
@@ -158,7 +144,7 @@ jobs:
       - name: build
         run: cargo install cargo-auditable && cargo auditable build --release
       - name: upload target
-        uses: actions/download-artifact@v4
+        uses: actions/upload-artifact@v4
         with:
           name: target
           path: |

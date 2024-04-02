@@ -7,30 +7,9 @@
         "desc": "Specify all of steps where are run",
         "type": "string",
         "required": "false"
-      },
-      {
-        "name": "user",
-        "required": "true",
-        "type": "string",
-        "desc": "publisher"
       }
     ],
     "secrets": [
-      {
-        "name": "SONAR_HOST_URL",
-        "desc": "Sonarqube host url",
-        "required": "false"
-      },
-      {
-        "name": "SONAR_TOKEN",
-        "desc": "Sonarqube Token",
-        "required": "false"
-      },
-      {
-        "name": "token",
-        "desc": "Sonarqube Token",
-        "required": "true"
-      }
     ],
     "outputs": []
   },
