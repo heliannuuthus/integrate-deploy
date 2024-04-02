@@ -18,7 +18,7 @@ on:
         description: "Specify build command"
       test:
         required: false
-        default: "test"
+        default: ""
         type: "string"
         description: "Specify test command"
 

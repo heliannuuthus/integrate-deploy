@@ -169,9 +169,7 @@ jobs:
         with:
           name: target
           path: |
-              ${{ inputs.workdir }}target/release/${{ needs.build.outputs.project }}
-              ${{ inputs.workdir }}target/default/report.xml
-              ${{ inputs.workdir }}target/cobertura.xml
+              ${{ inputs.workdir }}target
 
       - id: environments
         name: environments

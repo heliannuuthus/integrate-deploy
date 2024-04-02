@@ -25,7 +25,6 @@
 			{
 				"name": "test",
 				"required": "false",
-				"default": "test",
 				"type": "string",
 				"desc": "Specify test command"
 			}
