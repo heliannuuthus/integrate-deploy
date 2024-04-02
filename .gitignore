@@ -1,5 +1,5 @@
 .gradle
-.idea/
 !.idea/icon*.png
 *.iml
 build/
+**/.idea

@@ -1,0 +1,36 @@
+{
+  "variables": {
+    "inputs": [
+      {
+        "name": "workdir",
+        "default": "./",
+        "desc": "Specify all of steps where are run",
+        "type": "string",
+        "required": "false"
+      }
+    ],
+    "secrets": [
+    ],
+    "outputs": []
+  },
+  "lint": {},
+  "security": {},
+  "build": {
+    "upload": {
+      "name": "target",
+      "paths": [
+        "${{ inputs.workdir }}target/release/${{ steps.environments.outputs.project }}",
+        "${{ inputs.workdir }}target/default/report.xml",
+        "${{ inputs.workdir }}target/cobertura.xml"
+      ]
+    }
+  },
+  "containerize": {
+    "download": {
+      "name": "target",
+      "paths": [
+        "${{ inputs.workdir }}target/"
+      ]
+    }
+  }
+}

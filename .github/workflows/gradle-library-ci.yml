@@ -7,31 +7,15 @@ on:
     types: [closed]
 
 jobs:
-  lint:
-    if: ${{ github.event.pull_request.merged != true }}
-    uses: ./.github/workflows/call-gradle-lint.yml
-    with:
-      workdir: "tests/gradle-library/"
-
-  build:
-    if: ${{ always() && needs.lint.result != 'failure' }}
-    needs: lint
-    uses: ./.github/workflows/call-gradle-build.yml
-    with:
-      workdir: "tests/gradle-library/"
-    secrets:
-      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-  publish:
-    if: ${{ always() && github.event.pull_request.merged == true }}
-    needs: build
+  project:
+    uses: ./.github/workflows/call-gradle-library.yml
     permissions:
       contents: read
       packages: write
-    uses: ./.github/workflows/call-gradle-publish.yml
     with:
       workdir: "tests/gradle-library/"
       user: ${{ github.actor }}
     secrets:
+      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       token: ${{ secrets.GITHUB_TOKEN }}

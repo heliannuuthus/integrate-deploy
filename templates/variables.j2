@@ -1,0 +1,37 @@
+{% block reusable -%}
+on:
+  workflow_call:
+{%- endblock reusable %}
+
+{% macro inputs(name, default="",  desc='', type='string', required='false') -%}
+{{ name }}:
+  required: {{ required }}
+  {% if required != "true" %}
+  default: "{{ default }}"
+  {% endif %}
+  type: "{{ type }}"
+  description: "{{ desc }}"
+{%- endmacro %}
+
+{% macro secrets(name, desc='', required='false') -%}
+{{ name }}:
+  required: {{ required }}
+  description: "{{ desc }}"
+{%- endmacro %}
+
+{% macro outputs(name, value="", required='false') -%}
+{{ name }}:
+  required: {{ required }}
+  value: {{ '${{' }} {{ value }} {{ '}}' }}
+{%- endmacro %}
+
+{% macro upload_artifact(name, paths=[]) -%}
+- name: upload target
+  uses: actions/upload-artifact@v4
+  with:
+    name: {{ name }}
+    path: |
+      {% for path in paths %}
+        {{ path }}
+      {% endfor %}
+{% endmacro %}

@@ -1,0 +1,47 @@
+{%- import 'variables.j2' as variables -%}
+{%- import 'actions.j2' as actions  -%}
+{%- from 'node/extra.j2' import setup, init, cache, env, lint, build -%}
+on:
+  workflow_call:
+    {% if data.variables.inputs | length > 0 %}
+    inputs:
+      {% for v in data.variables.inputs %}
+      {{ variables.inputs(v.name, v.default, v.desc, v.type, v.required) | indent(6) }}
+      {% endfor %}
+    {% endif %}
+    {% if data.variables.secrets | length > 0 %}
+    secrets:
+      {% for v in data.variables.secrets %}
+      {{ variables.secrets(v.name, v.desc) | indent(6) }}
+      {% endfor %}
+    {% endif %}
+    {% if data.variables.outputs | length > 0 %}
+    outputs:
+      {% for _, v in data.variables.outputs %}
+      {{ variables.outputs(v.name, v.value, v.desc) | indent(6) }}
+      {% endfor %}
+    {% endif %}
+
+jobs:
+  setup:
+    {{ init | indent(4) }}
+      {{ cache | indent(6) }}
+      {{ setup | indent(6) }}
+  lint:
+    needs: [setup]
+    {{ init | indent(4) }}
+      {{ cache | indent(6) }}
+      {{ lint | indent(6) }}
+  build:
+    needs: [lint]
+    {%- raw %}
+    outputs:
+      project: ${{ steps.environments.outputs.project }}
+      version: ${{ steps.environments.outputs.version }}
+      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
+    {% endraw %}
+    {{ init | indent(4) }}
+      {{ cache | indent(6) }}
+      {{ build | indent(6) }}
+      {{ env | indent(6) }}
+      {{ build | indent(6) }}

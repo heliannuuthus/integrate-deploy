@@ -7,37 +7,14 @@ on:
     types: [closed]
 
 jobs:
-  setup:
-    uses: ./.github/workflows/call-golang-setup.yml
+  project:
+    uses: ./.github/workflows/call-golang.yml
+    permissions:
+      contents: read
+      packages: write
     with:
       workdir: "tests/golang/"
-
-  lint:
-    needs: setup
-    uses: ./.github/workflows/call-golang-lint.yml
-    with:
-      workdir: "tests/golang/"
-
-  build:
-    needs: [setup, lint]
-    uses: ./.github/workflows/call-golang-build.yml
-    with:
-      workdir: "tests/golang/"
-      GOOS: linux
-      GOARCH: amd64
       ENTRANCE: cmd/main.go
     secrets:
       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-  containeraized:
-    if: ${{ always() && github.event.pull_request.merged }}
-    needs: build
-    permissions:
-      contents: read
-      packages: write
-    uses: ./.github/workflows/call-containerize.yml
-    with:
-      version: ${{ needs.build.outputs.version }}
-      workdir: "tests/golang/"
-      target: "tests/golang/build"
