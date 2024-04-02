@@ -1,0 +1,218 @@
+on:
+  workflow_call:
+    inputs:
+      workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of steps where are run"
+      user:
+        required: true
+        type: "string"
+        description: "publisher"
+    secrets:
+      SONAR_HOST_URL:
+        required: false
+        description: "Sonarqube host url"
+      SONAR_TOKEN:
+        required: false
+        description: "Sonarqube Token"
+      token:
+        required: false
+        description: "Sonarqube Token"
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: restore rust cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-cargo
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-store-${{ env.cache-name }}-
+
+      - name: setup
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+        env:
+          CACHE_HINT: ${{ steps.cache-restore-cargo.outputs.cache-hit }}
+          CACHE_HINT_STRING: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+          CACHE_HINT_BOOLEAN: ${{ steps.cache-restore-cargo.outputs.cache-hit != true}}
+        run: |
+          echo "CACHE_HINT: $CACHE_HINT"
+          echo "CACHE_HINT_STRING: $CACHE_HINT_STRING"
+          echo "$CACHE_HINT_BOOLEAN: CACHE_HINT_BOOLEAN"
+          rustup component add rustfmt clippy
+          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
+
+      - name: cache cargo
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+        id: cache-save-cargo
+        uses: actions/cache/save@v4
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+
+  lint:
+    needs: [setup]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: restore rust cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-cargo
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-store-${{ env.cache-name }}-
+
+      - name: lint
+        run: |
+          cargo fmt --all -- --check
+          cargo check --no-default-features
+          cargo clippy --all-targets --all-features -- -D warnings
+
+  build:
+    needs: [lint]
+    outputs:
+      project: ${{ steps.environments.outputs.project }}
+      version: ${{ steps.environments.outputs.version }}
+      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: restore rust cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-cargo
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-store-${{ env.cache-name }}-
+
+      - name: test
+        run: |
+          cargo nextest run --target-dir target
+          cargo tarpaulin --skip-clean --all-features --workspace --out xml --output-dir target
+
+      - name: build
+        run: cargo install cargo-auditable && cargo auditable build --release
+      - id: environments
+        name: environments
+        run: |
+          echo "
+          project=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].name')
+          version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+          " >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: test
+        run: |
+          cargo nextest run --target-dir target
+          cargo tarpaulin --skip-clean --all-features --workspace --out xml --output-dir target
+
+      - name: build
+        run: cargo install cargo-auditable && cargo auditable build --release
+      - name: upload target
+        uses: actions/download-artifact@v4
+        with:
+          name: target
+          path: |
+              ${{ inputs.workdir }}target/release/${{ steps.environments.outputs.project }}
+              ${{ inputs.workdir }}target/default/report.xml
+              ${{ inputs.workdir }}target/cobertura.xml
+
+  containerize:
+    needs: [build]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: download target
+        uses: actions/download-artifact@v4
+        with:
+          name: target
+          path: |
+              ${{ inputs.workdir }}target/release/${{ steps.environments.outputs.project }}
+              ${{ inputs.workdir }}target/default/report.xml
+              ${{ inputs.workdir }}target/cobertura.xml
+
+      - id: environments
+        name: environments
+        run: |
+          echo "timestamp=$(date +%Y%m%d | cut -c 3-8)" >> "$GITHUB_OUTPUT"
+          echo "short_sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - id: meta
+        name: container meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,enable=${{ github.ref == format('refs/heads/{0}', 'master') }},pattern={{version}}-${{ steps.environments.outputs.timestamp }}rc-${{ steps.environments.outputs.short_sha }},value=${{ needs.build.outputs.version || 'v0.0.1' }}
+            type=semver,enable=${{ github.ref != format('refs/heads/{0}', 'master') }},pattern={{version}}-${{ steps.environments.outputs.timestamp }}alpha-${{ steps.environments.outputs.short_sha }},value=${{ needs.build.outputs.version || 'v0.0.1'  }}
+
+      - name: authenticate
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: push github
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ inputs.workdir }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

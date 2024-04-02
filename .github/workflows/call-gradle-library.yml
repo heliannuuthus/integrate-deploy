@@ -1,0 +1,156 @@
+on:
+  workflow_call:
+    inputs:
+      workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of steps where are run"
+      user:
+        required: true
+        type: "string"
+        description: "publisher"
+    secrets:
+      SONAR_HOST_URL:
+        required: false
+        description: "Sonarqube host url"
+      SONAR_TOKEN:
+        required: false
+        description: "Sonarqube Token"
+      token:
+        required: false
+        description: "Sonarqube Token"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: setup-gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-home-cache-cleanup: true
+
+      - name: build and test
+        run: gradle clean build
+        env:
+          GPR_USER: ${{ secrets.user }}
+          GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    needs: [lint]
+    outputs:
+      project: ${{ steps.environments.outputs.project }}
+      version: ${{ steps.environments.outputs.version }}
+      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: setup-gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-home-cache-cleanup: true
+
+      - id: environments
+        name: environments
+        run: |
+          echo "
+          project=$(gradle name -q | awk 'NR==1 {print}')
+          version=$(gradle version -q | awk 'NR==1 {print}')
+          sonar_enabled=${{ secrets.SONAR_TOKEN != '' && secrets.SONAR_HOST_URL != ''}}
+          " >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: build and test
+        run: gradle clean build
+        env:
+          GPR_USER: ${{ secrets.user }}
+          GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - id: sonar-restore-cache
+        name: restore sonar cache
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            ~/sonar-scanner
+            ~/.sonar
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: setup-sonar
+        if:  ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }}
+        run: |
+          mkdir -p ~/sonar-scanner/.sonar
+          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip -q -o sonar-scanner.zip -d ~/
+          mv ~/sonar-scanner-5.0.1.3006-linux/* ~/sonar-scanner
+          rm -r ~/sonar-scanner-5.0.1.3006-linux
+        shell: bash
+
+      - name: sonar analyze
+        run:
+          ~/sonar-scanner/bin/sonar-scanner
+          -Dsonar.projectBaseDir=./
+          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
+          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.pullrequest.key=${{github.event.pull_request.number}}
+          -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}
+          -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }}
+          -Dsonar.projectKey=${{ steps.environments.outputs.project }}
+          -Dsonar.projectVersion=${{ steps.environments.outputs.version }}
+          -Dsonar.language=java
+          -Dsonar.sourceEncoding=UTF-8
+          -Dsonar.java.binaries=**/*
+          -Dsonar.inclusions=**/src/**/main/**/*.java
+          -Dsonar.exclusions=**/src/**/test/**/*.java
+          -Dsonar.test.inclusions=**/src/**/test/**/*.java
+          -Dsonar.test.exclusions=**/src/**/main/**/*.java
+          -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacocoReports.xml
+
+      - name: upload target
+        uses: actions/download-artifact@v4
+        with:
+          name: target
+          path: |
+              ${{ inputs.workdir }}build/
+
+  publish:
+    needs: [build]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.workdir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: setup-gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-home-cache-cleanup: true
+
+      - name: publish
+        run: gradle publish
+        env:
+          GPR_USER: ${{ secrets.user }}
+          GPR_TOKEN: ${{ secrets.token }}
+
