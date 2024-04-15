@@ -6,6 +6,11 @@ on:
         default: "./"
         type: "string"
         description: "Specify all of rust steps where are run"
+      container_workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of container steps where are run"
 
 jobs:
   setup:

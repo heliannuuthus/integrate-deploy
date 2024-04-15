@@ -2,11 +2,6 @@
   "variables": {
     "inputs": [
       {
-<<<<<<< HEAD
-        "name": "workdir",
-        "default": "./",
-        "desc": "Specify all of steps where are run",
-=======
         "name": "gradle_workdir",
         "default": "./",
         "desc": "Specify all of gradle steps where are run",
@@ -16,7 +11,6 @@
         "name": "container_workdir",
         "default": "./",
         "desc": "Specify all of container steps where are run",
->>>>>>> 0dcd217 (cc)
         "type": "string",
         "required": "false"
       }
@@ -43,11 +37,7 @@
     "upload": {
       "name": "target",
       "paths": [
-<<<<<<< HEAD
-        "${{ inputs.workdir }}build/"
-=======
         "${{ inputs.gradle_workdir }}build/"
->>>>>>> 0dcd217 (cc)
       ]
     },
     "sonaropts": [
@@ -65,16 +55,8 @@
     "download": {
       "name": "target",
       "paths": [
-<<<<<<< HEAD
-        "${{ inputs.workdir }}build/"
-      ]
-    }
-  }
-}
-=======
         "${{ inputs.gradle_workdir }}build/"
       ]
     }
   }
 }
->>>>>>> 0dcd217 (cc)
