@@ -1,4 +1,4 @@
-name: rust
+name: rust-tauri
 
 on:
   pull_request:
