@@ -9,7 +9,7 @@ jobs:
   project:
     uses: ./.github/workflows/call-rust-tauri.yml
     permissions:
-      contents: read
+      contents: write
       packages: write
     with:
       rust_workdir: "tests/node/src-tauri"
