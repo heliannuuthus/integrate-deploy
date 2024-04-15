@@ -1,0 +1,434 @@
+on:
+  workflow_call:
+    inputs:
+      rust_workdir:
+        required: false
+        default: "./src-tauri"
+        type: "string"
+        description: "Specify all of rust steps where are run"
+      node_workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of node steps where are run"
+      node:
+        required: false
+        default: "lts/*"
+        type: "string"
+        description: "Specify node version, default: lts"
+      build:
+        required: false
+        default: "build"
+        type: "string"
+        description: "Specify build command"
+      test:
+        required: false
+        default: ""
+        type: "string"
+        description: "Specify test command"
+
+jobs:
+  rust-setup:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.rust_workdir }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: restore rust cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-cargo
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-store-${{ env.cache-name }}-
+
+      - name: setup
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+        env:
+          CACHE_HINT: ${{ steps.cache-restore-cargo.outputs.cache-hit }}
+          CACHE_HINT_STRING: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+          CACHE_HINT_BOOLEAN: ${{ steps.cache-restore-cargo.outputs.cache-hit != true}}
+        run: |
+          echo "CACHE_HINT: $CACHE_HINT"
+          echo "CACHE_HINT_STRING: $CACHE_HINT_STRING"
+          echo "$CACHE_HINT_BOOLEAN: CACHE_HINT_BOOLEAN"
+          rustup component add rustfmt clippy
+          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
+
+      - name: cache cargo
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+        id: cache-save-cargo
+        uses: actions/cache/save@v4
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+
+  rust-lint:
+    needs: [rust-setup]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.rust_workdir }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: restore rust cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-cargo
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-store-${{ env.cache-name }}-
+
+      - name: lint
+        run: |
+          cargo fmt --all -- --check
+          cargo check --no-default-features
+          cargo clippy --all-targets --all-features -- -D warnings
+
+  rust-build:
+    needs: [rust-lint]
+    outputs:
+      project: ${{ steps.environments.outputs.project }}
+      version: ${{ steps.environments.outputs.version }}
+      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.rust_workdir }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: restore rust cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-cargo
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-store-${{ env.cache-name }}-
+
+      - name: test
+        run: |
+          cargo nextest run --target-dir target
+          cargo tarpaulin --skip-clean --all-features --workspace --out xml --output-dir target
+
+      - name: build
+        run: cargo install cargo-auditable && cargo auditable build --release
+      - id: environments
+        name: environments
+        run: |
+          echo "
+          project=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].name')
+          version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+          " >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: test
+        run: |
+          cargo nextest run --target-dir target
+          cargo tarpaulin --skip-clean --all-features --workspace --out xml --output-dir target
+
+      - name: build
+        run: cargo install cargo-auditable && cargo auditable build --release
+      - name: upload target
+        uses: actions/upload-artifact@v4
+        with:
+          name: target
+          path: |
+              ${{ inputs.rust_workdir }}target/release/${{ steps.environments.outputs.project }}
+              ${{ inputs.rust_workdir }}target/default/report.xml
+              ${{ inputs.rust_workdir }}target/cobertura.xml
+
+
+  node-setup:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.node_workdir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node }}
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
+
+      - name: pnpm cache dir
+        id: pnpm-cache-dir
+        run: echo "PNPM_STORE=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: restore node cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-node_modules
+        env:
+          cache-name: cache-node_modules
+        with:
+          # caching node_modules
+          path: |
+            ${{ inputs.node_workdir }}node_modules
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
+          key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-
+
+      - name: setup
+        if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
+        run: |
+          pnpm i
+          pnpm i -g eslint
+          pnpm i -g prettier
+
+      - name: cache node modules
+        if: ${{ steps.cache-restore-node_modules.outputs.cache-hit != 'true'}}
+        uses: actions/cache/save@v4
+        id: cache-save-node_modules
+        env:
+          cache-name: cache-node_modules
+        with:
+          # caching node_modules
+          path: |
+            ${{ inputs.node_workdir }}node_modules
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
+          key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+  node-lint:
+    needs: [node-setup]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.node_workdir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node }}
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
+
+      - name: pnpm cache dir
+        id: pnpm-cache-dir
+        run: echo "PNPM_STORE=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: restore node cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-node_modules
+        env:
+          cache-name: cache-node_modules
+        with:
+          # caching node_modules
+          path: |
+            ${{ inputs.node_workdir }}node_modules
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
+          key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-
+
+      - name: lint
+        run: |
+          pnpm eslint .
+          pnpm prettier . --check-debug
+
+  node-build:
+    needs: [node-lint]
+    outputs:
+      project: ${{ steps.environments.outputs.project }}
+      version: ${{ steps.environments.outputs.version }}
+      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.node_workdir }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node }}
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
+
+      - name: pnpm cache dir
+        id: pnpm-cache-dir
+        run: echo "PNPM_STORE=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: restore node cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-node_modules
+        env:
+          cache-name: cache-node_modules
+        with:
+          # caching node_modules
+          path: |
+            ${{ inputs.node_workdir }}node_modules
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
+          key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-
+
+      
+      - name: build
+        if: ${{ inputs.build }}
+        run: pnpm ${{ inputs.build }}
+
+      - name: test
+        if: ${{ inputs.test }}
+        run: pnpm ${{ inputs.test }}
+
+      - id: environments
+        name: environments
+        run: |
+          echo "
+          project=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].name')
+          version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+          " >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      
+      - name: build
+        if: ${{ inputs.build }}
+        run: pnpm ${{ inputs.build }}
+
+      - name: test
+        if: ${{ inputs.test }}
+        run: pnpm ${{ inputs.test }}
+
+
+  publish:
+    needs: [node-build, rust-build]
+    
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        settings:
+          - platform: 'macos-latest'
+            args: '--target aarch64-apple-darwin'
+          - platform: 'macos-latest'
+            args: '--target x86_64-apple-darwin'
+          - platform: 'ubuntu-20.04'
+            args: ''
+          - platform: 'windows-latest'
+            args: ''
+
+    runs-on: ${{ matrix.settings.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node }}
+
+      - uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
+
+      - name: install dependencies (ubuntu only)
+        if: matrix.settings.platform == 'ubuntu-20.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: pnpm cache dir
+        id: pnpm-cache-dir
+        run: echo "PNPM_STORE=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: restore node cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-node_modules
+        env:
+          cache-name: cache-node_modules
+        with:
+          # caching node_modules
+          path: |
+            ${{ inputs.node_workdir }}node_modules
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
+          key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-
+
+      - name: restore rust cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-cargo
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-store-${{ env.cache-name }}-
+
+      - id: environments
+        name: environments
+        run: |
+          echo "
+          project=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].name')
+          version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+          " >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ steps.environments.outputs.version }}
+          releaseName: ${{ steps.environments.outputs.project }}
+          releaseBody: ${{ github.event.head_commit.message }}
+          releaseDraft: true
+          prerelease: false
+          args: ${{ matrix.settings.args }}

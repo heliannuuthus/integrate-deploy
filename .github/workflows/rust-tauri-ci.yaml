@@ -1,0 +1,16 @@
+name: rust
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+  pull_request_target:
+    types: [closed]
+jobs:
+  project:
+    uses: ./.github/workflows/call-rust-tauri.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      rust_workdir: "tests/node/src-tauri"
+      node_workdir: "tests/node/"
