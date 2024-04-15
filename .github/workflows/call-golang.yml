@@ -1,11 +1,16 @@
 on:
   workflow_call:
     inputs:
-      workdir:
+      golang_workdir:
         required: false
         default: "./"
         type: "string"
-        description: "Specify all of steps where are run"
+        description: "Specify all of golang steps where are run"
+      container_workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of container steps where are run"
       GOOS:
         required: false
         default: "linux"
@@ -34,12 +39,12 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.golang_workdir }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.20'
+          go-version: "1.20"
           cache: false
 
       - name: restore golang cache
@@ -54,7 +59,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
 
-      
       - name: setup
         if: ${{ steps.cache-restore-golang.outputs.cache-hit != 'true'}}
         run: |
@@ -79,12 +83,12 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.golang_workdir }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.20'
+          go-version: "1.20"
           cache: false
 
       - name: restore golang cache
@@ -109,12 +113,12 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.golang_workdir }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.20'
+          go-version: "1.20"
           cache: false
 
       - name: restore golang cache
@@ -140,7 +144,7 @@ jobs:
         with:
           name: gosec-report
           path: |
-              ${{ inputs.workdir }}build/gosec-report.json
+            ${{ inputs.golang_workdir }}build/gosec-report.json
 
   build:
     needs: [lint, setup, security]
@@ -151,12 +155,12 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.golang_workdir }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: '1.20'
+          go-version: "1.20"
           cache: false
 
       - name: restore golang cache
@@ -176,7 +180,7 @@ jobs:
         with:
           name: gosec-report
           path: |
-              ${{ inputs.workdir }}build/gosec-report.json
+            ${{ inputs.golang_workdir }}build/gosec-report.json
 
       - id: environments
         name: environments
@@ -201,7 +205,7 @@ jobs:
         run: |
           go test -gcflags="all=-N -l" -coverprofile=build/coverage.out -covermode count -json -v ./... 2>&1 | tee build/test.json | gotestfmt
           go-junit-report -parser gojson -in build/test.json -out build/report.xml
-      
+
       - id: sonar-restore-cache
         name: restore sonar cache
         uses: actions/cache/restore@v4
@@ -213,7 +217,7 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       - name: setup sonar
-        if:  ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }}
+        if: ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }}
         run: |
           mkdir -p ~/sonar-scanner/.sonar
           curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
@@ -223,8 +227,7 @@ jobs:
         shell: bash
 
       - name: sonar analyze
-        run:
-          ~/sonar-scanner/bin/sonar-scanner
+        run: ~/sonar-scanner/bin/sonar-scanner
           -Dsonar.projectBaseDir=./
           -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
           -Dsonar.token=${{ secrets.SONAR_TOKEN }}
@@ -246,14 +249,14 @@ jobs:
         with:
           name: target
           path: |
-              ${{ inputs.workdir }}build/
+            ${{ inputs.golang_workdir }}build/
 
   containerize:
     needs: [build]
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.container_workdir }}
     permissions:
       contents: read
       packages: write
@@ -265,7 +268,7 @@ jobs:
         with:
           name: target
           path: |
-              ${{ inputs.workdir }}build/
+            ${{ inputs.golang_workdir }}build/
 
       - id: environments
         name: environments
@@ -292,7 +295,7 @@ jobs:
       - name: push github
         uses: docker/build-push-action@v5
         with:
-          context: ${{ inputs.workdir }}
+          context: ${{ inputs.container_workdir }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

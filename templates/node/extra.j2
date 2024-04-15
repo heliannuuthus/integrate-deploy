@@ -3,7 +3,11 @@
 runs-on: ubuntu-latest
 defaults:
   run:
+<<<<<<< HEAD
     working-directory: ${{ inputs.workdir }}
+=======
+    working-directory: ${{ inputs.node_workdir }}
+>>>>>>> 0dcd217 (cc)
 steps:
   - uses: actions/checkout@v4
   - uses: actions/setup-node@v4
@@ -30,7 +34,11 @@ steps:
   with:
     # caching node_modules
     path: |
+<<<<<<< HEAD
       ${{ inputs.workdir }}node_modules
+=======
+      ${{ inputs.node_workdir }}node_modules
+>>>>>>> 0dcd217 (cc)
       **/node_modules
       **/.eslintcache
       ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
@@ -58,7 +66,11 @@ steps:
   with:
     # caching node_modules
     path: |
+<<<<<<< HEAD
       ${{ inputs.workdir }}node_modules
+=======
+      ${{ inputs.node_workdir }}node_modules
+>>>>>>> 0dcd217 (cc)
       **/node_modules
       **/.eslintcache
       ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}

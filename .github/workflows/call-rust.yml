@@ -1,18 +1,18 @@
 on:
   workflow_call:
     inputs:
-      workdir:
+      rust_workdir:
         required: false
         default: "./"
         type: "string"
-        description: "Specify all of steps where are run"
+        description: "Specify all of rust steps where are run"
 
 jobs:
   setup:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.rust_workdir }}
     steps:
       - uses: actions/checkout@v4
 
@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.rust_workdir }}
     steps:
       - uses: actions/checkout@v4
 
@@ -100,7 +100,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.rust_workdir }}
     steps:
       - uses: actions/checkout@v4
 
@@ -148,16 +148,16 @@ jobs:
         with:
           name: target
           path: |
-              ${{ inputs.workdir }}target/release/${{ steps.environments.outputs.project }}
-              ${{ inputs.workdir }}target/default/report.xml
-              ${{ inputs.workdir }}target/cobertura.xml
+              ${{ inputs.rust_workdir }}target/release/${{ steps.environments.outputs.project }}
+              ${{ inputs.rust_workdir }}target/default/report.xml
+              ${{ inputs.rust_workdir }}target/cobertura.xml
 
   containerize:
     needs: [build]
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.container_workdir }}
     permissions:
       contents: read
       packages: write
@@ -169,7 +169,7 @@ jobs:
         with:
           name: target
           path: |
-              ${{ inputs.workdir }}target
+              ${{ inputs.rust_workdir }}target/
 
       - id: environments
         name: environments
@@ -196,7 +196,7 @@ jobs:
       - name: push github
         uses: docker/build-push-action@v5
         with:
-          context: ${{ inputs.workdir }}
+          context: ${{ inputs.container_workdir }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

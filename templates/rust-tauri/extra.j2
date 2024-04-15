@@ -1,0 +1,52 @@
+{% set init -%}
+{%- raw %}
+permissions:
+  contents: write
+strategy:
+  fail-fast: false
+  matrix:
+    settings:
+      - platform: 'macos-latest'
+        args: '--target aarch64-apple-darwin'
+      - platform: 'macos-latest'
+        args: '--target x86_64-apple-darwin'
+      - platform: 'ubuntu-20.04'
+        args: ''
+      - platform: 'windows-latest'
+        args: ''
+
+runs-on: ${{ matrix.settings.platform }}
+steps:
+  - uses: actions/checkout@v4
+
+  - uses: actions/setup-node@v4
+    with:
+      node-version: ${{ inputs.node }}
+
+  - uses: pnpm/action-setup@v3
+    with:
+      version: 8
+      run_install: false
+
+  - name: install dependencies (ubuntu only)
+    if: matrix.settings.platform == 'ubuntu-20.04'
+    run: |
+      sudo apt-get update
+      sudo apt-get install -y libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+{% endraw -%}
+{%- endset %}
+
+{% set tauri -%}
+{%- raw %}
+- uses: tauri-apps/tauri-action@v0
+  env:
+    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  with:
+    tagName: ${{ steps.environments.outputs.version }}
+    releaseName: ${{ steps.environments.outputs.project }}
+    releaseBody: ${{ github.event.head_commit.message }}
+    releaseDraft: true
+    prerelease: false
+    args: ${{ matrix.settings.args }}
+{% endraw -%}
+{%- endset %}

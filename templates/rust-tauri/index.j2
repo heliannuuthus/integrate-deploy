@@ -1,0 +1,81 @@
+{%- import 'variables.j2' as variables -%}
+{%- import 'actions.j2' as actions -%}
+{%- import 'node/extra.j2' as node -%}
+{%- import 'rust/extra.j2' as rust -%}
+{%- import 'rust-tauri/extra.j2' as rust_tauri -%}
+on:
+  workflow_call:
+    {% if data.variables.inputs | length > 0 %}
+    inputs:
+      {% for v in data.variables.inputs %}
+      {{ variables.inputs(v.name, v.default, v.desc, v.type, v.required) | indent(6) }}
+      {% endfor %}
+    {% endif %}
+    {% if data.variables.secrets | length > 0 %}
+    secrets:
+      {% for v in data.variables.secrets %}
+      {{ variables.secrets(v.name, v.desc) | indent(6) }}
+      {% endfor %}
+    {% endif %}
+    {% if data.variables.outputs | length > 0 %}
+    outputs:
+      {% for _, v in data.variables.outputs %}
+      {{ variables.outputs(v.name, v.value, v.desc) | indent(6) }}
+      {% endfor %}
+    {% endif %}
+
+jobs:
+  rust-setup:
+    {{ rust.init | indent(4) }}
+      {{ rust.cache | indent(6) }}
+      {{ rust.setup | indent(6) }}
+  rust-lint:
+    needs: [rust-setup]
+    {{ rust.init | indent(4) }}
+      {{ rust.cache | indent(6) }}
+      {{ rust.lint | indent(6) }}
+  rust-build:
+    needs: [rust-lint]
+    {%- raw %}
+    outputs:
+      project: ${{ steps.environments.outputs.project }}
+      version: ${{ steps.environments.outputs.version }}
+      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
+    {% endraw %}
+    {{ rust.init | indent(4) }}
+      {{ rust.cache | indent(6) }}
+      {{ rust.build | indent(6) }}
+      {{ rust.env | indent(6) }}
+      {{ rust.build | indent(6) }}
+      {{ actions.upload(data.build.upload.name, data.build.upload.paths) | indent(6) }}
+
+  node-setup:
+    {{ node.init | indent(4) }}
+      {{ node.cache | indent(6) }}
+      {{ node.setup | indent(6) }}
+  node-lint:
+    needs: [node-setup]
+    {{ node.init | indent(4) }}
+      {{ node.cache | indent(6) }}
+      {{ node.lint | indent(6) }}
+  node-build:
+    needs: [node-lint]
+    {%- raw %}
+    outputs:
+      project: ${{ steps.environments.outputs.project }}
+      version: ${{ steps.environments.outputs.version }}
+      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
+    {% endraw %}
+    {{ node.init | indent(4) }}
+      {{ node.cache | indent(6) }}
+      {{ node.build | indent(6) }}
+      {{ node.env | indent(6) }}
+      {{ node.build | indent(6) }}
+
+  publish:
+    needs: [node-build, rust-build]
+    {{ rust_tauri.init | indent(4) }}
+      {{ node.cache | indent(6) }}
+      {{ rust.cache | indent(6) }}
+      {{ rust.env | indent(6) }}
+      {{ rust_tauri.tauri | indent(6) }}

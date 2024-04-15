@@ -2,9 +2,15 @@
 	"variables": {
 		"inputs": [
 			{
+<<<<<<< HEAD
 				"name": "workdir",
 				"default": "./",
 				"desc": "Specify all of steps where are run",
+=======
+				"name": "node_workdir",
+				"default": "./",
+				"desc": "Specify all of node steps where are run",
+>>>>>>> 0dcd217 (cc)
 				"type": "string",
 				"required": "false"
 			},

@@ -12,4 +12,4 @@ jobs:
       contents: read
       packages: write
     with:
-      workdir: "tests/rust/"
+      rust_workdir: "tests/rust/"

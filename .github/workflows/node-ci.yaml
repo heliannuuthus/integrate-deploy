@@ -9,5 +9,4 @@ jobs:
   project:
     uses: ./.github/workflows/call-node.yml
     with:
-      workdir: "tests/node/"
-
+      node_workdir: "tests/node/"

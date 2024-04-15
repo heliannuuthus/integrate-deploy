@@ -3,7 +3,11 @@
 runs-on: ubuntu-latest
 defaults:
   run:
+<<<<<<< HEAD
     working-directory: ${{ inputs.workdir }}
+=======
+    working-directory: ${{ inputs.container_workdir }}
+>>>>>>> 0dcd217 (cc)
 permissions:
   contents: read
   packages: write
@@ -49,9 +53,17 @@ steps:
 - name: push github
   uses: docker/build-push-action@v5
   with:
+<<<<<<< HEAD
     context: ${{ inputs.workdir }}
+=======
+    context: ${{ inputs.container_workdir }}
+>>>>>>> 0dcd217 (cc)
     push: true
     tags: ${{ steps.meta.outputs.tags }}
     labels: ${{ steps.meta.outputs.labels }}
 {%- endraw %}
+<<<<<<< HEAD
 {%- endset %}
+=======
+{%- endset %}
+>>>>>>> 0dcd217 (cc)

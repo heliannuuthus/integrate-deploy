@@ -1,0 +1,55 @@
+{
+  "variables": {
+    "inputs": [
+      {
+        "name": "rust_workdir",
+        "default": "./src-tauri",
+        "desc": "Specify all of rust steps where are run",
+        "type": "string",
+        "required": "false"
+      },
+      {
+        "name": "node_workdir",
+        "default": "./",
+        "desc": "Specify all of node steps where are run",
+        "type": "string",
+        "required": "false"
+      },
+      {
+        "name": "node",
+        "required": "false",
+        "default": "lts/*",
+        "type": "string",
+        "desc": "Specify node version, default: lts"
+      },
+      {
+        "name": "build",
+        "required": "false",
+        "default": "build",
+        "type": "string",
+        "desc": "Specify build command"
+      },
+      {
+        "name": "test",
+        "required": "false",
+        "type": "string",
+        "desc": "Specify test command"
+      }
+    ],
+    "secrets": [
+    ],
+    "outputs": []
+  },
+  "lint": {},
+  "security": {},
+  "build": {
+    "upload": {
+      "name": "target",
+      "paths": [
+        "${{ inputs.rust_workdir }}target/release/${{ steps.environments.outputs.project }}",
+        "${{ inputs.rust_workdir }}target/default/report.xml",
+        "${{ inputs.rust_workdir }}target/cobertura.xml"
+      ]
+    }
+  }
+}
