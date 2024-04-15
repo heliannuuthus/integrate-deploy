@@ -10,7 +10,11 @@ strategy:
         args: "--target aarch64-apple-darwin"
       - platform: "macos-latest"
         args: "--target x86_64-apple-darwin"
+<<<<<<< HEAD
       - platform: "ubuntu-20.04"
+=======
+      - platform: "ubuntu-latest"
+>>>>>>> a522afb (rust tauri)
         args: ""
       - platform: "windows-latest"
         args: ""
@@ -27,7 +31,11 @@ steps:
 {% macro apt_cache(version, packages=[]) -%}
 - name: linux install dependencies
   uses: awalsh128/cache-apt-pkgs-action@latest
+<<<<<<< HEAD
   if: matrix.settings.platform == 'ubuntu-20.04'
+=======
+  if: matrix.settings.platform == 'ubuntu-latest'
+>>>>>>> a522afb (rust tauri)
   with:
     packages: {% for package in packages -%} {{ package }} {% endfor +%}
     version: {{ version }}
@@ -44,7 +52,12 @@ steps:
 - name: rust cache
   uses: swatinem/rust-cache@v2
   with:
+<<<<<<< HEAD
     workspaces: "${{ inputs.node_workdir }}/src-tauri -> target"
+=======
+    workspaces: "${{ inputs.node_workdir }}/src-tauri"
+    cache-targets: false
+>>>>>>> a522afb (rust tauri)
 
 - name: install frontend dependencies
   run: pnpm install && pnpm eslint --fix . && pnpm prettier --write .
@@ -53,7 +66,12 @@ steps:
 
 {% set tauri -%}
 {%- raw %}
+<<<<<<< HEAD
 - uses: tauri-apps/tauri-action@v0
+=======
+- id: tauri-action
+  uses: tauri-apps/tauri-action@v0
+>>>>>>> a522afb (rust tauri)
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   with:
