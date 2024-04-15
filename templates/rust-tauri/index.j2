@@ -40,7 +40,6 @@ jobs:
     outputs:
       project: ${{ steps.environments.outputs.project }}
       version: ${{ steps.environments.outputs.version }}
-      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
     {% endraw %}
     {{ rust.init | indent(4) }}
       {{ rust.cache | indent(6) }}
@@ -64,7 +63,6 @@ jobs:
     outputs:
       project: ${{ steps.environments.outputs.project }}
       version: ${{ steps.environments.outputs.version }}
-      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
     {% endraw %}
     {{ node.init | indent(4) }}
       {{ node.cache | indent(6) }}

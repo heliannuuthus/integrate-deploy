@@ -26,13 +26,6 @@ on:
         default: "./main.go"
         type: "string"
         description: "Specify main.go relative path"
-    secrets:
-      SONAR_HOST_URL:
-        required: false
-        description: "Sonarqube host url"
-      SONAR_TOKEN:
-        required: false
-        description: "Sonarqube Token"
 
 jobs:
   setup:
@@ -152,7 +145,6 @@ jobs:
     outputs:
       project: ${{ steps.environments.outputs.project }}
       version: ${{ steps.environments.outputs.version }}
-      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -193,7 +185,6 @@ jobs:
           echo "
           project=${project##*/}
           version=$version
-          sonar_enabled=${{ secrets.SONAR_TOKEN != '' && secrets.SONAR_HOST_URL != ''}}
           " >> "$GITHUB_OUTPUT"
         shell: bash
 
@@ -206,46 +197,6 @@ jobs:
         run: |
           go test -gcflags="all=-N -l" -coverprofile=build/coverage.out -covermode count -json -v ./... 2>&1 | tee build/test.json | gotestfmt
           go-junit-report -parser gojson -in build/test.json -out build/report.xml
-      
-      - id: sonar-restore-cache
-        name: restore sonar cache
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            ~/sonar-scanner
-            ~/.sonar
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: setup sonar
-        if:  ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }}
-        run: |
-          mkdir -p ~/sonar-scanner/.sonar
-          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip -q -o sonar-scanner.zip -d ~/
-          mv ~/sonar-scanner-5.0.1.3006-linux/* ~/sonar-scanner
-          rm -r ~/sonar-scanner-5.0.1.3006-linux
-        shell: bash
-
-      - name: sonar analyze
-        run:
-          ~/sonar-scanner/bin/sonar-scanner
-          -Dsonar.projectBaseDir=./
-          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
-          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.pullrequest.key=${{github.event.pull_request.number}}
-          -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}
-          -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }}
-          -Dsonar.projectKey=${{ steps.environments.outputs.project }}
-          -Dsonar.projectVersion=${{ steps.environments.outputs.version }}
-          -Dsonar.language=go
-          -Dsonar.sourceEncoding=UTF-8
-          -Dsonar.exclusions=**/*_test.go,**/vendor/**
-          -Dsonar.test.inclusions=**/*_test.go
-          -Dsonar.test.exclusions=**/vendor/**
-          -Dsonar.go.test.reportPaths=build/report.xml
-          -Dsonar.go.coverage.reportPaths=build/coverage.out
-
       - name: upload target
         uses: actions/upload-artifact@v4
         with:

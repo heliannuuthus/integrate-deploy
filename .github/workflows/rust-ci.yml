@@ -13,3 +13,4 @@ jobs:
       packages: write
     with:
       rust_workdir: "tests/rust/"
+      container_workdir: "tests/rust/"

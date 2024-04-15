@@ -138,7 +138,6 @@ jobs:
           echo "
           project=${project##*/}
           version=$version
-          sonar_enabled=${{ secrets.SONAR_TOKEN != '' && secrets.SONAR_HOST_URL != ''}}
           " >> "$GITHUB_OUTPUT"
         shell: bash
 

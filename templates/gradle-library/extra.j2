@@ -30,7 +30,6 @@ steps:
     echo "
     project=$(gradle name -q | awk 'NR==1 {print}')
     version=$(gradle version -q | awk 'NR==1 {print}')
-    sonar_enabled=${{ secrets.SONAR_TOKEN != '' && secrets.SONAR_HOST_URL != ''}}
     " >> "$GITHUB_OUTPUT"
   shell: bash
 {% endraw %}

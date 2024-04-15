@@ -45,14 +45,12 @@ jobs:
     {%- raw %}
       project: ${{ steps.environments.outputs.project }}
       version: ${{ steps.environments.outputs.version }}
-      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
     {% endraw %}
     {{ init | indent(4) }}
       {{ cache | indent(6) }}
       {{ actions.download(data.build.download.name, data.build.download.paths) | indent(6) }}
       {{ env | indent(6) }}
       {{ build | indent(6) }}
-      {{ actions.sonar(data.build.sonaropts) | indent(6) }}
       {{ actions.upload(data.build.upload.name, data.build.upload.paths) | indent(6) }}
   containerize:
     needs: [build]

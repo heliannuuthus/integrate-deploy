@@ -16,6 +16,3 @@ jobs:
       golang_workdir: "tests/golang/"
       container_workdir: "tests/golang/"
       ENTRANCE: cmd/main.go
-    secrets:
-      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

@@ -7,7 +7,8 @@
         "desc": "Specify all of gradle steps where are run",
         "type": "string",
         "required": "false"
-      }, {
+      },
+      {
         "name": "container_workdir",
         "default": "./",
         "desc": "Specify all of container steps where are run",
@@ -16,16 +17,6 @@
       }
     ],
     "secrets": [
-      {
-        "name": "SONAR_HOST_URL",
-        "desc": "Sonarqube host url",
-        "required": "false"
-      },
-      {
-        "name": "SONAR_TOKEN",
-        "desc": "Sonarqube Token",
-        "required": "false"
-      }
     ],
     "outputs": []
   },
@@ -39,17 +30,7 @@
       "paths": [
         "${{ inputs.gradle_workdir }}build/"
       ]
-    },
-    "sonaropts": [
-      "-Dsonar.language=java",
-      "-Dsonar.sourceEncoding=UTF-8",
-      "-Dsonar.java.binaries=**/*",
-      "-Dsonar.inclusions=**/src/**/main/**/*.java",
-      "-Dsonar.exclusions=**/src/**/test/**/*.java",
-      "-Dsonar.test.inclusions=**/src/**/test/**/*.java",
-      "-Dsonar.test.exclusions=**/src/**/main/**/*.java",
-      "-Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacocoReports.xml"
-    ]
+    }
   },
   "containerize": {
     "download": {
