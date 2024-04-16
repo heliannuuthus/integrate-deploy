@@ -15,6 +15,3 @@ jobs:
     with:
       gradle_workdir: "tests/gradle-cloud/"
       container_workdir: "tests/gradle-cloud/"
-    secrets:
-      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
