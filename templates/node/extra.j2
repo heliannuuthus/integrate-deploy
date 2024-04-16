@@ -1,23 +1,13 @@
 {% set init -%}
 {% raw -%}
-runs-on: ubuntu-latest
-defaults:
-  run:
-    working-directory: ${{ inputs.node_workdir }}
-steps:
-  - uses: actions/checkout@v4
-  - uses: actions/setup-node@v4
-    with:
-      node-version: ${{ inputs.node }}
-  - uses: pnpm/action-setup@v3
-    with:
-      version: 8
-      run_install: false
-{% endraw %}
-{%- endset %}
+- uses: actions/setup-node@v4
+  with:
+    node-version: ${{ inputs.node }}
+- uses: pnpm/action-setup@v3
+  with:
+    version: 8
+    run_install: false
 
-{% set cache -%}
-{% raw -%}
 - name: pnpm cache dir
   id: pnpm-cache-dir
   run: echo "PNPM_STORE=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
@@ -37,11 +27,7 @@ steps:
     key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
     restore-keys: |
       ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-
-{% endraw %}
-{%- endset %}
 
-{% set setup %}
-{% raw -%}
 - name: setup
   if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
   run: |
@@ -64,7 +50,7 @@ steps:
       ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
     key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 {% endraw %}
-{% endset %}
+{%- endset %}
 
 {% set env -%}
 {% raw -%}

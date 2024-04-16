@@ -6,10 +6,13 @@ on:
         default: "./"
         type: "string"
         description: "Specify all of gradle-steps where are run"
+    secrets:
       user:
-        required: true
-        type: "string"
+        required: false
         description: "publisher"
+      token:
+        required: false
+        description: "publish token"
 
 jobs:
   lint:
@@ -19,11 +22,11 @@ jobs:
         working-directory: ${{ inputs.gradle_workdir }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           java-version: "17"
           distribution: "temurin"
-
       - name: setup-gradle
         uses: gradle/actions/setup-gradle@v3
         with:
@@ -46,11 +49,11 @@ jobs:
         working-directory: ${{ inputs.gradle_workdir }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           java-version: "17"
           distribution: "temurin"
-
       - name: setup-gradle
         uses: gradle/actions/setup-gradle@v3
         with:
@@ -70,6 +73,7 @@ jobs:
         env:
           GPR_USER: ${{ secrets.user }}
           GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: upload target
         uses: actions/upload-artifact@v4
         with:
@@ -85,11 +89,11 @@ jobs:
         working-directory: ${{ inputs.gradle_workdir }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-java@v4
         with:
           java-version: "17"
           distribution: "temurin"
-
       - name: setup-gradle
         uses: gradle/actions/setup-gradle@v3
         with:

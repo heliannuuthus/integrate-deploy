@@ -25,59 +25,10 @@ on:
     {% endif %}
 
 jobs:
-  rust-setup:
+  setup:
     {{ rust_tauri.init | indent(4) }}
-      {{ actions.apt_cache(data.setup.apt.version, data.setup.apt.packages) | indent(6) }}
-      {{ rust.cache | indent(6) }}
-      {{ rust.setup | indent(6) }}
-  rust-lint:
-    needs: [rust-setup]
-    {{ rust.init | indent(4) }}
-      {{ actions.apt_cache(data.setup.apt.version, data.setup.apt.packages) | indent(6) }}
-      {{ rust.cache | indent(6) }}
-      {{ rust.lint | indent(6) }}
-  rust-build:
-    needs: [rust-lint]
-    {%- raw %}
-    outputs:
-      project: ${{ steps.environments.outputs.project }}
-      version: ${{ steps.environments.outputs.version }}
-    {% endraw %}
-    {{ rust.init | indent(4) }}
-      {{ actions.apt_cache(data.setup.apt.version, data.setup.apt.packages) | indent(6) }}
-      {{ rust.cache | indent(6) }}
-      {{ rust.build | indent(6) }}
-      {{ rust.env | indent(6) }}
-      {{ rust.build | indent(6) }}
-      {{ actions.upload(data.build.upload.name, data.build.upload.paths) | indent(6) }}
-
-  node-setup:
-    {{ node.init | indent(4) }}
-      {{ node.cache | indent(6) }}
-      {{ node.setup | indent(6) }}
-  node-lint:
-    needs: [node-setup]
-    {{ node.init | indent(4) }}
-      {{ node.cache | indent(6) }}
-      {{ node.lint | indent(6) }}
-  node-build:
-    needs: [node-lint]
-    {%- raw %}
-    outputs:
-      project: ${{ steps.environments.outputs.project }}
-      version: ${{ steps.environments.outputs.version }}
-    {% endraw %}
-    {{ node.init | indent(4) }}
-      {{ node.cache | indent(6) }}
-      {{ node.build | indent(6) }}
-      {{ node.env | indent(6) }}
-      {{ node.build | indent(6) }}
-
-  publish:
-    needs: [node-build, rust-build]
-    {{ rust_tauri.init | indent(4) }}
-      {{ actions.apt_cache(data.setup.apt.version, data.setup.apt.packages) | indent(6) }}
-      {{ node.cache | indent(6) }}
-      {{ rust.cache | indent(6) }}
+      {{ rust_tauri.apt_cache(data.setup.apt.version, data.setup.apt.packages) | indent(6) }}
+      {{ rust.init | indent(6) }}
+      {{ node.init | indent(6) }}
       {{ rust.env | indent(6) }}
       {{ rust_tauri.tauri | indent(6) }}

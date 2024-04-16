@@ -1,3 +1,12 @@
+{% macro init(workdir) -%}
+runs-on: ubuntu-latest
+defaults:
+  run:
+    working-directory: ${{ workdir }}
+steps:
+  - uses: actions/checkout@v4
+{% endmacro %}
+
 {% macro upload(name, paths=[]) -%}
 - name: upload {{ name }}
   uses: actions/upload-artifact@v4
@@ -18,15 +27,6 @@
       {% for path in paths %}
         {{ path }}
       {% endfor %}
-{% endmacro %}
-
-{% macro apt_cache(version, packages=[]) -%}
-- name: linux install dependencies
-  uses: awalsh128/cache-apt-pkgs-action@latest
-  with:
-    packages: {% for package in packages -%} {{ package }} {% endfor +%}
-    version: {{ version }}
-    execute_install_scripts: true
 {% endmacro %}
 
 

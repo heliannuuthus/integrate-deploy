@@ -35,3 +35,13 @@ steps:
     args: ${{ matrix.settings.args }}
 {% endraw -%}
 {%- endset %}
+
+{% macro apt_cache(version, packages=[]) -%}
+- name: linux install dependencies
+  uses: awalsh128/cache-apt-pkgs-action@latest
+  if: matrix.settings.platform == 'ubuntu-20.04'
+  with:
+    packages: {% for package in packages -%} {{ package }} {% endfor +%}
+    version: {{ version }}
+    execute_install_scripts: true
+{% endmacro %}

@@ -1,16 +1,5 @@
 {% set init -%}
 {% raw -%}
-runs-on: ubuntu-latest
-defaults:
-  run:
-    working-directory: ${{ inputs.rust_workdir }}
-steps:
-  - uses: actions/checkout@v4
-{% endraw %}
-{%- endset %}
-
-{% set cache -%}
-{% raw -%}
 - name: restore rust cache
   uses: actions/cache/restore@v4
   id: cache-restore-cargo
@@ -26,11 +15,6 @@ steps:
     key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
     restore-keys: |
       ${{ runner.os }}-rust-store-${{ env.cache-name }}-
-{% endraw %}
-{%- endset %}
-
-{% set setup %}
-{% raw -%}
 - name: setup
   if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
   env:
@@ -59,7 +43,7 @@ steps:
       target/
     key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
 {% endraw %}
-{% endset %}
+{%- endset %}
 
 {% set env -%}
 {% raw -%}

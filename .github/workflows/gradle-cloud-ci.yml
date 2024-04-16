@@ -1,4 +1,4 @@
-name: gradle-cloud
+name: gradle
 
 on:
   pull_request:
@@ -8,10 +8,10 @@ on:
 
 jobs:
   project:
-    uses: ./.github/workflows/call-gradle-cloud.yml
+    uses: ./.github/workflows/call-gradle.yml
     permissions:
       contents: read
       packages: write
     with:
-      gradle_workdir: "tests/gradle-cloud/"
-      container_workdir: "tests/gradle-cloud/"
+      gradle_workdir: "tests/gradle/"
+      container_workdir: "tests/gradle/"

@@ -1,4 +1,5 @@
 {
+  "workdir": "{{ inputs.gradle_workdir }}",
   "variables": {
     "inputs": [
       {

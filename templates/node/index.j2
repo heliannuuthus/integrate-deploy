@@ -1,6 +1,6 @@
 {%- import 'variables.j2' as variables -%}
 {%- import 'actions.j2' as actions  -%}
-{%- from 'node/extra.j2' import setup, init, cache, env, lint, build -%}
+{%- from 'node/extra.j2' import init, env, lint, build -%}
 on:
   workflow_call:
     {% if data.variables.inputs | length > 0 %}
@@ -24,13 +24,12 @@ on:
 
 jobs:
   setup:
-    {{ init | indent(4) }}
-      {{ cache | indent(6) }}
-      {{ setup | indent(6) }}
+    {{ actions.init(data.workdir) | indent(4) }}
+      {{ init | indent(6) }}
   lint:
     needs: [setup]
-    {{ init | indent(4) }}
-      {{ cache | indent(6) }}
+    {{ actions.init(data.workdir) | indent(4) }}
+      {{ init | indent(6) }}
       {{ lint | indent(6) }}
   build:
     needs: [lint]
@@ -39,8 +38,8 @@ jobs:
       project: ${{ steps.environments.outputs.project }}
       version: ${{ steps.environments.outputs.version }}
     {% endraw %}
-    {{ init | indent(4) }}
-      {{ cache | indent(6) }}
+    {{ actions.init(data.workdir) | indent(4) }}
+      {{ init | indent(6) }}
       {{ build | indent(6) }}
       {{ env | indent(6) }}
       {{ build | indent(6) }}

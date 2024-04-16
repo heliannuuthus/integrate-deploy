@@ -36,7 +36,6 @@ jobs:
           key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-rust-store-${{ env.cache-name }}-
-
       - name: setup
         if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
         env:
@@ -89,6 +88,33 @@ jobs:
           key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-rust-store-${{ env.cache-name }}-
+      - name: setup
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+        env:
+          CACHE_HINT: ${{ steps.cache-restore-cargo.outputs.cache-hit }}
+          CACHE_HINT_STRING: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+          CACHE_HINT_BOOLEAN: ${{ steps.cache-restore-cargo.outputs.cache-hit != true}}
+        run: |
+          echo "CACHE_HINT: $CACHE_HINT"
+          echo "CACHE_HINT_STRING: $CACHE_HINT_STRING"
+          echo "$CACHE_HINT_BOOLEAN: CACHE_HINT_BOOLEAN"
+          rustup component add rustfmt clippy
+          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
+
+      - name: cache cargo
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+        id: cache-save-cargo
+        uses: actions/cache/save@v4
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
 
       - name: lint
         run: |
@@ -123,6 +149,33 @@ jobs:
           key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-rust-store-${{ env.cache-name }}-
+      - name: setup
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+        env:
+          CACHE_HINT: ${{ steps.cache-restore-cargo.outputs.cache-hit }}
+          CACHE_HINT_STRING: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+          CACHE_HINT_BOOLEAN: ${{ steps.cache-restore-cargo.outputs.cache-hit != true}}
+        run: |
+          echo "CACHE_HINT: $CACHE_HINT"
+          echo "CACHE_HINT_STRING: $CACHE_HINT_STRING"
+          echo "$CACHE_HINT_BOOLEAN: CACHE_HINT_BOOLEAN"
+          rustup component add rustfmt clippy
+          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
+
+      - name: cache cargo
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+        id: cache-save-cargo
+        uses: actions/cache/save@v4
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
 
       - name: test
         run: |

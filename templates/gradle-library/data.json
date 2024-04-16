@@ -1,4 +1,5 @@
 {
+  "workdir": "{{ inputs.gradle_workdir }}",
   "variables": {
     "inputs": [
       {
@@ -7,15 +8,19 @@
         "desc": "Specify all of gradle-steps where are run",
         "type": "string",
         "required": "false"
-      },
-      {
-        "name": "user",
-        "required": "true",
-        "type": "string",
-        "desc": "publisher"
       }
     ],
     "secrets": [
+      {
+        "name": "user",
+        "required": "true",
+        "desc": "publisher"
+      },
+      {
+        "name": "token",
+        "required": "true",
+        "desc": "publish token"
+      }
     ],
     "outputs": []
   },

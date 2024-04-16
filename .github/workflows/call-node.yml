@@ -30,6 +30,7 @@ jobs:
         working-directory: ${{ inputs.node_workdir }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node }}
@@ -88,6 +89,7 @@ jobs:
         working-directory: ${{ inputs.node_workdir }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node }}
@@ -115,6 +117,28 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-
+
+      - name: setup
+        if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
+        run: |
+          pnpm i
+          pnpm i -g eslint
+          pnpm i -g prettier
+
+      - name: cache node modules
+        if: ${{ steps.cache-restore-node_modules.outputs.cache-hit != 'true'}}
+        uses: actions/cache/save@v4
+        id: cache-save-node_modules
+        env:
+          cache-name: cache-node_modules
+        with:
+          # caching node_modules
+          path: |
+            ${{ inputs.node_workdir }}node_modules
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
+          key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: lint
         run: |
@@ -132,6 +156,7 @@ jobs:
         working-directory: ${{ inputs.node_workdir }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node }}
@@ -159,6 +184,28 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-
+
+      - name: setup
+        if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
+        run: |
+          pnpm i
+          pnpm i -g eslint
+          pnpm i -g prettier
+
+      - name: cache node modules
+        if: ${{ steps.cache-restore-node_modules.outputs.cache-hit != 'true'}}
+        uses: actions/cache/save@v4
+        id: cache-save-node_modules
+        env:
+          cache-name: cache-node_modules
+        with:
+          # caching node_modules
+          path: |
+            ${{ inputs.node_workdir }}node_modules
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
+          key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       
       - name: build

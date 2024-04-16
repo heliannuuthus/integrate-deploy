@@ -1,4 +1,5 @@
 {
+  "workdir": "{{ inputs.rust_workdir }}",
   "variables": {
     "inputs": [
       {

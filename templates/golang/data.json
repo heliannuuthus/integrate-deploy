@@ -1,4 +1,5 @@
 {
+  "workdir": "{{ inputs.golang_workdir }}",
   "variables": {
     "inputs": [
       {
