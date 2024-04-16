@@ -40,6 +40,17 @@
     ],
     "outputs": []
   },
+  "setup": {
+    "apt": {
+      "packages": [
+        "libwebkit2gtk-4.0-dev",
+        "libappindicator3-dev",
+        "librsvg2-dev",
+        "patchelf"
+      ],
+      "version": "rust-tauri-ci"
+    }
+  },
   "lint": {},
   "security": {},
   "build": {

@@ -26,12 +26,14 @@ on:
 
 jobs:
   rust-setup:
-    {{ rust.init | indent(4) }}
+    {{ rust_tauri.init | indent(4) }}
+      {{ actions.apt_cache(data.setup.apt.version, data.setup.apt.packages) | indent(6) }}
       {{ rust.cache | indent(6) }}
       {{ rust.setup | indent(6) }}
   rust-lint:
     needs: [rust-setup]
     {{ rust.init | indent(4) }}
+      {{ actions.apt_cache(data.setup.apt.version, data.setup.apt.packages) | indent(6) }}
       {{ rust.cache | indent(6) }}
       {{ rust.lint | indent(6) }}
   rust-build:
@@ -42,6 +44,7 @@ jobs:
       version: ${{ steps.environments.outputs.version }}
     {% endraw %}
     {{ rust.init | indent(4) }}
+      {{ actions.apt_cache(data.setup.apt.version, data.setup.apt.packages) | indent(6) }}
       {{ rust.cache | indent(6) }}
       {{ rust.build | indent(6) }}
       {{ rust.env | indent(6) }}
@@ -73,6 +76,7 @@ jobs:
   publish:
     needs: [node-build, rust-build]
     {{ rust_tauri.init | indent(4) }}
+      {{ actions.apt_cache(data.setup.apt.version, data.setup.apt.packages) | indent(6) }}
       {{ node.cache | indent(6) }}
       {{ rust.cache | indent(6) }}
       {{ rust.env | indent(6) }}
