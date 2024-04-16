@@ -1,0 +1,129 @@
+on:
+  workflow_call:
+    inputs:
+      gradle_workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of gradle steps where are run"
+      container_workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of container steps where are run"
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.gradle_workdir }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+      - name: setup-gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-home-cache-cleanup: true
+
+      - name: build and test
+        run: gradle clean build
+        env:
+          GPR_USER: ${{ secrets.user }}
+          GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    needs: [lint]
+    outputs:
+      project: ${{ steps.environments.outputs.project }}
+      version: ${{ steps.environments.outputs.version }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.gradle_workdir }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+      - name: setup-gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-home-cache-cleanup: true
+
+      - id: environments
+        name: environments
+        run: |
+          echo "
+          project=$(gradle name -q | awk 'NR==1 {print}')
+          version=$(gradle version -q | awk 'NR==1 {print}')
+          " >> "$GITHUB_OUTPUT"
+        shell: bash
+
+      - name: build and test
+        run: gradle clean build
+        env:
+          GPR_USER: ${{ secrets.user }}
+          GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: upload target
+        uses: actions/upload-artifact@v4
+        with:
+          name: target
+          path: |
+              ${{ inputs.gradle_workdir }}build/
+
+  containerize:
+    needs: [build]
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.container_workdir }}
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: download target
+        uses: actions/download-artifact@v4
+        with:
+          name: target
+          path: |
+              ${{ inputs.gradle_workdir }}build/
+
+      - id: environments
+        name: environments
+        run: |
+          echo "timestamp=$(date +%Y%m%d | cut -c 3-8)" >> "$GITHUB_OUTPUT"
+          echo "short_sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - id: meta
+        name: container meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,enable=${{ github.ref == format('refs/heads/{0}', 'master') }},pattern={{version}}-${{ steps.environments.outputs.timestamp }}rc-${{ steps.environments.outputs.short_sha }},value=${{ needs.build.outputs.version || 'v0.0.1' }}
+            type=semver,enable=${{ github.ref != format('refs/heads/{0}', 'master') }},pattern={{version}}-${{ steps.environments.outputs.timestamp }}alpha-${{ steps.environments.outputs.short_sha }},value=${{ needs.build.outputs.version || 'v0.0.1'  }}
+
+      - name: authenticate
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: push github
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ inputs.container_workdir }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
