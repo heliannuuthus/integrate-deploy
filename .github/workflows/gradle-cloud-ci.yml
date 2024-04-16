@@ -13,5 +13,5 @@ jobs:
       contents: read
       packages: write
     with:
-      gradle_workdir: "tests/gradle/"
-      container_workdir: "tests/gradle/"
+      gradle_workdir: "tests/gradle-cloud/"
+      container_workdir: "tests/gradle-cloud/"
