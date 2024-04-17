@@ -46,9 +46,11 @@ jobs:
             args: ''
 
     runs-on: ${{ matrix.settings.platform }}
+    defaults:
+      run:
+        working-directory: ${{ inputs.node_workdir }}
     steps:
       - uses: actions/checkout@v4
-
       - name: linux install dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         if: matrix.settings.platform == 'ubuntu-20.04'

@@ -26,7 +26,7 @@ on:
 
 jobs:
   setup:
-    {{ rust_tauri.init | indent(4) }}
+    {{ rust_tauri.init(data.workdir) | indent(4) }}
       {{ rust_tauri.apt_cache(data.setup.apt.version, data.setup.apt.packages) | indent(6) }}
       {{ rust.init | indent(6) }}
       {{ node.init | indent(6) }}

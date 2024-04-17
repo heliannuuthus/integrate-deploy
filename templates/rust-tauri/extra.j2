@@ -1,4 +1,4 @@
-{% set init -%}
+{% macro init(workdir) -%}
 {%- raw %}
 permissions:
   contents: write
@@ -16,10 +16,13 @@ strategy:
         args: ''
 
 runs-on: ${{ matrix.settings.platform }}
+{% endraw -%}
+defaults:
+  run:
+    working-directory: ${{ workdir }}
 steps:
   - uses: actions/checkout@v4
-{% endraw -%}
-{%- endset %}
+{%- endmacro %}
 
 {% set tauri -%}
 {%- raw %}
