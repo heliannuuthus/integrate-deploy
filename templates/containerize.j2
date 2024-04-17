@@ -3,7 +3,7 @@
 runs-on: ubuntu-latest
 defaults:
   run:
-    working-directory: ${{ inputs.workdir }}
+    working-directory: ${{ inputs.container_workdir }}
 permissions:
   contents: read
   packages: write
@@ -49,7 +49,7 @@ steps:
 - name: push github
   uses: docker/build-push-action@v5
   with:
-    context: ${{ inputs.workdir }}
+    context: ${{ inputs.container_workdir }}
     push: true
     tags: ${{ steps.meta.outputs.tags }}
     labels: ${{ steps.meta.outputs.labels }}

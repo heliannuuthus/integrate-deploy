@@ -1,18 +1,23 @@
 on:
   workflow_call:
     inputs:
-      workdir:
+      rust_workdir:
         required: false
         default: "./"
         type: "string"
-        description: "Specify all of steps where are run"
+        description: "Specify all of rust steps where are run"
+      container_workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of container steps where are run"
 
 jobs:
   setup:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.rust_workdir }}
     steps:
       - uses: actions/checkout@v4
 
@@ -31,17 +36,9 @@ jobs:
           key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-rust-store-${{ env.cache-name }}-
-
       - name: setup
         if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-        env:
-          CACHE_HINT: ${{ steps.cache-restore-cargo.outputs.cache-hit }}
-          CACHE_HINT_STRING: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-          CACHE_HINT_BOOLEAN: ${{ steps.cache-restore-cargo.outputs.cache-hit != true}}
         run: |
-          echo "CACHE_HINT: $CACHE_HINT"
-          echo "CACHE_HINT_STRING: $CACHE_HINT_STRING"
-          echo "$CACHE_HINT_BOOLEAN: CACHE_HINT_BOOLEAN"
           rustup component add rustfmt clippy
           cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
 
@@ -65,7 +62,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.rust_workdir }}
     steps:
       - uses: actions/checkout@v4
 
@@ -84,6 +81,26 @@ jobs:
           key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-rust-store-${{ env.cache-name }}-
+      - name: setup
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+        run: |
+          rustup component add rustfmt clippy
+          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
+
+      - name: cache cargo
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+        id: cache-save-cargo
+        uses: actions/cache/save@v4
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
 
       - name: lint
         run: |
@@ -96,11 +113,10 @@ jobs:
     outputs:
       project: ${{ steps.environments.outputs.project }}
       version: ${{ steps.environments.outputs.version }}
-      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.rust_workdir }}
     steps:
       - uses: actions/checkout@v4
 
@@ -119,6 +135,26 @@ jobs:
           key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-rust-store-${{ env.cache-name }}-
+      - name: setup
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+        run: |
+          rustup component add rustfmt clippy
+          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
+
+      - name: cache cargo
+        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
+        id: cache-save-cargo
+        uses: actions/cache/save@v4
+        env:
+          cache-name: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
 
       - name: test
         run: |
@@ -130,9 +166,13 @@ jobs:
       - id: environments
         name: environments
         run: |
+          opt="--no-deps --format-version 1"
+          if [ -d "src-tauri" ]; then
+            opt="$opt --manifest-path src-tauri/Cargo.toml"
+          fi
           echo "
-          project=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].name')
-          version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+          project=$(cargo metadata $opt | jq -r '.packages[0].name')
+          version=$(cargo metadata $opt | jq -r '.packages[0].version')
           " >> "$GITHUB_OUTPUT"
         shell: bash
 
@@ -148,16 +188,16 @@ jobs:
         with:
           name: target
           path: |
-              ${{ inputs.workdir }}target/release/${{ steps.environments.outputs.project }}
-              ${{ inputs.workdir }}target/default/report.xml
-              ${{ inputs.workdir }}target/cobertura.xml
+              ${{ inputs.rust_workdir }}target/release/${{ steps.environments.outputs.project }}
+              ${{ inputs.rust_workdir }}target/default/report.xml
+              ${{ inputs.rust_workdir }}target/cobertura.xml
 
   containerize:
     needs: [build]
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.container_workdir }}
     permissions:
       contents: read
       packages: write
@@ -169,7 +209,7 @@ jobs:
         with:
           name: target
           path: |
-              ${{ inputs.workdir }}target
+              ${{ inputs.rust_workdir }}target/
 
       - id: environments
         name: environments
@@ -196,7 +236,7 @@ jobs:
       - name: push github
         uses: docker/build-push-action@v5
         with:
-          context: ${{ inputs.workdir }}
+          context: ${{ inputs.container_workdir }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

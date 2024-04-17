@@ -5,28 +5,26 @@
       {
         "name": "gradle_workdir",
         "default": "./",
-        "desc": "Specify all of gradle-steps where are run",
+        "desc": "Specify all of gradle steps where are run",
         "type": "string",
         "required": "false"
       },
       {
-        "name": "user",
-        "required": "true",
+        "name": "container_workdir",
+        "default": "./",
+        "desc": "Specify all of container steps where are run",
         "type": "string",
-        "desc": "publisher"
+        "required": "false"
       }
     ],
     "secrets": [
-      {
-        "name": "token",
-        "required": "true",
-        "desc": "publish token"
-      }
     ],
     "outputs": []
   },
-  "lint": {},
-  "security": {},
+  "lint": {
+  },
+  "security": {
+  },
   "build": {
     "upload": {
       "name": "target",

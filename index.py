@@ -10,10 +10,10 @@ env = Environment(
   trim_blocks=True,
   lstrip_blocks=True,
   keep_trailing_newline=True,
+
 )
 
 if __name__ == '__main__':
-  name = "gradle-cloud"
   directory = "templates"
   for item in os.listdir(directory):
     full_path = os.path.join(directory, item)

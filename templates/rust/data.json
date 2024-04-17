@@ -1,16 +1,23 @@
 {
+  "workdir": "{{ inputs.rust_workdir }}",
   "variables": {
     "inputs": [
       {
-        "name": "workdir",
+        "name": "rust_workdir",
         "default": "./",
-        "desc": "Specify all of steps where are run",
+        "desc": "Specify all of rust steps where are run",
+        "type": "string",
+        "required": "false"
+      },
+      {
+        "name": "container_workdir",
+        "default": "./",
+        "desc": "Specify all of container steps where are run",
         "type": "string",
         "required": "false"
       }
     ],
-    "secrets": [
-    ],
+    "secrets": [],
     "outputs": []
   },
   "lint": {},
@@ -19,18 +26,16 @@
     "upload": {
       "name": "target",
       "paths": [
-        "${{ inputs.workdir }}target/release/${{ steps.environments.outputs.project }}",
-        "${{ inputs.workdir }}target/default/report.xml",
-        "${{ inputs.workdir }}target/cobertura.xml"
+        "${{ inputs.rust_workdir }}target/release/${{ steps.environments.outputs.project }}",
+        "${{ inputs.rust_workdir }}target/default/report.xml",
+        "${{ inputs.rust_workdir }}target/cobertura.xml"
       ]
     }
   },
   "containerize": {
     "download": {
       "name": "target",
-      "paths": [
-        "${{ inputs.workdir }}target/"
-      ]
+      "paths": ["${{ inputs.rust_workdir }}target/"]
     }
   }
 }

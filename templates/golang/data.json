@@ -1,10 +1,18 @@
 {
+  "workdir": "{{ inputs.golang_workdir }}",
   "variables": {
     "inputs": [
       {
-        "name": "workdir",
+        "name": "golang_workdir",
         "default": "./",
-        "desc": "Specify all of steps where are run",
+        "desc": "Specify all of golang steps where are run",
+        "type": "string",
+        "required": "false"
+      },
+      {
+        "name": "container_workdir",
+        "default": "./",
+        "desc": "Specify all of container steps where are run",
         "type": "string",
         "required": "false"
       },
@@ -31,16 +39,6 @@
       }
     ],
     "secrets": [
-      {
-        "name": "SONAR_HOST_URL",
-        "desc": "Sonarqube host url",
-        "required": "false"
-      },
-      {
-        "name": "SONAR_TOKEN",
-        "desc": "Sonarqube Token",
-        "required": "false"
-      }
     ],
     "outputs": []
   },
@@ -50,7 +48,7 @@
     "upload": {
       "name": "gosec-report",
       "paths": [
-        "${{ inputs.workdir }}build/gosec-report.json"
+        "${{ inputs.golang_workdir }}build/gosec-report.json"
       ]
     }
   },
@@ -58,30 +56,21 @@
     "download": {
       "name": "gosec-report",
       "paths": [
-        "${{ inputs.workdir }}build/gosec-report.json"
+        "${{ inputs.golang_workdir }}build/gosec-report.json"
       ]
     },
     "upload": {
       "name": "target",
       "paths": [
-        "${{ inputs.workdir }}build/"
+        "${{ inputs.golang_workdir }}build/"
       ]
-    },
-    "sonaropts": [
-      "-Dsonar.language=go",
-      "-Dsonar.sourceEncoding=UTF-8",
-      "-Dsonar.exclusions=**/*_test.go,**/vendor/**",
-      "-Dsonar.test.inclusions=**/*_test.go",
-      "-Dsonar.test.exclusions=**/vendor/**",
-      "-Dsonar.go.test.reportPaths=build/report.xml",
-      "-Dsonar.go.coverage.reportPaths=build/coverage.out"
-    ]
+    }
   },
   "containerize": {
     "download": {
       "name": "target",
       "paths": [
-        "${{ inputs.workdir }}build/"
+        "${{ inputs.golang_workdir }}build/"
       ]
     }
   }

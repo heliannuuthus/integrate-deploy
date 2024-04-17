@@ -1,20 +1,10 @@
 {% set init -%}
 {% raw -%}
-runs-on: ubuntu-latest
-defaults:
-  run:
-    working-directory: ${{ inputs.workdir }}
-steps:
-  - uses: actions/checkout@v4
-  - uses: actions/setup-go@v5
-    with:
-      go-version: '1.20'
-      cache: false
-{% endraw %}
-{%- endset %}
+- uses: actions/setup-go@v5
+  with:
+    go-version: '1.20'
+    cache: false
 
-{% set cache -%}
-{% raw -%}
 - name: restore golang cache
   uses: actions/cache/restore@v4
   id: cache-restore-golang
@@ -26,11 +16,7 @@ steps:
     key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
     restore-keys: |
       ${{ runner.os }}-golang-store-${{ env.cache-name }}-
-{% endraw %}
-{%- endset %}
 
-{% set setup %}
-{%- raw %}
 - name: setup
   if: ${{ steps.cache-restore-golang.outputs.cache-hit != 'true'}}
   run: |
@@ -50,7 +36,7 @@ steps:
       ~/go
     key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
 {% endraw %}
-{% endset %}
+{%- endset %}
 
 {% set env -%}
 {% raw -%}
@@ -64,7 +50,6 @@ steps:
     echo "
     project=${project##*/}
     version=$version
-    sonar_enabled=${{ secrets.SONAR_TOKEN != '' && secrets.SONAR_HOST_URL != ''}}
     " >> "$GITHUB_OUTPUT"
   shell: bash
 {% endraw %}

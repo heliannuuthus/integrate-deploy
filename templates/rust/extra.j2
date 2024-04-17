@@ -1,16 +1,5 @@
 {% set init -%}
 {% raw -%}
-runs-on: ubuntu-latest
-defaults:
-  run:
-    working-directory: ${{ inputs.workdir }}
-steps:
-  - uses: actions/checkout@v4
-{% endraw %}
-{%- endset %}
-
-{% set cache -%}
-{% raw -%}
 - name: restore rust cache
   uses: actions/cache/restore@v4
   id: cache-restore-cargo
@@ -26,21 +15,9 @@ steps:
     key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
     restore-keys: |
       ${{ runner.os }}-rust-store-${{ env.cache-name }}-
-{% endraw %}
-{%- endset %}
-
-{% set setup %}
-{% raw -%}
 - name: setup
   if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-  env:
-    CACHE_HINT: ${{ steps.cache-restore-cargo.outputs.cache-hit }}
-    CACHE_HINT_STRING: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-    CACHE_HINT_BOOLEAN: ${{ steps.cache-restore-cargo.outputs.cache-hit != true}}
   run: |
-    echo "CACHE_HINT: $CACHE_HINT"
-    echo "CACHE_HINT_STRING: $CACHE_HINT_STRING"
-    echo "$CACHE_HINT_BOOLEAN: CACHE_HINT_BOOLEAN"
     rustup component add rustfmt clippy
     cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
 
@@ -59,16 +36,20 @@ steps:
       target/
     key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
 {% endraw %}
-{% endset %}
+{%- endset %}
 
 {% set env -%}
 {% raw -%}
 - id: environments
   name: environments
   run: |
+    opt="--no-deps --format-version 1"
+    if [ -d "src-tauri" ]; then
+      opt="$opt --manifest-path src-tauri/Cargo.toml"
+    fi
     echo "
-    project=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].name')
-    version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].version')
+    project=$(cargo metadata $opt | jq -r '.packages[0].name')
+    version=$(cargo metadata $opt | jq -r '.packages[0].version')
     " >> "$GITHUB_OUTPUT"
   shell: bash
 {% endraw %}

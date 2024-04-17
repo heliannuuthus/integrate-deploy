@@ -13,9 +13,7 @@ jobs:
       contents: read
       packages: write
     with:
-      workdir: "tests/gradle-library/"
+      gradle_workdir: "tests/gradle-library/"
       user: ${{ github.actor }}
     secrets:
-      SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       token: ${{ secrets.GITHUB_TOKEN }}

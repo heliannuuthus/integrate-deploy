@@ -25,18 +25,17 @@ on:
 
 jobs:
   setup:
-    {{ init | indent(4) }}
-      {{ cache | indent(6) }}
-      {{ setup | indent(6) }}
+    {{ actions.init(data.workdir) | indent(4) }}
+      {{ init | indent(6) }}
   lint:
     needs: [setup]
-    {{ init | indent(4) }}
-      {{ cache | indent(6) }}
+    {{ actions.init(data.workdir) | indent(4) }}
+      {{ init | indent(6) }}
       {{ lint | indent(6) }}
   security:
     needs: [setup]
-    {{ init | indent(4) }}
-      {{ cache | indent(6) }}
+    {{ actions.init(data.workdir) | indent(4) }}
+      {{ init | indent(6) }}
       {{ sec_scan | indent(6) }}
       {{ actions.upload(data.security.upload.name, data.security.upload.paths) | indent(6) }}
   build:
@@ -45,14 +44,12 @@ jobs:
     {%- raw %}
       project: ${{ steps.environments.outputs.project }}
       version: ${{ steps.environments.outputs.version }}
-      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
     {% endraw %}
-    {{ init | indent(4) }}
-      {{ cache | indent(6) }}
+    {{ actions.init(data.workdir) | indent(4) }}
+      {{ init | indent(6) }}
       {{ actions.download(data.build.download.name, data.build.download.paths) | indent(6) }}
       {{ env | indent(6) }}
       {{ build | indent(6) }}
-      {{ actions.sonar(data.build.sonaropts) | indent(6) }}
       {{ actions.upload(data.build.upload.name, data.build.upload.paths) | indent(6) }}
   containerize:
     needs: [build]

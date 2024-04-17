@@ -1,6 +1,7 @@
 {%- import 'variables.j2' as variables -%}
 {%- import 'actions.j2' as actions  -%}
-{%- from 'gradle-library/extra.j2' import init, cache, env, lint, build, publish -%}
+{%- from 'gradle-library/extra.j2' import publish -%}
+{%- from 'gradle/extra.j2' import init, env, lint, build -%}
 on:
   workflow_call:
     {% if data.variables.inputs | length > 0 %}
@@ -24,8 +25,8 @@ on:
 
 jobs:
   lint:
-    {{ init | indent(4) }}
-      {{ cache | indent(6) }}
+    {{ actions.init(data.workdir) | indent(4) }}
+      {{ init | indent(6) }}
       {{ lint | indent(6) }}
   build:
     needs: [lint]
@@ -33,16 +34,14 @@ jobs:
     outputs:
       project: ${{ steps.environments.outputs.project }}
       version: ${{ steps.environments.outputs.version }}
-      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
     {% endraw %}
-    {{ init | indent(4) }}
-      {{ cache | indent(6) }}
+    {{ actions.init(data.workdir) | indent(4) }}
+      {{ init | indent(6) }}
       {{ env | indent(6) }}
       {{ build | indent(6) }}
-      {{ actions.sonar(data.build.sonaropts) | indent(6) }}
       {{ actions.upload(data.build.upload.name, data.build.upload.paths) | indent(6) }}
   publish:
     needs: [build]
-    {{ init | indent(4) }}
-      {{ cache | indent(6) }}
+    {{ actions.init(data.workdir) | indent(4) }}
+      {{ init | indent(6) }}
       {{ publish | indent(6) }}

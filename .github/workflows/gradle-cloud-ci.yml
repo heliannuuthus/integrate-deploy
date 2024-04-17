@@ -1,4 +1,4 @@
-name: golang
+name: gradle
 
 on:
   pull_request:
@@ -8,11 +8,10 @@ on:
 
 jobs:
   project:
-    uses: ./.github/workflows/call-golang.yml
+    uses: ./.github/workflows/call-gradle.yml
     permissions:
       contents: read
       packages: write
     with:
-      golang_workdir: "tests/golang/"
-      container_workdir: "tests/golang/"
-      ENTRANCE: cmd/main.go
+      gradle_workdir: "tests/gradle-cloud/"
+      container_workdir: "tests/gradle-cloud/"

@@ -1,20 +1,9 @@
 {% set init -%}
 {% raw -%}
-runs-on: ubuntu-latest
-defaults:
-  run:
-    working-directory: ${{ inputs.workdir }}
-steps:
-  - uses: actions/checkout@v4
-  - uses: actions/setup-java@v4
-    with:
-      java-version: "17"
-      distribution: "temurin"
-{% endraw %}
-{%- endset %}
-
-{% set cache -%}
-{% raw -%}
+- uses: actions/setup-java@v4
+  with:
+    java-version: "17"
+    distribution: "temurin"
 - name: setup-gradle
   uses: gradle/actions/setup-gradle@v3
   with:
@@ -30,7 +19,6 @@ steps:
     echo "
     project=$(gradle name -q | awk 'NR==1 {print}')
     version=$(gradle version -q | awk 'NR==1 {print}')
-    sonar_enabled=${{ secrets.SONAR_TOKEN != '' && secrets.SONAR_HOST_URL != ''}}
     " >> "$GITHUB_OUTPUT"
   shell: bash
 {% endraw %}

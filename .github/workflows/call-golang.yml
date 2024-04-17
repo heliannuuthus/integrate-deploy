@@ -1,11 +1,16 @@
 on:
   workflow_call:
     inputs:
-      workdir:
+      golang_workdir:
         required: false
         default: "./"
         type: "string"
-        description: "Specify all of steps where are run"
+        description: "Specify all of golang steps where are run"
+      container_workdir:
+        required: false
+        default: "./"
+        type: "string"
+        description: "Specify all of container steps where are run"
       GOOS:
         required: false
         default: "linux"
@@ -21,22 +26,16 @@ on:
         default: "./main.go"
         type: "string"
         description: "Specify main.go relative path"
-    secrets:
-      SONAR_HOST_URL:
-        required: false
-        description: "Sonarqube host url"
-      SONAR_TOKEN:
-        required: false
-        description: "Sonarqube Token"
 
 jobs:
   setup:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.golang_workdir }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-go@v5
         with:
           go-version: '1.20'
@@ -54,7 +53,6 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
 
-      
       - name: setup
         if: ${{ steps.cache-restore-golang.outputs.cache-hit != 'true'}}
         run: |
@@ -79,9 +77,10 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.golang_workdir }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-go@v5
         with:
           go-version: '1.20'
@@ -98,6 +97,25 @@ jobs:
           key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
+
+      - name: setup
+        if: ${{ steps.cache-restore-golang.outputs.cache-hit != 'true'}}
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.1
+          curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.18.2
+          go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@v2.5.0
+          go install github.com/jstemmer/go-junit-report/v2@v2.1.0
+
+      - name: cache gomod cache
+        if: ${{ steps.cache-restore-golang.outputs.cache-hit != 'true'}}
+        id: cache-save-golang
+        uses: actions/cache/save@v4
+        env:
+          cache-name: cache-gomod
+        with:
+          path: |
+            ~/go
+          key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
 
       - name: golangci-lint
         run: |
@@ -109,9 +127,10 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.golang_workdir }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-go@v5
         with:
           go-version: '1.20'
@@ -128,6 +147,25 @@ jobs:
           key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
+
+      - name: setup
+        if: ${{ steps.cache-restore-golang.outputs.cache-hit != 'true'}}
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.1
+          curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.18.2
+          go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@v2.5.0
+          go install github.com/jstemmer/go-junit-report/v2@v2.1.0
+
+      - name: cache gomod cache
+        if: ${{ steps.cache-restore-golang.outputs.cache-hit != 'true'}}
+        id: cache-save-golang
+        uses: actions/cache/save@v4
+        env:
+          cache-name: cache-gomod
+        with:
+          path: |
+            ~/go
+          key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
 
       - name: gosec checkout
         run: |
@@ -140,20 +178,20 @@ jobs:
         with:
           name: gosec-report
           path: |
-              ${{ inputs.workdir }}build/gosec-report.json
+              ${{ inputs.golang_workdir }}build/gosec-report.json
 
   build:
     needs: [lint, setup, security]
     outputs:
       project: ${{ steps.environments.outputs.project }}
       version: ${{ steps.environments.outputs.version }}
-      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.golang_workdir }}
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-go@v5
         with:
           go-version: '1.20'
@@ -171,12 +209,31 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-golang-store-${{ env.cache-name }}-
 
+      - name: setup
+        if: ${{ steps.cache-restore-golang.outputs.cache-hit != 'true'}}
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.1
+          curl -sfL https://raw.githubusercontent.com/securego/gosec/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v2.18.2
+          go install github.com/gotesttools/gotestfmt/v2/cmd/gotestfmt@v2.5.0
+          go install github.com/jstemmer/go-junit-report/v2@v2.1.0
+
+      - name: cache gomod cache
+        if: ${{ steps.cache-restore-golang.outputs.cache-hit != 'true'}}
+        id: cache-save-golang
+        uses: actions/cache/save@v4
+        env:
+          cache-name: cache-gomod
+        with:
+          path: |
+            ~/go
+          key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
+
       - name: download gosec-report
         uses: actions/download-artifact@v4
         with:
           name: gosec-report
           path: |
-              ${{ inputs.workdir }}build/gosec-report.json
+              ${{ inputs.golang_workdir }}build/gosec-report.json
 
       - id: environments
         name: environments
@@ -188,7 +245,6 @@ jobs:
           echo "
           project=${project##*/}
           version=$version
-          sonar_enabled=${{ secrets.SONAR_TOKEN != '' && secrets.SONAR_HOST_URL != ''}}
           " >> "$GITHUB_OUTPUT"
         shell: bash
 
@@ -201,59 +257,19 @@ jobs:
         run: |
           go test -gcflags="all=-N -l" -coverprofile=build/coverage.out -covermode count -json -v ./... 2>&1 | tee build/test.json | gotestfmt
           go-junit-report -parser gojson -in build/test.json -out build/report.xml
-      
-      - id: sonar-restore-cache
-        name: restore sonar cache
-        uses: actions/cache/restore@v4
-        with:
-          path: |
-            ~/sonar-scanner
-            ~/.sonar
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: setup sonar
-        if:  ${{ steps.sonar-restore-cache.outputs.cache-hit != 'true' }}
-        run: |
-          mkdir -p ~/sonar-scanner/.sonar
-          curl -L -o sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip -q -o sonar-scanner.zip -d ~/
-          mv ~/sonar-scanner-5.0.1.3006-linux/* ~/sonar-scanner
-          rm -r ~/sonar-scanner-5.0.1.3006-linux
-        shell: bash
-
-      - name: sonar analyze
-        run:
-          ~/sonar-scanner/bin/sonar-scanner
-          -Dsonar.projectBaseDir=./
-          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
-          -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-          -Dsonar.pullrequest.key=${{github.event.pull_request.number}}
-          -Dsonar.pullrequest.branch=${{ github.event.pull_request.head.ref }}
-          -Dsonar.pullrequest.base=${{ github.event.pull_request.base.ref }}
-          -Dsonar.projectKey=${{ steps.environments.outputs.project }}
-          -Dsonar.projectVersion=${{ steps.environments.outputs.version }}
-          -Dsonar.language=go
-          -Dsonar.sourceEncoding=UTF-8
-          -Dsonar.exclusions=**/*_test.go,**/vendor/**
-          -Dsonar.test.inclusions=**/*_test.go
-          -Dsonar.test.exclusions=**/vendor/**
-          -Dsonar.go.test.reportPaths=build/report.xml
-          -Dsonar.go.coverage.reportPaths=build/coverage.out
-
       - name: upload target
         uses: actions/upload-artifact@v4
         with:
           name: target
           path: |
-              ${{ inputs.workdir }}build/
+              ${{ inputs.golang_workdir }}build/
 
   containerize:
     needs: [build]
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.workdir }}
+        working-directory: ${{ inputs.container_workdir }}
     permissions:
       contents: read
       packages: write
@@ -265,7 +281,7 @@ jobs:
         with:
           name: target
           path: |
-              ${{ inputs.workdir }}build/
+              ${{ inputs.golang_workdir }}build/
 
       - id: environments
         name: environments
@@ -292,7 +308,7 @@ jobs:
       - name: push github
         uses: docker/build-push-action@v5
         with:
-          context: ${{ inputs.workdir }}
+          context: ${{ inputs.container_workdir }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

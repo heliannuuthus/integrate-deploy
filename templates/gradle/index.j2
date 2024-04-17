@@ -1,6 +1,6 @@
 {%- import 'variables.j2' as variables -%}
 {%- import 'actions.j2' as actions  -%}
-{%- from 'gradle-cloud/extra.j2' import init, cache, env, lint, build -%}
+{%- from 'gradle/extra.j2' import init, env, lint, build -%}
 {%- import 'containerize.j2' as containerize  -%}
 on:
   workflow_call:
@@ -25,8 +25,8 @@ on:
 
 jobs:
   lint:
-    {{ init | indent(4) }}
-      {{ cache | indent(6) }}
+    {{ actions.init(data.workdir) | indent(4) }}
+      {{ init | indent(6) }}
       {{ lint | indent(6) }}
   build:
     needs: [lint]
@@ -34,13 +34,11 @@ jobs:
     outputs:
       project: ${{ steps.environments.outputs.project }}
       version: ${{ steps.environments.outputs.version }}
-      sonar_enabled: ${{ steps.environments.outputs.sonar_enabled }}
     {% endraw %}
-    {{ init | indent(4) }}
-      {{ cache | indent(6) }}
+    {{ actions.init(data.workdir) | indent(4) }}
+      {{ init | indent(6) }}
       {{ env | indent(6) }}
       {{ build | indent(6) }}
-      {{ actions.sonar(data.build.sonaropts) | indent(6) }}
       {{ actions.upload(data.build.upload.name, data.build.upload.paths) | indent(6) }}
   containerize:
     needs: [build]
