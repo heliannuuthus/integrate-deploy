@@ -14,6 +14,6 @@ jobs:
       packages: write
     with:
       gradle_workdir: "tests/gradle-library/"
-    secrets:
       user: ${{ github.actor }}
+    secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
