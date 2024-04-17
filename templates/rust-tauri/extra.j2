@@ -44,7 +44,7 @@ steps:
 - name: rust cache
   uses: swatinem/rust-cache@v2
   with:
-    workspaces: "./src-tauri -> target"
+    workspaces: "${{ inputs.node_workdir }}/src-tauri -> target"
 
 - name: install frontend dependencies
   run: pnpm install
