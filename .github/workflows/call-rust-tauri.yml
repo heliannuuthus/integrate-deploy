@@ -120,7 +120,7 @@ jobs:
           workspaces: "${{ inputs.node_workdir }}/src-tauri -> target"
 
       - name: install frontend dependencies
-        run: pnpm install
+        run: pnpm install && pnpm eslint --fix . && pnpm prettier --write .
 
       - id: environments
         name: environments
