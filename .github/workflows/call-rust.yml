@@ -166,7 +166,7 @@ jobs:
       - id: environments
         name: environments
         run: |
-          local opt="--no-deps --format-version 1"
+          opt="--no-deps --format-version 1"
           if [ -d "src-tauri" ]; then
             opt="$opt --manifest-path src-tauri/Cargo.toml"
           fi

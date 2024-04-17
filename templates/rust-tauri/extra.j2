@@ -6,14 +6,14 @@ strategy:
   fail-fast: false
   matrix:
     settings:
-      - platform: 'macos-latest'
-        args: '--target aarch64-apple-darwin'
-      - platform: 'macos-latest'
-        args: '--target x86_64-apple-darwin'
-      - platform: 'ubuntu-20.04'
-        args: ''
-      - platform: 'windows-latest'
-        args: ''
+      - platform: "macos-latest"
+        args: "--target aarch64-apple-darwin"
+      - platform: "macos-latest"
+        args: "--target x86_64-apple-darwin"
+      - platform: "ubuntu-20.04"
+        args: ""
+      - platform: "windows-latest"
+        args: ""
 
 runs-on: ${{ matrix.settings.platform }}
 {% endraw -%}
@@ -23,6 +23,39 @@ defaults:
 steps:
   - uses: actions/checkout@v4
 {%- endmacro %}
+
+{% macro apt_cache(version, packages=[]) -%}
+- name: linux install dependencies
+  uses: awalsh128/cache-apt-pkgs-action@latest
+  if: matrix.settings.platform == 'ubuntu-20.04'
+  with:
+    packages: {% for package in packages -%} {{ package }} {% endfor +%}
+    version: {{ version }}
+    execute_install_scripts: true
+{% endmacro %}
+
+{% set toolchain_cache -%}
+{%- raw -%}
+- name: setup node
+  uses: actions/setup-node@v4
+  with:
+    node-version: ${{ inputs.node }}
+    cache: "pnpm"
+
+- name: install stable toolchain
+  uses: dtolnay/rust-toolchain@stable
+  with:
+    targets: ${{ matrix.settings.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+- name: rust cache
+  uses: swatinem/rust-cache@v2
+  with:
+    workspaces: "./src-tauri -> target"
+
+- name: install frontend dependencies
+  run: pnpm install
+{% endraw -%}
+{% endset %}
 
 {% set tauri -%}
 {%- raw %}
@@ -38,13 +71,3 @@ steps:
     args: ${{ matrix.settings.args }}
 {% endraw -%}
 {%- endset %}
-
-{% macro apt_cache(version, packages=[]) -%}
-- name: linux install dependencies
-  uses: awalsh128/cache-apt-pkgs-action@latest
-  if: matrix.settings.platform == 'ubuntu-20.04'
-  with:
-    packages: {% for package in packages -%} {{ package }} {% endfor +%}
-    version: {{ version }}
-    execute_install_scripts: true
-{% endmacro %}
