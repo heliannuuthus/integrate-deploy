@@ -144,6 +144,11 @@ jobs:
             **/.eslintcache
             ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
           key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+      
+      - name: format
+        run: |
+            pnpm run fix .
+            pnpm prettier --write .
 
       - id: environments
         name: environments
