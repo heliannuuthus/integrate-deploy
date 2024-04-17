@@ -38,14 +38,7 @@ jobs:
             ${{ runner.os }}-rust-store-${{ env.cache-name }}-
       - name: setup
         if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-        env:
-          CACHE_HINT: ${{ steps.cache-restore-cargo.outputs.cache-hit }}
-          CACHE_HINT_STRING: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-          CACHE_HINT_BOOLEAN: ${{ steps.cache-restore-cargo.outputs.cache-hit != true}}
         run: |
-          echo "CACHE_HINT: $CACHE_HINT"
-          echo "CACHE_HINT_STRING: $CACHE_HINT_STRING"
-          echo "$CACHE_HINT_BOOLEAN: CACHE_HINT_BOOLEAN"
           rustup component add rustfmt clippy
           cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
 
@@ -90,14 +83,7 @@ jobs:
             ${{ runner.os }}-rust-store-${{ env.cache-name }}-
       - name: setup
         if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-        env:
-          CACHE_HINT: ${{ steps.cache-restore-cargo.outputs.cache-hit }}
-          CACHE_HINT_STRING: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-          CACHE_HINT_BOOLEAN: ${{ steps.cache-restore-cargo.outputs.cache-hit != true}}
         run: |
-          echo "CACHE_HINT: $CACHE_HINT"
-          echo "CACHE_HINT_STRING: $CACHE_HINT_STRING"
-          echo "$CACHE_HINT_BOOLEAN: CACHE_HINT_BOOLEAN"
           rustup component add rustfmt clippy
           cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
 
@@ -151,14 +137,7 @@ jobs:
             ${{ runner.os }}-rust-store-${{ env.cache-name }}-
       - name: setup
         if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-        env:
-          CACHE_HINT: ${{ steps.cache-restore-cargo.outputs.cache-hit }}
-          CACHE_HINT_STRING: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-          CACHE_HINT_BOOLEAN: ${{ steps.cache-restore-cargo.outputs.cache-hit != true}}
         run: |
-          echo "CACHE_HINT: $CACHE_HINT"
-          echo "CACHE_HINT_STRING: $CACHE_HINT_STRING"
-          echo "$CACHE_HINT_BOOLEAN: CACHE_HINT_BOOLEAN"
           rustup component add rustfmt clippy
           cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
 
