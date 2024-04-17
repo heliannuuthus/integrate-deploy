@@ -8,14 +8,15 @@
         "desc": "Specify all of gradle-steps where are run",
         "type": "string",
         "required": "false"
-      }
-    ],
-    "secrets": [
+      },
       {
         "name": "user",
         "required": "true",
+        "type": "string",
         "desc": "publisher"
-      },
+      }
+    ],
+    "secrets": [
       {
         "name": "token",
         "required": "true",

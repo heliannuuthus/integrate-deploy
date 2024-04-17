@@ -6,10 +6,11 @@ on:
         default: "./"
         type: "string"
         description: "Specify all of gradle-steps where are run"
-    secrets:
       user:
-        required: false
+        required: true
+        type: "string"
         description: "publisher"
+    secrets:
       token:
         required: false
         description: "publish token"
@@ -102,6 +103,6 @@ jobs:
       - name: publish
         run: gradle publish
         env:
-          GPR_USER: ${{ secrets.user }}
+          GPR_USER: ${{ inputs.user }}
           GPR_TOKEN: ${{ secrets.token }}
 
