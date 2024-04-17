@@ -36,18 +36,6 @@ steps:
 
 {% set toolchain_cache -%}
 {%- raw -%}
-- uses: pnpm/action-setup@v3
-  name: setup pnpm
-  with:
-    version: 8
-    run_install: false
-
-- name: setup node
-  uses: actions/setup-node@v4
-  with:
-    node-version: ${{ inputs.node }}
-    cache: "pnpm"
-
 - name: install stable toolchain
   uses: dtolnay/rust-toolchain@stable
   with:

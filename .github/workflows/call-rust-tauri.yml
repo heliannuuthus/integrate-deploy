@@ -59,17 +59,55 @@ jobs:
           version: rust-tauri-ci
           execute_install_scripts: true
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node }}
       - uses: pnpm/action-setup@v3
-        name: setup pnpm
         with:
           version: 8
           run_install: false
-        
-      - name: setup node
-        uses: actions/setup-node@v4
+
+      - name: pnpm cache dir
+        id: pnpm-cache-dir
+        run: echo "PNPM_STORE=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: restore node cache
+        uses: actions/cache/restore@v4
+        id: cache-restore-node_modules
+        env:
+          cache-name: cache-node_modules
         with:
-          node-version: ${{ inputs.node }}
-          cache: "pnpm"
+          # caching node_modules
+          path: |
+            ${{ inputs.node_workdir }}node_modules
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
+          key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-
+
+      - name: setup
+        if: steps.cache-restore-node_modules.outputs.cache-hit != 'true'
+        run: |
+          pnpm i
+          pnpm i -g eslint
+          pnpm i -g prettier
+
+      - name: cache node modules
+        if: ${{ steps.cache-restore-node_modules.outputs.cache-hit != 'true'}}
+        uses: actions/cache/save@v4
+        id: cache-save-node_modules
+        env:
+          cache-name: cache-node_modules
+        with:
+          # caching node_modules
+          path: |
+            ${{ inputs.node_workdir }}node_modules
+            **/node_modules
+            **/.eslintcache
+            ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
+          key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
 
       - name: install stable toolchain
         uses: dtolnay/rust-toolchain@stable
