@@ -3,6 +3,8 @@
 - name: publish
   run: gradle publish
   env:
+    PUBLISH_REPOSITORY_NAME: ${{ inputs.PUBLISH_REPOSITORY_NAME }}
+    PUBLISH_REPOSITORY_URL: ${{ inputs.PUBLISH_REPOSITORY_URL }}
     GPR_USER: ${{ inputs.user }}
     GPR_TOKEN: ${{ secrets.token }}
 {% endraw %}

@@ -14,6 +14,18 @@
         "required": "true",
         "type": "string",
         "desc": "publisher"
+      },
+      {
+        "name": "PUBLISH_REPOSITORY_NAME",
+        "required": "true",
+        "type": "string",
+        "desc": "publish destination repository name"
+      },
+      {
+        "name": "PUBLISH_REPOSITORY_URL",
+        "required": "true",
+        "type": "string",
+        "desc": "publish destination repository url"
       }
     ],
     "secrets": [

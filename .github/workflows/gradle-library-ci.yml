@@ -9,7 +9,7 @@ on:
 env:
   PUBLISH_REPOSITORY_NAME: GithubPackage
   PUBLISH_REPOSITORY_URL: https://maven.pkg.github.com/heliannuuthus/integrate-deploy
-    
+
 jobs:
   project:
     uses: ./.github/workflows/call-gradle-library.yml
@@ -19,5 +19,7 @@ jobs:
     with:
       gradle_workdir: "tests/gradle-library/"
       user: ${{ github.actor }}
+      PUBLISH_REPOSITORY_NAME: ${{ vars.PUBLISH_REPOSITORY_NAME }}
+      PUBLISH_REPOSITORY_URL: ${{ vars.PUBLISH_REPOSITORY_URL }}
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
