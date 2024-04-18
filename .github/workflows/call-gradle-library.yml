@@ -10,6 +10,14 @@ on:
         required: true
         type: "string"
         description: "publisher"
+      PUBLISH_REPOSITORY_NAME:
+        required: true
+        type: "string"
+        description: "publish destination repository name"
+      PUBLISH_REPOSITORY_URL:
+        required: true
+        type: "string"
+        description: "publish destination repository url"
     secrets:
       token:
         required: false
@@ -76,7 +84,7 @@ jobs:
           GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: upload target
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: target
           path: |
@@ -103,6 +111,8 @@ jobs:
       - name: publish
         run: gradle publish
         env:
+          PUBLISH_REPOSITORY_NAME: ${{ inputs.PUBLISH_REPOSITORY_NAME }}
+          PUBLISH_REPOSITORY_URL: ${{ inputs.PUBLISH_REPOSITORY_URL }}
           GPR_USER: ${{ inputs.user }}
           GPR_TOKEN: ${{ secrets.token }}
 

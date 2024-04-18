@@ -10,7 +10,7 @@ strategy:
         args: "--target aarch64-apple-darwin"
       - platform: "macos-latest"
         args: "--target x86_64-apple-darwin"
-      - platform: "ubuntu-20.04"
+      - platform: "ubuntu-latest"
         args: ""
       - platform: "windows-latest"
         args: ""
@@ -27,7 +27,7 @@ steps:
 {% macro apt_cache(version, packages=[]) -%}
 - name: linux install dependencies
   uses: awalsh128/cache-apt-pkgs-action@latest
-  if: matrix.settings.platform == 'ubuntu-20.04'
+  if: matrix.settings.platform == 'ubuntu-latest'
   with:
     packages: {% for package in packages -%} {{ package }} {% endfor +%}
     version: {{ version }}
@@ -44,7 +44,8 @@ steps:
 - name: rust cache
   uses: swatinem/rust-cache@v2
   with:
-    workspaces: "${{ inputs.node_workdir }}/src-tauri -> target"
+    workspaces: "${{ inputs.node_workdir }}/src-tauri"
+    cache-targets: false
 
 - name: install frontend dependencies
   run: pnpm install && pnpm eslint --fix . && pnpm prettier --write .
@@ -53,7 +54,8 @@ steps:
 
 {% set tauri -%}
 {%- raw %}
-- uses: tauri-apps/tauri-action@v0
+- id: tauri-action
+  uses: tauri-apps/tauri-action@v0
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   with:

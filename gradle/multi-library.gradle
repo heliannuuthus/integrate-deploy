@@ -122,8 +122,8 @@ subprojects {
     publishing {
         repositories {
             maven {
-                name "GitHubPackages"
-                url "https://maven.pkg.github.com/heliannuuthus/${rootProject.name}"
+                name System.getenv("PUBLISH_REPOSITORY_NAME")
+                url System.getenv("PUBLISH_REPOSITORY_URL")
                 credentials {
                     username = rootProject.findProperty("gpr.user") ?: System.getenv("GPR_USER")
                     password = rootProject.findProperty("gpr.token") ?: System.getenv("GPR_TOKEN")

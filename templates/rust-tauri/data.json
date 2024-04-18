@@ -52,15 +52,13 @@
       "version": "rust-tauri-ci"
     }
   },
-  "lint": {},
-  "security": {},
-  "build": {
+  "build_tauri": {
     "upload": {
-      "name": "target",
+      "name": "tauri-artifact",
       "paths": [
-        "${{ inputs.rust_workdir }}target/release/${{ steps.environments.outputs.project }}",
-        "${{ inputs.rust_workdir }}target/default/report.xml",
-        "${{ inputs.rust_workdir }}target/cobertura.xml"
+        "${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[0] }}",
+        "${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[1] }}",
+        "${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[2] }}"
       ]
     }
   }
