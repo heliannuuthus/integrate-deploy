@@ -52,17 +52,6 @@
       "version": "rust-tauri-ci"
     }
   },
-<<<<<<< HEAD
-  "lint": {},
-  "security": {},
-  "build": {
-    "upload": {
-      "name": "target",
-      "paths": [
-        "${{ inputs.rust_workdir }}target/release/${{ steps.environments.outputs.project }}",
-        "${{ inputs.rust_workdir }}target/default/report.xml",
-        "${{ inputs.rust_workdir }}target/cobertura.xml"
-=======
   "build_tauri": {
     "upload": {
       "name": "tauri-artifact",
@@ -70,7 +59,6 @@
         "${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[0] }}",
         "${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[1] }}",
         "${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[2] }}"
->>>>>>> a522afb (rust tauri)
       ]
     }
   }
