@@ -6,6 +6,10 @@ on:
   pull_request_target:
     types: [closed]
 
+env:
+  PUBLISH_REPOSITORY_NAME: GithubPackage
+  PUBLISH_REPOSITORY_URL: https://maven.pkg.github.com/heliannuuthus/integrate-deploy
+    
 jobs:
   project:
     uses: ./.github/workflows/call-gradle-library.yml
