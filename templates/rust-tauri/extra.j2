@@ -39,7 +39,7 @@ steps:
 - name: install stable toolchain
   uses: dtolnay/rust-toolchain@stable
   with:
-    targets: ${{ matrix.settings.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+    targets: ${{ matrix.settings.platform == 'macos-latest' && ((contains(matrix.settings.arg, 'x86_64') && 'x86_64-apple-darwin') || (contains(matrix.settings.arg, 'aarch64') && 'aarch64-apple-darwin')) || '' }}
 
 - name: rust cache
   uses: swatinem/rust-cache@v2
