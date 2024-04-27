@@ -5,7 +5,7 @@ permissions:
 strategy:
   fail-fast: false
   matrix:
-    settings:
+    include:
       - platform: "macos-latest"
         args: "--target aarch64-apple-darwin"
       - platform: "macos-latest"
@@ -15,7 +15,7 @@ strategy:
       - platform: "windows-latest"
         args: ""
 
-runs-on: ${{ matrix.settings.platform }}
+runs-on: ${{ matrix.platform }}
 {% endraw -%}
 defaults:
   run:
@@ -27,7 +27,7 @@ steps:
 {% macro apt_cache(version, packages=[]) -%}
 - name: linux install dependencies
   uses: awalsh128/cache-apt-pkgs-action@latest
-  if: matrix.settings.platform == 'ubuntu-latest'
+  if: matrix.platform == 'ubuntu-latest'
   with:
     packages: {% for package in packages -%} {{ package }} {% endfor +%}
     version: {{ version }}
@@ -39,7 +39,7 @@ steps:
 - name: install stable toolchain
   uses: dtolnay/rust-toolchain@stable
   with:
-    targets: ${{ matrix.settings.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+    targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
 - name: rust cache
   uses: swatinem/rust-cache@v2
@@ -55,7 +55,7 @@ steps:
 {% set tauri -%}
 {%- raw %}
 - id: tauri-action
-  uses: tauri-apps/tauri-action@v0
+  uses: tauri-apps/tauri-action@dev
   env:
     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   with:
@@ -64,6 +64,6 @@ steps:
     releaseBody: ${{ github.event.head_commit.message }}
     releaseDraft: true
     prerelease: false
-    args: ${{ matrix.settings.args }}
+    args: ${{ matrix.args }}
 {% endraw -%}
 {%- endset %}
