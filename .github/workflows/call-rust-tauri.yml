@@ -37,13 +37,13 @@ jobs:
       matrix:
         include:
           - platform: "macos-latest"
-            args: "--target aarch64-apple-darwin"
+            target: "aarch64-apple-darwin"
           - platform: "macos-latest"
-            args: "--target x86_64-apple-darwin"
+            target: "x86_64-apple-darwin"
           - platform: "ubuntu-latest"
-            args: ""
+            target: "x86_64-unknown-linux-gnu"
           - platform: "windows-latest"
-            args: ""
+            target: "x86_64-pc-windows-msvc"
 
     runs-on: ${{ matrix.platform }}
     defaults:
@@ -112,7 +112,7 @@ jobs:
       - name: install stable toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.target }}
 
       - name: rust cache
         uses: swatinem/rust-cache@v2
@@ -147,7 +147,7 @@ jobs:
           releaseBody: ${{ github.event.head_commit.message }}
           releaseDraft: true
           prerelease: false
-          args: ${{ matrix.args }}
+          args: --target ${{ matrix.target }}
 
       - name: upload tauri-artifact
         uses: actions/upload-artifact@v3
