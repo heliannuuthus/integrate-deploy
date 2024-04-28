@@ -24,6 +24,13 @@
         "desc": "Specify node version, default: lts"
       },
       {
+        "name": "toolchain",
+        "required": "false",
+        "default": "stable",
+        "type": "string",
+        "desc": "Specify rust toolchain version, default: stable"
+      },
+      {
         "name": "build",
         "required": "false",
         "default": "build",
@@ -37,8 +44,7 @@
         "desc": "Specify test command"
       }
     ],
-    "secrets": [
-    ],
+    "secrets": [],
     "outputs": []
   },
   "setup": {

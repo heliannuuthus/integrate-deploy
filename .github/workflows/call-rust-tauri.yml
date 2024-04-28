@@ -16,6 +16,11 @@ on:
         default: "lts/*"
         type: "string"
         description: "Specify node version, default: lts"
+      toolchain:
+        required: false
+        default: "stable"
+        type: "string"
+        description: "Specify rust toolchain version, default: stable"
       build:
         required: false
         default: "build"
@@ -108,6 +113,12 @@ jobs:
             **/.eslintcache
             ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
           key: ${{ runner.os }}-pnpm-store-${{ env.cache-name }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: install stable toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ inputs.toolchain }}
+          targets: ${{ matrix.target }}
 
       - name: install stable toolchain
         uses: dtolnay/rust-toolchain@stable
