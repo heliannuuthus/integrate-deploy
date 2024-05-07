@@ -5,6 +5,8 @@ defaults:
     working-directory: ${{ workdir }}
 steps:
   - uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
 {% endmacro %}
 
 {% macro upload(name, paths=[]) -%}
