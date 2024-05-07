@@ -34,7 +34,6 @@ on:
 
 jobs:
   build-tauri:
-    
     permissions:
       contents: write
     strategy:
@@ -60,7 +59,7 @@ jobs:
         uses: awalsh128/cache-apt-pkgs-action@latest
         if: matrix.platform == 'ubuntu-latest'
         with:
-          packages: libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf 
+          packages: libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
           version: rust-tauri-ci
           execute_install_scripts: true
 
@@ -137,24 +136,26 @@ jobs:
       - id: environments
         name: environments
         run: |
+          version=$(git describe --tags --abbrev=0)
+          version=${version#v}
           opt="--no-deps --format-version 1"
           if [ -d "src-tauri" ]; then
             opt="$opt --manifest-path src-tauri/Cargo.toml"
           fi
+          version="$version-$(cargo metadata $opt | jq -r '.packages[0].version')"
           echo "
           project=$(cargo metadata $opt | jq -r '.packages[0].name')
-          version=$(cargo metadata $opt | jq -r '.packages[0].version')
+          version=$version
           " >> "$GITHUB_OUTPUT"
         shell: bash
 
-      
       - id: tauri-action
         uses: tauri-apps/tauri-action@dev
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tagName: ${{ steps.environments.outputs.project }}-v__VERSION__-${{ steps.environments.outputs.version }}
-          releaseName: '${{ steps.environments.outputs.project }} v__VERSION__'
+          tagName: ${{ steps.environments.outputs.project }}-${{ steps.environments.outputs.version }}
+          releaseName: "${{ steps.environments.outputs.project }} ${{ steps.environments.outputs.version }}"
           releaseBody: ${{ github.event.head_commit.message }}
           releaseDraft: true
           prerelease: false
@@ -165,7 +166,6 @@ jobs:
         with:
           name: tauri-artifact
           path: |
-              ${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[0] }}
-              ${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[1] }}
-              ${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[2] }}
-
+            ${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[0] }}
+            ${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[1] }}
+            ${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[2] }}
