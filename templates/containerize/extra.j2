@@ -3,7 +3,7 @@
 runs-on: ubuntu-latest
 defaults:
   run:
-    working-directory: ${{ inputs.container_workdir }}
+    working-directory: ${{ inputs.workdir }}
 permissions:
   contents: read
   packages: write
@@ -28,8 +28,8 @@ steps:
   with:
     images: ghcr.io/${{ github.repository }}
     tags: |
-      type=semver,enable=${{ github.ref == format('refs/heads/{0}', 'master') }},pattern={{version}}-${{ steps.environments.outputs.timestamp }}rc-${{ steps.environments.outputs.short_sha }},value=${{ needs.build.outputs.version || 'v0.0.1' }}
-      type=semver,enable=${{ github.ref != format('refs/heads/{0}', 'master') }},pattern={{version}}-${{ steps.environments.outputs.timestamp }}alpha-${{ steps.environments.outputs.short_sha }},value=${{ needs.build.outputs.version || 'v0.0.1'  }}
+      type=semver,enable=${{ github.ref == format('refs/heads/{0}', 'master') }},pattern=${{ inputs.version }}-${{ steps.environments.outputs.timestamp }}rc-${{ steps.environments.outputs.short_sha }},value=${{ inputs.version || 'v0.0.1' }}
+      type=semver,enable=${{ github.ref != format('refs/heads/{0}', 'master') }},pattern=${{ inputs.version }}-${{ steps.environments.outputs.timestamp }}alpha-${{ steps.environments.outputs.short_sha }},value=${{ inputs.version || 'v0.0.1'  }}
 {% endraw %}
 {% endset %}
 
@@ -40,7 +40,7 @@ steps:
   with:
     registry: ghcr.io
     username: ${{ github.actor }}
-    password: ${{ secrets.GITHUB_TOKEN }}
+    password: ${{ github.token }}
 {% endraw %}
 {% endset %}
 
@@ -49,7 +49,7 @@ steps:
 - name: push github
   uses: docker/build-push-action@v5
   with:
-    context: ${{ inputs.container_workdir }}
+    context: ${{ inputs.workdir }}
     push: true
     tags: ${{ steps.meta.outputs.tags }}
     labels: ${{ steps.meta.outputs.labels }}

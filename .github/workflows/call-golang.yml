@@ -1,41 +1,45 @@
 on:
   workflow_call:
     inputs:
-      golang_workdir:
+      workdir:
         required: false
         default: "./"
         type: "string"
         description: "Specify all of golang steps where are run"
-      container_workdir:
-        required: false
-        default: "./"
-        type: "string"
-        description: "Specify all of container steps where are run"
+
       GOOS:
         required: false
         default: "linux"
         type: "string"
         description: "GOOS target os"
+
       GOARCH:
         required: false
         default: "amd64"
         type: "string"
         description: "GOARCH arch"
+
       ENTRANCE:
         required: false
         default: "./main.go"
         type: "string"
         description: "Specify main.go relative path"
 
+    outputs:
+      version:
+        value: ${{ jobs.build.outputs.version }}
+        description: "major version"
+
 jobs:
   setup:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.golang_workdir }}
+        working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
       - uses: actions/setup-go@v5
         with:
           go-version: '1.20'
@@ -77,10 +81,11 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.golang_workdir }}
+        working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
       - uses: actions/setup-go@v5
         with:
           go-version: '1.20'
@@ -127,10 +132,11 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.golang_workdir }}
+        working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
       - uses: actions/setup-go@v5
         with:
           go-version: '1.20'
@@ -178,7 +184,7 @@ jobs:
         with:
           name: gosec-report
           path: |
-              ${{ inputs.golang_workdir }}build/gosec-report.json
+              ${{ inputs.workdir }}build/gosec-report.json
 
   build:
     needs: [lint, setup, security]
@@ -188,10 +194,11 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.golang_workdir }}
+        working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
       - uses: actions/setup-go@v5
         with:
           go-version: '1.20'
@@ -233,7 +240,7 @@ jobs:
         with:
           name: gosec-report
           path: |
-              ${{ inputs.golang_workdir }}build/gosec-report.json
+              ${{ inputs.workdir }}build/gosec-report.json
 
       - id: environments
         name: environments
@@ -262,53 +269,4 @@ jobs:
         with:
           name: target
           path: |
-              ${{ inputs.golang_workdir }}build/
-
-  containerize:
-    needs: [build]
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ inputs.container_workdir }}
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: download target
-        uses: actions/download-artifact@v3
-        with:
-          name: target
-          path: |
-              ${{ inputs.golang_workdir }}build/
-
-      - id: environments
-        name: environments
-        run: |
-          echo "timestamp=$(date +%Y%m%d | cut -c 3-8)" >> "$GITHUB_OUTPUT"
-          echo "short_sha=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
-
-      - id: meta
-        name: container meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository }}
-          tags: |
-            type=semver,enable=${{ github.ref == format('refs/heads/{0}', 'master') }},pattern={{version}}-${{ steps.environments.outputs.timestamp }}rc-${{ steps.environments.outputs.short_sha }},value=${{ needs.build.outputs.version || 'v0.0.1' }}
-            type=semver,enable=${{ github.ref != format('refs/heads/{0}', 'master') }},pattern={{version}}-${{ steps.environments.outputs.timestamp }}alpha-${{ steps.environments.outputs.short_sha }},value=${{ needs.build.outputs.version || 'v0.0.1'  }}
-
-      - name: authenticate
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: push github
-        uses: docker/build-push-action@v5
-        with:
-          context: ${{ inputs.container_workdir }}
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+              ${{ inputs.workdir }}build/

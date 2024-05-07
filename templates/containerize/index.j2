@@ -1,6 +1,6 @@
 {%- import 'variables.j2' as variables -%}
 {%- import 'actions.j2' as actions  -%}
-{%- from 'node/extra.j2' import init, env, lint, build -%}
+{%- import 'containerize/extra.j2' as containerize  -%}
 on:
   workflow_call:
     {% if data.variables.inputs | length > 0 %}
@@ -17,29 +17,16 @@ on:
     {% endif %}
     {% if data.variables.outputs | length > 0 %}
     outputs:
-      {% for v in data.variables.outputs %}
+      {% for _, v in data.variables.outputs %}
       {{ variables.outputs(v.name, v.value, v.desc) | indent(6) }}
       {% endfor %}
     {% endif %}
 
 jobs:
-  setup:
-    {{ actions.init | indent(4) }}
-      {{ init | indent(6) }}
-  lint:
-    needs: [setup]
-    {{ actions.init | indent(4) }}
-      {{ init | indent(6) }}
-      {{ lint | indent(6) }}
-  build:
-    needs: [lint]
-    {%- raw %}
-    outputs:
-      project: ${{ steps.environments.outputs.project }}
-      version: ${{ steps.environments.outputs.version }}
-    {% endraw %}
-    {{ actions.init | indent(4) }}
-      {{ init | indent(6) }}
-      {{ build | indent(6) }}
-      {{ env | indent(6) }}
-      {{ build | indent(6) }}
+  containerize:
+    {{ containerize.init | indent(4) }}
+      {{ actions.download(data.containerize.download.name, data.containerize.download.paths) | indent(6) }}
+      {{ containerize.env | indent(6) }}
+      {{ containerize.meta | indent(6) }}
+      {{ containerize.auth | indent(6) }}
+      {{ containerize.publish | indent(6) }}

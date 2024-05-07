@@ -1,16 +1,10 @@
 {
-  "workdir": "{{ inputs.node_workdir }}",
+  "workdir": "{{ inputs.workdir }}",
+  "rust_workdir": "{{ inputs.workdir }}/src-tauri",
   "variables": {
     "inputs": [
       {
-        "name": "rust_workdir",
-        "default": "./src-tauri",
-        "desc": "Specify all of rust steps where are run",
-        "type": "string",
-        "required": "false"
-      },
-      {
-        "name": "node_workdir",
+        "name": "workdir",
         "default": "./",
         "desc": "Specify all of node steps where are run",
         "type": "string",
@@ -58,13 +52,13 @@
       "version": "rust-tauri-ci"
     }
   },
-  "build_tauri": {
+  "build": {
     "upload": {
-      "name": "tauri-artifact",
+      "name": "target",
       "paths": [
-        "${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[0] }}",
-        "${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[1] }}",
-        "${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[2] }}"
+        "${{ inputs.workdir }}/src-tauri/target/release/${{ steps.environments.outputs.project }}",
+        "${{ inputs.workdir }}/src-tauri/target/default/report.xml",
+        "${{ inputs.workdir }}/src-tauri/target/cobertura.xml"
       ]
     }
   }

@@ -1,19 +1,13 @@
 {
-  "workdir": "{{ inputs.gradle_workdir }}",
+  "workdir": "{{ inputs.workdir }}",
   "variables": {
     "inputs": [
       {
-        "name": "gradle_workdir",
+        "name": "workdir",
         "default": "./",
         "desc": "Specify all of gradle-steps where are run",
         "type": "string",
         "required": "false"
-      },
-      {
-        "name": "user",
-        "required": "true",
-        "type": "string",
-        "desc": "publisher"
       },
       {
         "name": "PUBLISH_REPOSITORY_NAME",
@@ -28,13 +22,7 @@
         "desc": "publish destination repository url"
       }
     ],
-    "secrets": [
-      {
-        "name": "token",
-        "required": "true",
-        "desc": "publish token"
-      }
-    ],
+    "secrets": [],
     "outputs": []
   },
   "lint": {},
@@ -42,17 +30,13 @@
   "build": {
     "upload": {
       "name": "target",
-      "paths": [
-        "${{ inputs.gradle_workdir }}build/"
-      ]
+      "paths": ["${{ inputs.workdir }}build/"]
     }
   },
   "containerize": {
     "download": {
       "name": "target",
-      "paths": [
-        "${{ inputs.gradle_workdir }}build/"
-      ]
+      "paths": ["${{ inputs.workdir }}build/"]
     }
   }
 }

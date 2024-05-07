@@ -1,36 +1,41 @@
 on:
   workflow_call:
     inputs:
-      node_workdir:
+      workdir:
         required: false
         default: "./"
         type: "string"
         description: "Specify all of node steps where are run"
+
       node:
         required: false
         default: "lts/*"
         type: "string"
         description: "Specify node version, default: lts"
+
       build:
         required: false
         default: "build"
         type: "string"
         description: "Specify build command"
+
       test:
         required: false
         default: ""
         type: "string"
         description: "Specify test command"
 
+
 jobs:
   setup:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.node_workdir }}
+        working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node }}
@@ -51,7 +56,7 @@ jobs:
         with:
           # caching node_modules
           path: |
-            ${{ inputs.node_workdir }}node_modules
+            ${{ inputs.workdir }}node_modules
             **/node_modules
             **/.eslintcache
             ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
@@ -75,7 +80,7 @@ jobs:
         with:
           # caching node_modules
           path: |
-            ${{ inputs.node_workdir }}node_modules
+            ${{ inputs.workdir }}node_modules
             **/node_modules
             **/.eslintcache
             ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
@@ -86,10 +91,11 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.node_workdir }}
+        working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node }}
@@ -110,7 +116,7 @@ jobs:
         with:
           # caching node_modules
           path: |
-            ${{ inputs.node_workdir }}node_modules
+            ${{ inputs.workdir }}node_modules
             **/node_modules
             **/.eslintcache
             ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
@@ -134,7 +140,7 @@ jobs:
         with:
           # caching node_modules
           path: |
-            ${{ inputs.node_workdir }}node_modules
+            ${{ inputs.workdir }}node_modules
             **/node_modules
             **/.eslintcache
             ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
@@ -153,10 +159,11 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.node_workdir }}
+        working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node }}
@@ -177,7 +184,7 @@ jobs:
         with:
           # caching node_modules
           path: |
-            ${{ inputs.node_workdir }}node_modules
+            ${{ inputs.workdir }}node_modules
             **/node_modules
             **/.eslintcache
             ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
@@ -201,7 +208,7 @@ jobs:
         with:
           # caching node_modules
           path: |
-            ${{ inputs.node_workdir }}node_modules
+            ${{ inputs.workdir }}node_modules
             **/node_modules
             **/.eslintcache
             ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}

@@ -1,11 +1,15 @@
-{% macro init(workdir) -%}
+{% set init -%}
+{% raw -%}
 runs-on: ubuntu-latest
 defaults:
   run:
-    working-directory: ${{ workdir }}
+    working-directory: ${{ inputs.workdir }}
 steps:
   - uses: actions/checkout@v4
-{% endmacro %}
+    with:
+      fetch-depth: 0
+{%- endraw %}
+{% endset %}
 
 {% macro upload(name, paths=[]) -%}
 - name: upload {{ name }}

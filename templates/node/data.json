@@ -1,9 +1,8 @@
 {
-  "workdir": "{{ inputs.node_workdir }}",
 	"variables": {
 		"inputs": [
 			{
-				"name": "node_workdir",
+				"name": "workdir",
 				"default": "./",
 				"desc": "Specify all of node steps where are run",
 				"type": "string",
