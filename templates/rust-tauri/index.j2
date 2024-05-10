@@ -25,27 +25,6 @@ on:
     {% endif %}
 
 jobs:
-  setup:
-    {{ actions.init | indent(4) }}
-      {{ rust.init | indent(6) }}
-  lint:
-    needs: [setup]
-    {{ actions.init | indent(4) }}
-      {{ rust.init | indent(6) }}
-      {{ rust.lint | indent(6) }}
-  build:
-    needs: [lint]
-    {%- raw %}
-    outputs:
-      project: ${{ steps.environments.outputs.project }}
-      version: ${{ steps.environments.outputs.version }}
-    {% endraw %}
-    {{ actions.init | indent(4) }}
-      {{ rust.init | indent(6) }}
-      {{ rust.build | indent(6) }}
-      {{ rust.env | indent(6) }}
-      {{ rust.build | indent(6) }}
-      {{ actions.upload(data.build.upload.name, data.build.upload.paths) | indent(6) }}
   build-tauri:
     {{ rust_tauri.init | indent(4) }}
       {{ rust_tauri.apt_cache(data.setup.apt.version, data.setup.apt.packages) | indent(6) }}
