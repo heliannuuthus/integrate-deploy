@@ -76,9 +76,9 @@ jobs:
           GPR_USER: ${{ secrets.user }}
           GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: upload target
-        uses: actions/upload-artifact@v3
+      - name: upload targets
+        uses: actions/upload-artifact@v4
         with:
-          name: target
+          name: targets
           path: |
               ${{ inputs.workdir }}build/

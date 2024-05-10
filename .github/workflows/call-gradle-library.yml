@@ -83,7 +83,7 @@ jobs:
           GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: upload target
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: target
           path: |

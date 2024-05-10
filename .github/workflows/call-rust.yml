@@ -192,10 +192,10 @@ jobs:
 
       - name: build
         run: cargo install cargo-auditable && cargo auditable build --release
-      - name: upload target
-        uses: actions/upload-artifact@v3
+      - name: upload targets
+        uses: actions/upload-artifact@v4
         with:
-          name: target
+          name: targets
           path: |
               ${{ inputs.workdir }}target/release/${{ steps.environments.outputs.project }}
               ${{ inputs.workdir }}target/default/report.xml

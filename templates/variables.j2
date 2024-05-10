@@ -26,14 +26,3 @@ on:
   value: {{ '${{' }} {{ value }} {{ '}}' }}
   description: "{{ desc }}"
 {%- endmacro %}
-
-{% macro upload_artifact(name, paths=[]) -%}
-- name: upload target
-  uses: actions/upload-artifact@v4
-  with:
-    name: {{ name }}
-    path: |
-      {% for path in paths %}
-        {{ path }}
-      {% endfor %}
-{% endmacro %}

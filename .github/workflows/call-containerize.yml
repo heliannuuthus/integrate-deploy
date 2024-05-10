@@ -33,7 +33,7 @@ jobs:
           fetch-depth: 0
 
       - name: download targets
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: targets
           path: |

@@ -183,7 +183,7 @@ jobs:
           tree
 
       - name: upload gosec-report
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: gosec-report
           path: |
@@ -240,7 +240,7 @@ jobs:
           key: ${{ runner.os }}-golang-store-${{ env.cache-name }}-${{ hashFiles('**/go.sum') }}
 
       - name: download gosec-report
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: gosec-report
           path: |
@@ -268,9 +268,9 @@ jobs:
         run: |
           go test -gcflags="all=-N -l" -coverprofile=build/coverage.out -covermode count -json -v ./... 2>&1 | tee build/test.json | gotestfmt
           go-junit-report -parser gojson -in build/test.json -out build/report.xml
-      - name: upload target
-        uses: actions/upload-artifact@v3
+      - name: upload targets
+        uses: actions/upload-artifact@v4
         with:
-          name: target
+          name: targets
           path: |
               ${{ inputs.workdir }}build/
