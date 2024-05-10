@@ -17,9 +17,6 @@ jobs:
       contents: read
       packages: write
     with:
-      gradle_workdir: "tests/gradle-library/"
-      user: ${{ github.actor }}
+      workdir: "tests/gradle-library/"
       PUBLISH_REPOSITORY_NAME: ${{ vars.PUBLISH_REPOSITORY_NAME }}
       PUBLISH_REPOSITORY_URL: ${{ vars.PUBLISH_REPOSITORY_URL }}
-    secrets:
-      token: ${{ secrets.GITHUB_TOKEN }}

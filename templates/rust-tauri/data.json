@@ -1,16 +1,10 @@
 {
-  "workdir": "{{ inputs.node_workdir }}",
+  "workdir": "{{ inputs.workdir }}",
+  "rust_workdir": "{{ inputs.workdir }}/src-tauri",
   "variables": {
     "inputs": [
       {
-        "name": "rust_workdir",
-        "default": "./src-tauri",
-        "desc": "Specify all of rust steps where are run",
-        "type": "string",
-        "required": "false"
-      },
-      {
-        "name": "node_workdir",
+        "name": "workdir",
         "default": "./",
         "desc": "Specify all of node steps where are run",
         "type": "string",
@@ -56,16 +50,6 @@
         "patchelf"
       ],
       "version": "rust-tauri-ci"
-    }
-  },
-  "build_tauri": {
-    "upload": {
-      "name": "tauri-artifact",
-      "paths": [
-        "${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[0] }}",
-        "${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[1] }}",
-        "${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[2] }}"
-      ]
     }
   }
 }

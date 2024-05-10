@@ -1,17 +1,19 @@
-{% macro init(workdir) -%}
+{% set init -%}
+{% raw -%}
 runs-on: ubuntu-latest
 defaults:
   run:
-    working-directory: ${{ workdir }}
+    working-directory: ${{ inputs.workdir }}
 steps:
   - uses: actions/checkout@v4
     with:
       fetch-depth: 0
-{% endmacro %}
+{% endraw %}
+{% endset %}
 
 {% macro upload(name, paths=[]) -%}
 - name: upload {{ name }}
-  uses: actions/upload-artifact@v3
+  uses: actions/upload-artifact@v4
   with:
     name: {{ name }}
     path: |
@@ -22,7 +24,7 @@ steps:
 
 {% macro download(name, paths=[]) -%}
 - name: download {{ name }}
-  uses: actions/download-artifact@v3
+  uses: actions/download-artifact@v4
   with:
     name: {{ name }}
     path: |

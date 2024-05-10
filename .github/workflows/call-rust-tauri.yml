@@ -1,36 +1,36 @@
 on:
   workflow_call:
     inputs:
-      rust_workdir:
-        required: false
-        default: "./src-tauri"
-        type: "string"
-        description: "Specify all of rust steps where are run"
-      node_workdir:
+      workdir:
         required: false
         default: "./"
         type: "string"
         description: "Specify all of node steps where are run"
+
       node:
         required: false
         default: "lts/*"
         type: "string"
         description: "Specify node version, default: lts"
+
       toolchain:
         required: false
         default: "stable"
         type: "string"
         description: "Specify rust toolchain version, default: stable"
+
       build:
         required: false
         default: "build"
         type: "string"
         description: "Specify build command"
+
       test:
         required: false
         default: ""
         type: "string"
         description: "Specify test command"
+
 
 jobs:
   build-tauri:
@@ -53,11 +53,12 @@ jobs:
     runs-on: ${{ matrix.platform }}
     defaults:
       run:
-        working-directory: ${{ inputs.node_workdir }}
+        working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: linux install dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         if: matrix.platform == 'ubuntu-latest'
@@ -86,7 +87,7 @@ jobs:
         with:
           # caching node_modules
           path: |
-            ${{ inputs.node_workdir }}node_modules
+            ${{ inputs.workdir }}node_modules
             **/node_modules
             **/.eslintcache
             ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
@@ -110,7 +111,7 @@ jobs:
         with:
           # caching node_modules
           path: |
-            ${{ inputs.node_workdir }}node_modules
+            ${{ inputs.workdir }}node_modules
             **/node_modules
             **/.eslintcache
             ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
@@ -122,15 +123,10 @@ jobs:
           toolchain: ${{ inputs.toolchain }}
           targets: ${{ matrix.target }}
 
-      - name: install stable toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: ${{ matrix.target }}
-
       - name: rust cache
         uses: swatinem/rust-cache@v2
         with:
-          workspaces: "${{ inputs.node_workdir }}/src-tauri"
+          workspaces: "${{ inputs.workdir }}/src-tauri"
           cache-targets: false
 
       - name: install frontend dependencies
@@ -163,12 +159,3 @@ jobs:
           releaseDraft: true
           prerelease: false
           args: --target ${{ matrix.target }}
-
-      - name: upload tauri-artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: tauri-artifact
-          path: |
-              ${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[0] }}
-              ${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[1] }}
-              ${{ fromJSON(steps.tauri-action.outputs.artifactPaths)[2] }}

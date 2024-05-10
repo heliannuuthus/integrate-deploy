@@ -12,5 +12,4 @@ jobs:
       contents: write
       packages: write
     with:
-      rust_workdir: "tests/node/src-tauri"
-      node_workdir: "tests/node/"
+      workdir: "tests/node/"

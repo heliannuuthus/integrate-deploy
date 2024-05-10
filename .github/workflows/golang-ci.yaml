@@ -13,6 +13,16 @@ jobs:
       contents: read
       packages: write
     with:
-      golang_workdir: "tests/golang/"
-      container_workdir: "tests/golang/"
+      workdir: "tests/golang/"
       ENTRANCE: cmd/main.go
+
+  containerize:
+    needs: ["project"]
+    uses: ./.github/workflows/call-containerize.yml
+    permissions:
+      contents: read
+      packages: write
+    with:
+      workdir: "tests/golang/"
+      version: ${{ needs.project.outputs.version }}
+      targets: "tests/golang/build"

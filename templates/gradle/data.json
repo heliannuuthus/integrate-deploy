@@ -1,44 +1,29 @@
 {
-  "workdir": "{{ inputs.gradle_workdir }}",
   "variables": {
     "inputs": [
       {
-        "name": "gradle_workdir",
+        "name": "workdir",
         "default": "./",
         "desc": "Specify all of gradle steps where are run",
         "type": "string",
         "required": "false"
-      },
-      {
-        "name": "container_workdir",
-        "default": "./",
-        "desc": "Specify all of container steps where are run",
-        "type": "string",
-        "required": "false"
       }
     ],
-    "secrets": [
-    ],
-    "outputs": []
+    "secrets": [],
+    "outputs": [
+      {
+        "name": "version",
+        "desc": "major version",
+        "value": "jobs.build.outputs.version"
+      }
+    ]
   },
-  "lint": {
-  },
-  "security": {
-  },
+  "lint": {},
+  "security": {},
   "build": {
     "upload": {
-      "name": "target",
-      "paths": [
-        "${{ inputs.gradle_workdir }}build/"
-      ]
-    }
-  },
-  "containerize": {
-    "download": {
-      "name": "target",
-      "paths": [
-        "${{ inputs.gradle_workdir }}build/"
-      ]
+      "name": "targets",
+      "paths": ["${{ inputs.workdir }}build/"]
     }
   }
 }

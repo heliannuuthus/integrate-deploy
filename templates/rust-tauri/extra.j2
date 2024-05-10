@@ -1,4 +1,4 @@
-{% macro init(workdir) -%}
+{% set init -%}
 {%- raw %}
 permissions:
   contents: write
@@ -16,15 +16,15 @@ strategy:
         target: "x86_64-pc-windows-msvc"
 
 runs-on: ${{ matrix.platform }}
-{% endraw -%}
 defaults:
   run:
-    working-directory: ${{ workdir }}
+    working-directory: ${{ inputs.workdir }}
 steps:
   - uses: actions/checkout@v4
     with:
       fetch-depth: 0
-{%- endmacro %}
+{% endraw -%}
+{%- endset %}
 
 {% macro apt_cache(version, packages=[]) -%}
 - name: linux install dependencies
@@ -44,15 +44,10 @@ steps:
     toolchain: ${{ inputs.toolchain }}
     targets: ${{ matrix.target }}
 
-- name: install stable toolchain
-  uses: dtolnay/rust-toolchain@stable
-  with:
-    targets: ${{ matrix.target }}
-
 - name: rust cache
   uses: swatinem/rust-cache@v2
   with:
-    workspaces: "${{ inputs.node_workdir }}/src-tauri"
+    workspaces: "${{ inputs.workdir }}/src-tauri"
     cache-targets: false
 
 - name: install frontend dependencies

@@ -5,8 +5,8 @@
   env:
     PUBLISH_REPOSITORY_NAME: ${{ inputs.PUBLISH_REPOSITORY_NAME }}
     PUBLISH_REPOSITORY_URL: ${{ inputs.PUBLISH_REPOSITORY_URL }}
-    GPR_USER: ${{ inputs.user }}
-    GPR_TOKEN: ${{ secrets.token }}
+    GPR_USER: ${{ github.actor }}
+    GPR_TOKEN: ${{ github.token }}
 {% endraw %}
 {%- endset %}
 

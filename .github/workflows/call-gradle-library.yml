@@ -1,34 +1,29 @@
 on:
   workflow_call:
     inputs:
-      gradle_workdir:
+      workdir:
         required: false
         default: "./"
         type: "string"
         description: "Specify all of gradle-steps where are run"
-      user:
-        required: true
-        type: "string"
-        description: "publisher"
+
       PUBLISH_REPOSITORY_NAME:
         required: true
         type: "string"
         description: "publish destination repository name"
+
       PUBLISH_REPOSITORY_URL:
         required: true
         type: "string"
         description: "publish destination repository url"
-    secrets:
-      token:
-        required: false
-        description: "publish token"
+
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.gradle_workdir }}
+        working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -57,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.gradle_workdir }}
+        working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -88,18 +83,18 @@ jobs:
           GPR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: upload target
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: target
           path: |
-              ${{ inputs.gradle_workdir }}build/
+              ${{ inputs.workdir }}build/
 
   publish:
     needs: [build]
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ${{ inputs.gradle_workdir }}
+        working-directory: ${{ inputs.workdir }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -119,6 +114,6 @@ jobs:
         env:
           PUBLISH_REPOSITORY_NAME: ${{ inputs.PUBLISH_REPOSITORY_NAME }}
           PUBLISH_REPOSITORY_URL: ${{ inputs.PUBLISH_REPOSITORY_URL }}
-          GPR_USER: ${{ inputs.user }}
-          GPR_TOKEN: ${{ secrets.token }}
+          GPR_USER: ${{ github.actor }}
+          GPR_TOKEN: ${{ github.token }}
 

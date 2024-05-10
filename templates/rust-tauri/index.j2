@@ -26,10 +26,9 @@ on:
 
 jobs:
   build-tauri:
-    {{ rust_tauri.init(data.workdir) | indent(4) }}
+    {{ rust_tauri.init | indent(4) }}
       {{ rust_tauri.apt_cache(data.setup.apt.version, data.setup.apt.packages) | indent(6) }}
       {{ node.init | indent(6) }}
       {{ rust_tauri.toolchain_cache | indent(6) }}
       {{ rust.env | indent(6) }}
       {{ rust_tauri.tauri | indent(6) }}
-      {{ actions.upload(data.build_tauri.upload.name, data.build_tauri.upload.paths) | indent(6) }}

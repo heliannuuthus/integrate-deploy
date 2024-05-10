@@ -10,7 +10,9 @@ on:
   default: "{{ default }}"
   {% endif %}
   type: "{{ type }}"
+   {% if desc != "" %}
   description: "{{ desc }}"
+  {% endif %}
 {%- endmacro %}
 
 {% macro secrets(name, desc='', required='false') -%}
@@ -19,19 +21,8 @@ on:
   description: "{{ desc }}"
 {%- endmacro %}
 
-{% macro outputs(name, value="", required='false') -%}
+{% macro outputs(name, value='', desc='') -%}
 {{ name }}:
-  required: {{ required }}
   value: {{ '${{' }} {{ value }} {{ '}}' }}
+  description: "{{ desc }}"
 {%- endmacro %}
-
-{% macro upload_artifact(name, paths=[]) -%}
-- name: upload target
-  uses: actions/upload-artifact@v4
-  with:
-    name: {{ name }}
-    path: |
-      {% for path in paths %}
-        {{ path }}
-      {% endfor %}
-{% endmacro %}

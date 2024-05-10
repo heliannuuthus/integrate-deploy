@@ -20,7 +20,7 @@
   with:
     # caching node_modules
     path: |
-      ${{ inputs.node_workdir }}node_modules
+      ${{ inputs.workdir }}node_modules
       **/node_modules
       **/.eslintcache
       ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}
@@ -44,7 +44,7 @@
   with:
     # caching node_modules
     path: |
-      ${{ inputs.node_workdir }}node_modules
+      ${{ inputs.workdir }}node_modules
       **/node_modules
       **/.eslintcache
       ${{ steps.pnpm-cache-dir.outputs.PNPM_STORE }}

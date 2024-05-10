@@ -1,6 +1,5 @@
 {%- import 'variables.j2' as variables -%}
 {%- import 'actions.j2' as actions  -%}
-{%- import 'containerize.j2' as containerize -%}
 {%- from 'golang/extra.j2' import setup, init, cache, env, lint, sec_scan, build -%}
 on:
   workflow_call:
@@ -18,23 +17,23 @@ on:
     {% endif %}
     {% if data.variables.outputs | length > 0 %}
     outputs:
-      {% for _, v in data.variables.outputs %}
-      {{ variables.outputs(v.name, v.value, v.required) | indent(6) }}
+      {% for v in data.variables.outputs %}
+      {{ variables.outputs(v.name, v.value, v.desc) | indent(6) }}
       {% endfor %}
     {% endif %}
 
 jobs:
   setup:
-    {{ actions.init(data.workdir) | indent(4) }}
+    {{ actions.init | indent(4) }}
       {{ init | indent(6) }}
   lint:
     needs: [setup]
-    {{ actions.init(data.workdir) | indent(4) }}
+    {{ actions.init | indent(4) }}
       {{ init | indent(6) }}
       {{ lint | indent(6) }}
   security:
     needs: [setup]
-    {{ actions.init(data.workdir) | indent(4) }}
+    {{ actions.init | indent(4) }}
       {{ init | indent(6) }}
       {{ sec_scan | indent(6) }}
       {{ actions.upload(data.security.upload.name, data.security.upload.paths) | indent(6) }}
@@ -45,17 +44,9 @@ jobs:
       project: ${{ steps.environments.outputs.project }}
       version: ${{ steps.environments.outputs.version }}
     {% endraw %}
-    {{ actions.init(data.workdir) | indent(4) }}
+    {{ actions.init | indent(4) }}
       {{ init | indent(6) }}
       {{ actions.download(data.build.download.name, data.build.download.paths) | indent(6) }}
       {{ env | indent(6) }}
       {{ build | indent(6) }}
       {{ actions.upload(data.build.upload.name, data.build.upload.paths) | indent(6) }}
-  containerize:
-    needs: [build]
-    {{ containerize.init | indent(4) }}
-      {{ actions.download(data.containerize.download.name, data.containerize.download.paths) | indent(6) }}
-      {{ containerize.env | indent(6) }}
-      {{ containerize.meta | indent(6) }}
-      {{ containerize.auth | indent(6) }}
-      {{ containerize.publish | indent(6) }}

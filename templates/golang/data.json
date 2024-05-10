@@ -1,18 +1,10 @@
 {
-  "workdir": "{{ inputs.golang_workdir }}",
   "variables": {
     "inputs": [
       {
-        "name": "golang_workdir",
+        "name": "workdir",
         "default": "./",
         "desc": "Specify all of golang steps where are run",
-        "type": "string",
-        "required": "false"
-      },
-      {
-        "name": "container_workdir",
-        "default": "./",
-        "desc": "Specify all of container steps where are run",
         "type": "string",
         "required": "false"
       },
@@ -38,40 +30,30 @@
         "required": "false"
       }
     ],
-    "secrets": [
-    ],
-    "outputs": []
+    "secrets": [],
+    "outputs": [
+      {
+        "name": "version",
+        "desc": "major version",
+        "value": "jobs.build.outputs.version"
+      }
+    ]
   },
-  "lint": {
-  },
+  "lint": {},
   "security": {
     "upload": {
       "name": "gosec-report",
-      "paths": [
-        "${{ inputs.golang_workdir }}build/gosec-report.json"
-      ]
+      "paths": ["${{ inputs.workdir }}build/gosec-report.json"]
     }
   },
   "build": {
     "download": {
       "name": "gosec-report",
-      "paths": [
-        "${{ inputs.golang_workdir }}build/gosec-report.json"
-      ]
+      "paths": ["${{ inputs.workdir }}build/gosec-report.json"]
     },
     "upload": {
-      "name": "target",
-      "paths": [
-        "${{ inputs.golang_workdir }}build/"
-      ]
-    }
-  },
-  "containerize": {
-    "download": {
-      "name": "target",
-      "paths": [
-        "${{ inputs.golang_workdir }}build/"
-      ]
+      "name": "targets",
+      "paths": ["${{ inputs.workdir }}build/"]
     }
   }
 }
