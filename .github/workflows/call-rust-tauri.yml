@@ -42,6 +42,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: restore rust cache
         uses: actions/cache/restore@v4
         id: cache-restore-cargo
@@ -88,6 +89,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: restore rust cache
         uses: actions/cache/restore@v4
         id: cache-restore-cargo
@@ -143,6 +145,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: restore rust cache
         uses: actions/cache/restore@v4
         id: cache-restore-cargo

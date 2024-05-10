@@ -29,6 +29,8 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: download targets
         uses: actions/download-artifact@v3
