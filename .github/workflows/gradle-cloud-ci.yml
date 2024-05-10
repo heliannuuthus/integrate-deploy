@@ -14,7 +14,7 @@ jobs:
       packages: write
     with:
       workdir: "tests/gradle-cloud/"
-      
+
   containerize:
     needs: ["project"]
     uses: ./.github/workflows/call-containerize.yml
@@ -24,4 +24,4 @@ jobs:
     with:
       workdir: "tests/gradle-cloud/"
       version: ${{ needs.project.outputs.version }}
-      targets: "tests/gradle-cloud/target"
+      targets: "tests/gradle-cloud/build"
