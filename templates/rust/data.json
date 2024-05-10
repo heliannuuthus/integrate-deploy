@@ -22,18 +22,12 @@
   "security": {},
   "build": {
     "upload": {
-      "name": "target",
+      "name": "targets",
       "paths": [
         "${{ inputs.workdir }}target/release/${{ steps.environments.outputs.project }}",
         "${{ inputs.workdir }}target/default/report.xml",
         "${{ inputs.workdir }}target/cobertura.xml"
       ]
-    }
-  },
-  "containerize": {
-    "download": {
-      "name": "target",
-      "paths": ["${{ inputs.workdir }}target/"]
     }
   }
 }

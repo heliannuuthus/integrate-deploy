@@ -51,15 +51,5 @@
       ],
       "version": "rust-tauri-ci"
     }
-  },
-  "build": {
-    "upload": {
-      "name": "target",
-      "paths": [
-        "${{ inputs.workdir }}/src-tauri/target/release/${{ steps.environments.outputs.project }}",
-        "${{ inputs.workdir }}/src-tauri/target/default/report.xml",
-        "${{ inputs.workdir }}/src-tauri/target/cobertura.xml"
-      ]
-    }
   }
 }

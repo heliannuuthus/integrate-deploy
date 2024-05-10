@@ -22,13 +22,7 @@
   "security": {},
   "build": {
     "upload": {
-      "name": "target",
-      "paths": ["${{ inputs.workdir }}build/"]
-    }
-  },
-  "containerize": {
-    "download": {
-      "name": "target",
+      "name": "targets",
       "paths": ["${{ inputs.workdir }}build/"]
     }
   }
