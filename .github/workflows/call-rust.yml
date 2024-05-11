@@ -23,6 +23,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: linux install dependencies
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libwebkit2gtk-4.0-dev build-essential curl wget libglib2.0-dev libssl-dev libgtk-3-dev libappindicator3-dev librsvg2-dev libappindicator-dev libgdk3.0-cil libatk1.0-dev 
+          version: rust-ci
+          execute_install_scripts: true
+
       - name: restore rust cache
         uses: actions/cache/restore@v4
         id: cache-restore-cargo
@@ -69,6 +76,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: linux install dependencies
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libwebkit2gtk-4.0-dev build-essential curl wget libglib2.0-dev libssl-dev libgtk-3-dev libappindicator3-dev librsvg2-dev libappindicator-dev libgdk3.0-cil libatk1.0-dev 
+          version: rust-ci
+          execute_install_scripts: true
 
       - name: restore rust cache
         uses: actions/cache/restore@v4
@@ -125,6 +139,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: linux install dependencies
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: libwebkit2gtk-4.0-dev build-essential curl wget libglib2.0-dev libssl-dev libgtk-3-dev libappindicator3-dev librsvg2-dev libappindicator-dev libgdk3.0-cil libatk1.0-dev 
+          version: rust-ci
+          execute_install_scripts: true
 
       - name: restore rust cache
         uses: actions/cache/restore@v4
