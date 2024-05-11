@@ -45,5 +45,4 @@ jobs:
       {{ init | indent(6) }}
       {{ build | indent(6) }}
       {{ env | indent(6) }}
-      {{ build | indent(6) }}
       {{ actions.upload(data.build.upload.name, data.build.upload.paths) | indent(6) }}
