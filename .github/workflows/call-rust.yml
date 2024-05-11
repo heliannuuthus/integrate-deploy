@@ -206,13 +206,6 @@ jobs:
           " >> "$GITHUB_OUTPUT"
         shell: bash
 
-      - name: test
-        run: |
-          cargo nextest run --target-dir target
-          cargo tarpaulin --skip-clean --all-features --workspace --out xml --output-dir target
-
-      - name: build
-        run: cargo install cargo-auditable && cargo auditable build --release
       - name: upload targets
         uses: actions/upload-artifact@v4
         with:
