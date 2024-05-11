@@ -7,6 +7,18 @@ on:
         type: "string"
         description: "Specify all of rust steps where are run"
 
+      toolchain:
+        required: false
+        default: "nightly"
+        type: "string"
+        description: "Specify rust toolchain"
+
+      targets:
+        required: false
+        default: "x86_64-unknown-linux-gnu"
+        type: "string"
+        description: "Specify rust toolchain"
+
     outputs:
       version:
         value: ${{ jobs.build.outputs.version }}
@@ -30,41 +42,24 @@ jobs:
           version: rust-ci
           execute_install_scripts: true
 
-      - name: restore rust cache
-        uses: actions/cache/restore@v4
-        id: cache-restore-cargo
-        env:
-          cache-name: cache-cargo
+      - name: install stable toolchain
+        uses: dtolnay/rust-toolchain@master
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-rust-store-${{ env.cache-name }}-
-      - name: setup
-        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-        run: |
-          rustup component add rustfmt clippy
-          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
+          toolchain: ${{ inputs.toolchain }}
+          targets: ${{ inputs.targets }}
+          components: clippy, rustfmt
 
-      - name: cache cargo
-        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-        id: cache-save-cargo
-        uses: actions/cache/save@v4
-        env:
-          cache-name: cache-cargo
+      - name: rust cache
+        id: rust-cache
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          workspaces: "${{ inputs.workdir }}"
+          cache-targets: "false"
+          cache-all-crates: "true"
+
+      - name: setup tools
+        run: |
+          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
 
   lint:
     needs: [setup]
@@ -84,41 +79,24 @@ jobs:
           version: rust-ci
           execute_install_scripts: true
 
-      - name: restore rust cache
-        uses: actions/cache/restore@v4
-        id: cache-restore-cargo
-        env:
-          cache-name: cache-cargo
+      - name: install stable toolchain
+        uses: dtolnay/rust-toolchain@master
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-rust-store-${{ env.cache-name }}-
-      - name: setup
-        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-        run: |
-          rustup component add rustfmt clippy
-          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
+          toolchain: ${{ inputs.toolchain }}
+          targets: ${{ inputs.targets }}
+          components: clippy, rustfmt
 
-      - name: cache cargo
-        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-        id: cache-save-cargo
-        uses: actions/cache/save@v4
-        env:
-          cache-name: cache-cargo
+      - name: rust cache
+        id: rust-cache
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          workspaces: "${{ inputs.workdir }}"
+          cache-targets: "false"
+          cache-all-crates: "true"
+
+      - name: setup tools
+        run: |
+          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
 
       - name: lint
         run: |
@@ -147,41 +125,24 @@ jobs:
           version: rust-ci
           execute_install_scripts: true
 
-      - name: restore rust cache
-        uses: actions/cache/restore@v4
-        id: cache-restore-cargo
-        env:
-          cache-name: cache-cargo
+      - name: install stable toolchain
+        uses: dtolnay/rust-toolchain@master
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-rust-store-${{ env.cache-name }}-
-      - name: setup
-        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-        run: |
-          rustup component add rustfmt clippy
-          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
+          toolchain: ${{ inputs.toolchain }}
+          targets: ${{ inputs.targets }}
+          components: clippy, rustfmt
 
-      - name: cache cargo
-        if: ${{ steps.cache-restore-cargo.outputs.cache-hit != 'true' }}
-        id: cache-save-cargo
-        uses: actions/cache/save@v4
-        env:
-          cache-name: cache-cargo
+      - name: rust cache
+        id: rust-cache
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-rust-store-${{ env.cache-name }}-${{ hashFiles('**/Cargo.lock') }}
+          workspaces: "${{ inputs.workdir }}"
+          cache-targets: "false"
+          cache-all-crates: "true"
+
+      - name: setup tools
+        run: |
+          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
 
       - name: test
         run: |
