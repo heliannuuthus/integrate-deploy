@@ -59,7 +59,7 @@ jobs:
 
       - name: setup tools
         run: |
-          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
+          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest --locked
 
   lint:
     needs: [setup]
@@ -96,7 +96,7 @@ jobs:
 
       - name: setup tools
         run: |
-          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
+          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest --locked
 
       - name: lint
         run: |
@@ -142,7 +142,7 @@ jobs:
 
       - name: setup tools
         run: |
-          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest
+          cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest --locked
 
       - name: test
         run: |
