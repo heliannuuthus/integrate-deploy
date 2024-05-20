@@ -17,7 +17,11 @@
 
 - name: setup tools
   run: |
-    cargo install cargo-audit cargo2junit cargo-tarpaulin cargo-nextest --locked
+    cargo install cargo-audit --version 0.20.0
+    cargo install cargo-auditable--version 0.6.2
+    cargo install cargo2junit --version 0.1.13
+    cargo install cargo-tarpaulin --version 0.29.2
+    cargo install cargo-nextest --version 0.9.70
 {% endraw %}
 {%- endset %}
 
